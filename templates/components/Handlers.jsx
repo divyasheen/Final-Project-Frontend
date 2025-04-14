@@ -1,5 +1,5 @@
 // *-*-*-*-*-*-* handleClick() - for forms *-*-*-*-*-*-*
-//First create useState which sets the data 
+//First create useState (-> ./Hooks.jsx) which sets the data or use a context (-> ./contexts)
 const handleChange = (e) => {
     setThisData({
       ...thisData,
@@ -7,7 +7,7 @@ const handleChange = (e) => {
     });
   };
 
-  // insiert this function into eacht input of your form
+  // insert this function into each input of your form
 
 // *-*-*-*-*-*-* handleSubmit() *-*-*-*-*-*-*
 const handleSubmit = (e) => {

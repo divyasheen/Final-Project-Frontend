@@ -1,4 +1,6 @@
-/* DISCLAIMER: Strings which start and end with "0_0" are placeholders. Please insert the informations you need for your project. */
+/* DISCLAIMER: 
+Strings which start and end with "0_0" are placeholders. Please insert the informations you need for your project. 
+*/
 
 // *-*-*-*-*-*-* useState() - for forms *-*-*-*-*-*-*
 const [thisData, setThisData] = useState({
