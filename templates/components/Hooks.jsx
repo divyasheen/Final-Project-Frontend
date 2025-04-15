@@ -11,6 +11,7 @@ const [thisData, setThisData] = useState({
     // ...
   });
 
+
 // *-*-*-*-*-*-* useEffect() - for fetching  *-*-*-*-*-*-*
 useEffect(() => {
     fetch("0_0 YOUR URL HERE (API, DATABASE OR .ENV) 0_0")
@@ -20,16 +21,37 @@ useEffect(() => {
   }, []); // JB: ",[]" for fetching after each rendering of the component
 
 
-// *-*-*-*-*-*-*  *-*-*-*-*-*-*
+// *-*-*-*-*-*-* useEffect - once *-*-*-*-*-*-*
+useEffect(() => {
+
+    // insert logic here
+
+}, [])
 
 
-// *-*-*-*-*-*-*  *-*-*-*-*-*-*
+// *-*-*-*-*-*-* useEffect - on state change *-*-*-*-*-*-*
+useEffect(() => {
+
+    // insert logic here
+
+}, [stateName])
 
 
-// *-*-*-*-*-*-*  *-*-*-*-*-*-*
+// *-*-*-*-*-*-* useEffect - on unmount *-*-*-*-*-*-*
+useEffect(() => {
+    return() => {
 
+        // insert logic here
+        
+    }
+})
 
-// *-*-*-*-*-*-*  *-*-*-*-*-*-*
+// *-*-*-*-*-*-* useEffect - after every render *-*-*-*-*-*-*
+useEffect (() => {
+
+    // insert logic here
+
+})
 
 
 // *-*-*-*-*-*-*  *-*-*-*-*-*-*
