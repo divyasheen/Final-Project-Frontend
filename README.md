@@ -10,3 +10,7 @@
     - Routes
 - Tailwind
 - CSS
+
+
+## TailWind cheatsheet 
+(Tailwind)[https://nerdcave.com/tailwind-cheat-sheet]
