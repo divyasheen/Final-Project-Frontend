@@ -1,6 +1,6 @@
 import React from "react";
 import Frame3 from "../../assets/images/Frame3.png";
-import { NavLink } from "react-router";
+import { NavLink } from "react-router-dom";
 const LandingPage = () => {
   return (
     <section className="bg-background min-h-screen flex flex-col">
