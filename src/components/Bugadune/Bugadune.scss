@@ -1,0 +1,17 @@
+.bugadune-container {
+    padding: 1rem;
+  
+    .run-btn {
+      margin: 0.5rem 0;
+    }
+  
+    .console-output {
+      background: #111;
+      color: #0f0;
+      padding: 0.5rem;
+      height: 20vh;
+      overflow: auto;
+      border-radius: 4px;
+    }
+  }
+  
