@@ -7,6 +7,15 @@ import CSSCrypta    from './components/CSSCrypta/CSSCrypta';
 import Forumia      from './components/Forumia/Forumia';
 import Playground   from './components/Playground/Playground';
 import TowerOfAPIon from './components/TowerOfAPIon/TowerOfAPIon';
+//Pages
+import LandingPage from './components/LandingPage/LandingPage'
+import LoginPage from './components/Login/LoginPage';
+import RegisterPage from './components/Register/RegisterPage';
+// styling Files
+import './index.css'
+
+
+
 
 function App() {
   return (
@@ -21,6 +30,9 @@ function App() {
           ))}
       </nav>
       <Routes>
+        <Route path="/" element={<LandingPage />}/>
+        <Route path="/login" element={<LoginPage />}/>
+        <Route path="/register" element={<RegisterPage />}/>
         <Route path="/university"   element={<University   />} />
         <Route path="/bugadune"     element={<Bugadune     />} />
         <Route path="/csscrypta"    element={<CSSCrypta    />} />
