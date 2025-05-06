@@ -19,7 +19,7 @@ import './index.css'
 
 function App() {
   return (
-    <BrowserRouter>
+    <Routes>
       <nav style={{ padding: 10, background: '#eee' }}>
         {['university','bugadune','csscrypta','forumia','playground','towerofapion']
           .map(path => (
@@ -29,7 +29,7 @@ function App() {
             >{path}</Link>
           ))}
       </nav>
-      <Routes>
+     
         <Route path="/" element={<LandingPage />}/>
         <Route path="/login" element={<LoginPage />}/>
         <Route path="/register" element={<RegisterPage />}/>
@@ -41,7 +41,6 @@ function App() {
         <Route path="/towerofapion" element={<TowerOfAPIon />} />
         <Route path="*"             element={<University   />} />
       </Routes>
-    </BrowserRouter>
   );
 }
 
