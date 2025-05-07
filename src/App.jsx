@@ -19,16 +19,18 @@ import './index.css'
 
 function App() {
   return (
+    <>
+    <nav style={{ padding: 10, background: '#eee' }}>
+    {['university','bugadune','csscrypta','forumia','playground','towerofapion']
+      .map(path => (
+        <Link key={path}
+        to={`/${path}`}
+        style={{ margin: '0 8px' }}
+        >{path}</Link>
+      ))}
+  </nav>
     <Routes>
-      <nav style={{ padding: 10, background: '#eee' }}>
-        {['university','bugadune','csscrypta','forumia','playground','towerofapion']
-          .map(path => (
-            <Link key={path}
-                  to={`/${path}`}
-                  style={{ margin: '0 8px' }}
-            >{path}</Link>
-          ))}
-      </nav>
+     
      
         <Route path="/" element={<LandingPage />}/>
         <Route path="/login" element={<LoginPage />}/>
@@ -41,6 +43,7 @@ function App() {
         <Route path="/towerofapion" element={<TowerOfAPIon />} />
         <Route path="*"             element={<University   />} />
       </Routes>
+      </>
   );
 }
 
