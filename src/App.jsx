@@ -33,7 +33,7 @@ function App() {
         <Route path="/forumia" element={<Forumia />} />
         <Route path="/playground" element={<Playground />} />
         <Route path="/towerofapion" element={<TowerOfAPIon />} />
-        <Route path="/:user" element={<ProfilNav />} />
+        <Route path="/user" element={<ProfilNav />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
