@@ -15,44 +15,45 @@ nav {
 
     img {
       border-radius: 50px;
-      padding: 1rem;
-    }
-
-    p {
-      padding-bottom: 2rem;
-    }
-
-    ul {
-      background-color: blue;
-      position: absolute;
-      display: none;
-      right: 2rem;
-      width: 200px;
-      text-align: center;
-      list-style: none;
-      z-index: 10;
-
-      img {
-        margin: 1rem auto;
-      }
-
-      li {
-        padding: 1rem;
-        text-align: center;
-        color: white;
-
-      }
-
-      li:hover {
-        background-color: palegoldenrod;
-        cursor: pointer;
-      }
     }
   }
 
   .profilPic:hover {
     ul {
-      display: block;
+
+      display:block
+    }
+  }
+}
+
+.dropdown {
+  ul p {
+    padding-bottom: 2rem;
+  }
+
+  ul {
+    background-color: blue;
+    position: absolute;
+    display: none;
+    right: 2rem;
+    width: 200px;
+    text-align: center;
+    list-style: none;
+    z-index: 10;
+
+    img {
+      margin: 1rem auto;
+    }
+
+    li {
+      padding: 1rem;
+      text-align: center;
+      color: white;
+    }
+
+    li:hover {
+      background-color: palegoldenrod;
+      cursor: pointer;
     }
   }
 }
