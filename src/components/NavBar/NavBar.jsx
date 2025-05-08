@@ -33,14 +33,16 @@ const NavBar = () => {
           <div className={"dropdown"} >
           <img src="https://placekeanu.com/50/50/" alt="" /> {/* JB: Placeholder for BE-User-Pic */}
             <ul>
+            <img src="https://placekeanu.com/50/50/" alt="" />
+              <p>UserName</p>
               <li>
                 <NavLink to = {"/:user"}>Profil</NavLink>
               </li>
               <li>
                 <NavLink to = {"/:user/edit"}>Edit</NavLink>
               </li>
-              <li>
-                <button onClick = {logout}>Logout</button>
+              <li onClick = {logout}>
+                Logout
               </li>
             </ul>
           </div>
