@@ -13,8 +13,11 @@ import Forumia from "./components/Forumia/Forumia";
 import Playground from "./components/Playground/Playground";
 import TowerOfAPIon from "./components/TowerOfAPIon/TowerOfAPIon";
 import NotFoundPage from "./components/NotFoundPage/NotFoundPage";
+import ProfilNav from "./components/ProfilNav/ProfilNav";
+
 // styling Files
 import "./App.scss";
+
 
 function App() {
   return (
@@ -30,6 +33,7 @@ function App() {
         <Route path="/forumia" element={<Forumia />} />
         <Route path="/playground" element={<Playground />} />
         <Route path="/towerofapion" element={<TowerOfAPIon />} />
+        <Route path="/:user" element={<ProfilNav />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

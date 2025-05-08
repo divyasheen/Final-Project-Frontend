@@ -1,0 +1,49 @@
+nav {
+  padding: 0 2rem;
+  background: #eee;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .navRealm a {
+    margin: 0 8px;
+  }
+
+  .profilPic {
+    margin: 1rem;
+
+    img {
+      border-radius: 50px;
+    }
+    ul {
+      background-color: blue;
+      margin: 1rem 0;
+      position: absolute;
+      list-style: none;
+      display: none;
+      z-index: 10;
+
+      li {
+        display: block;
+        padding: 1rem;
+
+        a {
+          display: flex;
+          color: white;
+          text-decoration: none;
+          text-align: center;
+        }
+
+        a:hover {
+          background-color: palegoldenrod;
+        }
+      }
+    }
+  }
+  .profilPic:hover {
+    ul {
+      display: block;
+    }
+  }
+}
