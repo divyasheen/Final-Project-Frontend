@@ -3,6 +3,14 @@ import "./_navbar.scss";
 
 import { NavLink, Outlet } from "react-router-dom";
 const NavBar = () => {
+
+  const logout = () => {
+    // JB: clear token
+    window.localStorage.clear();
+    // JB: redirect to home
+    window.location.replace("/")
+   } ;
+
   return (
     <>
       <nav style={{}}>
@@ -26,13 +34,13 @@ const NavBar = () => {
           <img src="https://placekeanu.com/50/50/" alt="" /> {/* JB: Placeholder for BE-User-Pic */}
             <ul>
               <li>
-                <NavLink>Profil</NavLink>
+                <NavLink to = {"/:user"}>Profil</NavLink>
               </li>
               <li>
-                <NavLink>Edit</NavLink>
+                <NavLink to = {"/:user/edit"}>Edit</NavLink>
               </li>
               <li>
-                <NavLink>Logout</NavLink>
+                <button onClick = {logout}>Logout</button>
               </li>
             </ul>
           </div>
