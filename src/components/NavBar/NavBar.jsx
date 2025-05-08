@@ -1,8 +1,17 @@
 import React from "react";
 import "./_navbar.scss";
+import Footer from "../Footer/Footer";
 
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink} from "react-router-dom";
+
 const NavBar = () => {
+  const logout = () => {
+    // JB: clear token
+    window.localStorage.clear();
+    // JB: redirect to home
+    window.location.replace("/");
+  };
+
   return (
     <>
       <nav style={{}}>
@@ -21,24 +30,26 @@ const NavBar = () => {
             </NavLink>
           ))}
         </div>
+
         <div className={"profilPic"}>
-          <div className={"dropdown"} >
-          <img src="https://placekeanu.com/50/50/" alt="" /> {/* JB: Placeholder for BE-User-Pic */}
-            <ul>
-              <li>
-                <NavLink>Profil</NavLink>
-              </li>
-              <li>
-                <NavLink>Edit</NavLink>
-              </li>
-              <li>
-                <NavLink>Logout</NavLink>
-              </li>
-            </ul>
-          </div>
+          <img src="https://placekeanu.com/50/50/" alt="" />{" "}
+          {/* JB: Placeholder for BE-User-Pic */}
+          <div className={"dropdown"}>
+        <ul>
+          <img src="https://placekeanu.com/50/50/" alt="" />
+          <p>UserName</p>
+          <li>
+            <NavLink to={"/:user"}>Profil</NavLink>
+          </li>
+          <li>
+            <NavLink to={"/:user/edit"}>Edit</NavLink>
+          </li>
+          <li onClick={logout}>Logout</li>
+        </ul>
+      </div>
         </div>
+        
       </nav>
-      <Outlet />
     </>
   );
 };
