@@ -40,6 +40,7 @@ const LoginPage = () => {
               type="password"
               className="w-full border-b  px-4 py-2 text-white   focus:outline-none f bg-transparent"
               placeholder="••••••••"
+              autoComplete="off"
             />
             <div className="text-white flex flex-col gap-3 sm:flex-row items-center mt-4  md:mt-4 justify-between text-xs ">
               <label className="flex  items-center">
@@ -54,7 +55,7 @@ const LoginPage = () => {
 
           <button
             type="submit"
-            className="w-full bg-accent font-vt323 md:text-xl  font-bold  py-2 rounded-md hover:bg-opacity-90 transition"
+            className="w-full bg-accent font-vt323 md:text-2xl    py-2 rounded-md hover:bg-opacity-90 transition"
           >
             LogIn
           </button>
