@@ -22,7 +22,7 @@ const NavBar = () => {
           ))}
         </div>
         <div className={"profilPic"}>
-          <NavLink className={"dropdown"} >
+          <div className={"dropdown"} >
           <img src="https://placekeanu.com/50/50/" alt="" /> {/* JB: Placeholder for BE-User-Pic */}
             <ul>
               <li>
@@ -35,7 +35,7 @@ const NavBar = () => {
                 <NavLink>Logout</NavLink>
               </li>
             </ul>
-          </NavLink>
+          </div>
         </div>
       </nav>
       <Outlet />
