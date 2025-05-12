@@ -1,0 +1,164 @@
+// Variables
+$primary-color: #333;
+$secondary-color: #555;
+$active-bg-color: #f0f0f0;
+$hover-bg-color: #e0e0e0;
+$border-color: #eee;
+$success-color: #4CAF50;
+$info-color: #2196F3;
+$table-border-color: #ddd;
+$white: #fff;
+
+// Base styles
+.university {
+  font-family: Arial, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid $border-color;
+  }
+
+  &__logo {
+    height: 60px;
+    margin-right: 20px;
+  }
+
+  &__title {
+    font-size: 24px;
+    color: $primary-color;
+    margin: 0;
+  }
+
+  &__content {
+    display: flex;
+  }
+
+  // Sidebar styles
+  &__sidebar {
+    width: 250px;
+    padding-right: 20px;
+    border-right: 1px solid $border-color;
+  }
+
+  // Main content styles
+  &__main {
+    flex: 1;
+    padding-left: 30px;
+  }
+
+  &__chapter-title {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: $primary-color;
+  }
+
+  &__lesson-title {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: $secondary-color;
+  }
+
+  &__empty-message {
+    color: $secondary-color;
+    font-style: italic;
+  }
+
+  &__edit-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: $success-color;
+    color: $white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: color.adjust($success-color, $lightness: -10%);
+    }
+  }
+}
+
+// Chapter styles
+.chapter {
+  margin-bottom: 20px;
+
+  &__title {
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 8px 10px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    margin: 0;
+
+    &:hover, &--active {
+      background-color: $active-bg-color;
+    }
+  }
+}
+
+// Lesson list styles
+.lesson-list {
+  list-style: none;
+  padding-left: 20px;
+  margin-top: 10px;
+  margin-bottom: 0;
+
+  &__item {
+    padding: 6px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+
+    &:hover, &--active {
+      background-color: $hover-bg-color;
+    }
+  }
+}
+
+// Exercises table styles
+.exercises-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  &__header {
+    background-color: color.adjust($active-bg-color, $lightness: -5%);
+  }
+
+  &__row {
+    &:hover {
+      background-color: $active-bg-color;
+    }
+  }
+
+  &__cell {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid $table-border-color;
+
+    &--status {
+      color: $success-color;
+      font-weight: bold;
+    }
+
+    &--xp {
+      color: $info-color;
+    }
+  }
+}
+.exercise-link {
+  color: #007bff;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

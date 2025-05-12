@@ -6,7 +6,8 @@ import LandingPage from "./components/LandingPage/LandingPage";
 import LoginPage from "./components/Login/LoginPage";
 import RegisterPage from "./components/Register/RegisterPage";
 import NavBar from "./components/NavBar/NavBar";
-import University from "./components/University/University";
+import University from './components/University/University';
+import UniversityIntro from "./components/University/University-intro";
 import Bugadune from "./components/Bugadune/Bugadune";
 import CSSCrypta from "./components/CSSCrypta/CSSCrypta";
 import Forumia from "./components/Forumia/Forumia";
@@ -29,7 +30,8 @@ function App() {
       <Route path="/register" element={<RegisterPage />} />
        
       <Route element={<Layout />}>
-        <Route path="/university" element={<University />} />
+        <Route path="/university" element={<UniversityIntro />} />
+        <Route path="/university/:exerciseId" element={<University />} />
         <Route path="/bugadune" element={<Bugadune />} />
         <Route path="/csscrypta" element={<CSSCrypta />} />
         <Route path="/forumia" element={<Forumia />} />
