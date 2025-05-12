@@ -15,6 +15,7 @@ import Playground from "./components/Playground/Playground";
 import TowerOfAPIon from "./components/TowerOfAPIon/TowerOfAPIon";
 import NotFoundPage from "./components/NotFoundPage/NotFoundPage";
 import ProfilNav from "./components/ProfilNav/ProfilNav";
+import Layout from "./components/Layout";
 
 // styling Files
 import "./App.scss";
@@ -22,12 +23,13 @@ import "./App.scss";
 
 function App() {
   return (
+    <>
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
        
-      <Route element={<NavBar />}>
+      <Route element={<Layout />}>
         <Route path="/university" element={<UniversityIntro />} />
         <Route path="/university/:exerciseId" element={<University />} />
         <Route path="/bugadune" element={<Bugadune />} />
@@ -35,10 +37,11 @@ function App() {
         <Route path="/forumia" element={<Forumia />} />
         <Route path="/playground" element={<Playground />} />
         <Route path="/towerofapion" element={<TowerOfAPIon />} />
-        <Route path="/:user" element={<ProfilNav />} />
+        <Route path="/user" element={<ProfilNav />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
+    </>
   );
 }
 
