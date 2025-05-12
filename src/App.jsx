@@ -31,8 +31,8 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       {/* at the LandingPageUser the path should be like  /LandingPageUser/:userId */ }
-      <Route path="/landingPageUser" element={<LandingPageUser/>}/>
       <Route element={<Layout />}>
+       <Route path="/landingPageUser" element={<LandingPageUser/>}/>
         <Route path="/university" element={<UniversityIntro />} />
         <Route path="/university/:exerciseId" element={<University />} />
         <Route path="/bugadune" element={<Bugadune />} />
