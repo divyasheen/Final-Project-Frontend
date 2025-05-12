@@ -13,6 +13,8 @@ import Forumia from "./components/Forumia/Forumia";
 import Playground from "./components/Playground/Playground";
 import TowerOfAPIon from "./components/TowerOfAPIon/TowerOfAPIon";
 import NotFoundPage from "./components/NotFoundPage/NotFoundPage";
+import LandingPageUser from "./components/LandingPage-User/LandingPageUser";
+
 // styling Files
 import "./App.scss";
 
@@ -22,7 +24,8 @@ function App() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-       
+      {/* at the LandingPageUser the path should be like  /LandingPageUser/:userId */ }
+      <Route path="/landingPageUser" element={<LandingPageUser/>}/>
       <Route element={<NavBar />}>
         <Route path="/university" element={<University />} />
         <Route path="/bugadune" element={<Bugadune />} />
