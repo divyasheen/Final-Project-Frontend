@@ -17,6 +17,8 @@ import NotFoundPage from "./components/NotFoundPage/NotFoundPage";
 import ProfilNav from "./components/ProfilNav/ProfilNav";
 import Layout from "./components/Layout";
 
+import LandingPageUser from "./components/LandingPage-User/LandingPageUser";
+
 // styling Files
 import "./App.scss";
 
@@ -28,8 +30,9 @@ function App() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-       
+      {/* at the LandingPageUser the path should be like  /LandingPageUser/:userId */ }
       <Route element={<Layout />}>
+       <Route path="/landingPageUser" element={<LandingPageUser/>}/>
         <Route path="/university" element={<UniversityIntro />} />
         <Route path="/university/:exerciseId" element={<University />} />
         <Route path="/bugadune" element={<Bugadune />} />
