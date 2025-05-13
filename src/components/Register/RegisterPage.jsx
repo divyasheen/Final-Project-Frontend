@@ -3,7 +3,7 @@ import { useState } from "react";
 import { FaUserCircle } from "react-icons/fa";
 import { FaGoogle, FaGithub } from "react-icons/fa";
 
-const LoginPage = () => {
+const RegisterPage = () => {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -145,4 +145,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;
