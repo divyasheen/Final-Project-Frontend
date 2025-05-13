@@ -9,23 +9,27 @@ const UniversityIntro = () => {
   const [lessonContent, setLessonContent] = useState(null);
   const [exercises, setExercises] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Fetch courses and lessons
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/courses');
+        setLoading(true);
+        const response = await fetch('http://localhost:5000/api/courses');
+        if (!response.ok) throw new Error('Failed to fetch courses');
+        
         const data = await response.json();
         setCourses(data);
         
         if (data.length > 0) {
           setActiveCourse(data[0].id);
-          if (data[0].lessons.length > 0) {
+          if (data[0].lessons && data[0].lessons.length > 0) {
             setActiveLesson(data[0].lessons[0].id);
           }
         }
-      } catch (error) {
-        console.error('Error fetching data:', error);
+      } catch (err) {
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -40,22 +44,31 @@ const UniversityIntro = () => {
     
     const fetchLessonData = async () => {
       try {
+        setLoading(true);
         // Fetch lesson content
-        const lessonRes = await fetch(`/api/courses/lessons/${activeLesson}`);
+        const lessonRes = await fetch(`http://localhost:5000/api/courses/lessons/${activeLesson}`);
+        if (!lessonRes.ok) throw new Error('Failed to fetch lesson');
         const lessonData = await lessonRes.json();
         setLessonContent(lessonData);
         
-        // Fetch exercises
-        const activeCourseObj = courses.find(c => c.lessons.some(l => l.id === activeLesson));
-        if (activeCourseObj) {
+        // Find the course that contains this lesson
+        const course = courses.find(c => 
+          c.lessons && c.lessons.some(l => l.id === activeLesson)
+        );
+        
+        if (course) {
+          // Fetch exercises
           const exercisesRes = await fetch(
-            `/api/courses/${activeCourseObj.id}/lessons/${activeLesson}/exercises`
+            `http://localhost:5000/api/courses/${course.id}/lessons/${activeLesson}/exercises`
           );
+          if (!exercisesRes.ok) throw new Error('Failed to fetch exercises');
           const exercisesData = await exercisesRes.json();
           setExercises(exercisesData);
         }
-      } catch (error) {
-        console.error('Error fetching lesson data:', error);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -63,6 +76,7 @@ const UniversityIntro = () => {
   }, [activeLesson, courses]);
 
   if (loading) return <div className="text-white text-center p-8">Loading...</div>;
+  if (error) return <div className="text-red-500 text-center p-8">Error: {error}</div>;
 
   return (
     <div className="min-h-screen font-vt323 bg-background text-white">
