@@ -1,64 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import universityImage from '../../assets/images/university.png';
 
 const UniversityIntro = () => {
-  const [activeChapter, setActiveChapter] = useState('Chapter 1 - HTML & CSS');
-  const [activeLesson, setActiveLesson] = useState('Lesson 1');
+  const [courses, setCourses] = useState([]);
+  const [activeCourse, setActiveCourse] = useState(null);
+  const [activeLesson, setActiveLesson] = useState(null);
+  const [lessonContent, setLessonContent] = useState(null);
+  const [exercises, setExercises] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Sample data structure
-  const chapters = [
-    {
-      title: 'Chapter 1 - HTML & CSS',
-      lessons: ['Lesson 1', 'Lesson 2', 'Lesson 3', 'Lesson 4']
-    },
-    {
-      title: 'Chapter 2 - Programming Basics',
-      lessons: ['Lesson 1', 'Lesson 2', 'Lesson 3', 'Lesson 4']
-    },
-    {
-      title: 'Chapter 3 - SPA',
-      lessons: ['Lesson 1', 'Lesson 2', 'Lesson 3', 'Lesson 4']
-    },
-    {
-      title: 'Chapter 4 - Backend',
-      lessons: ['Lesson 1', 'Lesson 2', 'Lesson 3', 'Lesson 4']
-    }
-  ];
+  // Fetch courses and lessons
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/courses');
+        const data = await response.json();
+        setCourses(data);
+        
+        if (data.length > 0) {
+          setActiveCourse(data[0].id);
+          if (data[0].lessons.length > 0) {
+            setActiveLesson(data[0].lessons[0].id);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Sample exercises data
-  const exercises = {
-    "Lesson 1": [
-      { id: 1, name: "Name of Exercise 1", status: "Done" },
-      { id: 2, name: "Name of Exercise 2", status: "Done" },
-      { id: 3, name: "Name of Exercise 3", status: "+ 20 XP" },
-      { id: 4, name: "Name of Exercise 4", status: "+ 20 XP" },
-    ],
-    "Lesson 2": [
-      { id: 1, name: "Name of Exercise 1", status: "+ 20 XP" },
-      { id: 2, name: "Name of Exercise 2", status: "+ 20 XP" },
-      { id: 3, name: "Name of Exercise 3", status: "+ 20 XP" },
-      { id: 4, name: "Name of Exercise 4", status: "+ 20 XP" },
-    ],
-    'Lesson 3': [
-      { id: 1, name: 'Name of Exercise 1', status: '+ 20 XP' },
-      { id: 2, name: 'Name of Exercise 2', status: '+ 20 XP' },
-      { id: 3, name: 'Name of Exercise 3', status: '+ 20 XP' },
-      { id: 4, name: 'Name of Exercise 4', status: '+ 20 XP' }
-    ],
-    'Lesson 4': [
-      { id: 1, name: 'Name of Exercise 1', status: '+ 20 XP' },
-      { id: 2, name: 'Name of Exercise 2', status: '+ 20 XP' },
-      { id: 3, name: 'Name of Exercise 3', status: '+ 20 XP' },
-      { id: 4, name: 'Name of Exercise 4', status: '+ 20 XP' }
-    ]
-  };
+    fetchData();
+  }, []);
+
+  // Fetch lesson content and exercises when lesson changes
+  useEffect(() => {
+    if (!activeLesson) return;
+    
+    const fetchLessonData = async () => {
+      try {
+        // Fetch lesson content
+        const lessonRes = await fetch(`/api/courses/lessons/${activeLesson}`);
+        const lessonData = await lessonRes.json();
+        setLessonContent(lessonData);
+        
+        // Fetch exercises
+        const activeCourseObj = courses.find(c => c.lessons.some(l => l.id === activeLesson));
+        if (activeCourseObj) {
+          const exercisesRes = await fetch(
+            `/api/courses/${activeCourseObj.id}/lessons/${activeLesson}/exercises`
+          );
+          const exercisesData = await exercisesRes.json();
+          setExercises(exercisesData);
+        }
+      } catch (error) {
+        console.error('Error fetching lesson data:', error);
+      }
+    };
+
+    fetchLessonData();
+  }, [activeLesson, courses]);
+
+  if (loading) return <div className="text-white text-center p-8">Loading...</div>;
 
   return (
     <div className="min-h-screen font-vt323 bg-background text-white">
       {/* Header */}
       <div 
-        className="relative w-full h-[200px] sm:h-[300px] md:h-[400px] lg:h-[500px] mx-auto mb-6 md:mb-8  overflow-hidden"
+        className="relative w-full h-[200px] sm:h-[300px] md:h-[400px] lg:h-[500px] mx-auto mb-6 md:mb-8 overflow-hidden"
         style={{
           boxShadow: 'inset 0px -250px 250px 30px #0E0E1A',
           backgroundImage: `url(${universityImage})`,
@@ -74,26 +84,29 @@ const UniversityIntro = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex flex-col lg:flex-row gap-4 md:gap-6">
-        {/* Sidebar */}
+      <div className="flex flex-col lg:flex-row gap-4 md:gap-6 p-4">
+        {/* Left sidebar - Courses */}
         <div className="w-full lg:w-[280px] border-2 border-accent rounded-lg p-3 md:p-4 bg-gray-900/50">
-          {chapters.map((chapter) => (
-            <div key={chapter.title} className="mb-2">
-              {/* Chapter with dropdown button */}
+          <h2 className="text-xl mb-4">Courses</h2>
+          {courses.map((course) => (
+            <div key={course.id} className="mb-4">
               <div 
                 className={`flex justify-between items-center p-2 cursor-pointer rounded-md ${
-                  activeChapter === chapter.title 
+                  activeCourse === course.id 
                     ? "bg-accent text-background" 
                     : "hover:bg-gray-700/50"
                 }`}
-                onClick={() => setActiveChapter(
-                  activeChapter === chapter.title ? null : chapter.title
-                )}
+                onClick={() => {
+                  setActiveCourse(course.id);
+                  if (course.lessons.length > 0) {
+                    setActiveLesson(course.lessons[0].id);
+                  }
+                }}
               >
-                <h3 className="text-lg md:text-xl">{chapter.title}</h3>
+                <h3 className="text-lg md:text-xl">{course.title}</h3>
                 <svg
                   className={`w-4 h-4 md:w-5 md:h-5 transform transition-transform ${
-                    activeChapter === chapter.title ? "rotate-180" : ""
+                    activeCourse === course.id ? "rotate-180" : ""
                   }`}
                   fill="none"
                   viewBox="0 0 24 24"
@@ -109,19 +122,19 @@ const UniversityIntro = () => {
               </div>
 
               {/* Lessons dropdown */}
-              {activeChapter === chapter.title && (
-                <ul className="ml-4 mt-1 space-y-1 border-l-2 border-accent pl-3">
-                  {chapter.lessons.map((lesson) => (
+              {activeCourse === course.id && (
+                <ul className="ml-4 mt-2 space-y-1 border-l-2 border-accent pl-3">
+                  {course.lessons.map((lesson) => (
                     <li
-                      key={lesson}
-                      className={`p-2 text-sm md:text-base cursor-pointer rounded-md ${
-                        activeLesson === lesson
+                      key={lesson.id}
+                      className={`p-2 text-sm cursor-pointer rounded-md ${
+                        activeLesson === lesson.id
                           ? "bg-accent/20 text-accent font-medium"
                           : "hover:bg-gray-700/30"
                       }`}
-                      onClick={() => setActiveLesson(lesson)}
+                      onClick={() => setActiveLesson(lesson.id)}
                     >
-                      {lesson}
+                      {lesson.title}
                     </li>
                   ))}
                 </ul>
@@ -130,47 +143,60 @@ const UniversityIntro = () => {
           ))}
         </div>
 
-        {/* Exercises Content */}
-        <div className="flex-1 border-2 border-accent rounded-lg p-4 md:p-6 bg-gray-900/50">
-  <h3 className="text-xl md:text-2xl lg:text-3xl mb-4 md:mb-6 font-medium">
-    {activeLesson}
-  </h3>
-
-  {exercises[activeLesson] && exercises[activeLesson].length > 0 ? (
-    <div className="grid gap-3 sm:gap-4">
-      {exercises[activeLesson].map((exercise) => (
-        <Link 
-          to={`/university/${exercise.id}`}
-          key={exercise.id} 
-          className="block p-3 md:p-4 border border-gray-700 rounded-lg hover:bg-gray-700/30 transition-colors no-underline hover:no-underline"
-        >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <span className="text-gray-400 text-sm md:text-base">
-                Exercise {exercise.id}
-              </span>
-              <span className="text-gray-600 hidden sm:inline">|</span>
-              <span className="text-sm md:text-base text-white">
-                {exercise.name}
-              </span>
-            </div>
-            <span className={`text-sm md:text-base font-medium ${
-              exercise.status.includes('XP') 
-                ? 'text-accent' 
-                : 'text-green-500'
-            }`}>
-              {exercise.status}
-            </span>
+        {/* Right content area */}
+        <div className="flex-1 flex flex-col gap-6">
+          {/* Lesson Content */}
+          <div className="border-2 border-accent rounded-lg p-4 md:p-6 bg-gray-900/50">
+            {lessonContent ? (
+              <div>
+                <h2 className="text-2xl md:text-3xl mb-4 text-accent">
+                  {lessonContent.title}
+                </h2>
+                <div 
+                  className="prose prose-invert max-w-none"
+                  dangerouslySetInnerHTML={{ 
+                    __html: lessonContent.content.replace(/\n/g, '<br />') 
+                  }}
+                />
+              </div>
+            ) : (
+              <p className="text-gray-400 italic">
+                Select a lesson to view its content
+              </p>
+            )}
           </div>
-        </Link>
-      ))}
-    </div>
-  ) : (
-    <p className="text-gray-400 italic">
-      No exercises available for this lesson.
-    </p>
-  )}
-</div>
+
+          {/* Exercises */}
+          <div className="border-2 border-accent rounded-lg p-4 md:p-6 bg-gray-900/50">
+            <h3 className="text-xl md:text-2xl mb-4">Exercises</h3>
+            {exercises.length > 0 ? (
+              <div className="grid gap-3">
+                {exercises.map((exercise) => (
+                  <Link
+                    to={`/university/${exercise.id}`}
+                    key={exercise.id}
+                    className="block p-3 border border-gray-700 rounded-lg hover:bg-gray-700/30 transition-colors no-underline"
+                  >
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <span className="text-gray-400">Exercise {exercise.id}</span>
+                        <span className="mx-2 text-gray-600">|</span>
+                        <span>{exercise.title}</span>
+                      </div>
+                      <span className="text-accent">
+                        +{exercise.xp_reward} XP
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-400 italic">
+                No exercises available for this lesson
+              </p>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
