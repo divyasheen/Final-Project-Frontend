@@ -5,9 +5,11 @@ import Crypta from "../../assets/images/Crypta.png";
 import Forumia from "../../assets/images/Forumia.png";
 import University from "../../assets/images/University.png";
 import PlayGround from "../../assets/images/PlayGround.png";
-import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const LandingPageUserCards = () => {
+
+  let navigate=useNavigate()
   const cards = [
     {
       title: "UNIVERSITY",
@@ -50,7 +52,7 @@ const LandingPageUserCards = () => {
   return (
     <article className="container flex justify-between gap-1 flex-wrap mt-5">
       {cards.map((c, i) => (
-        <section key={i} className="w-full mb-12 sm:w-5/12 lg:w-3/12">
+        <section onClick={()=>navigate(`/${c.title.toLowerCase().replace(/\s+/g, '')}`)} key={i} className="w-full mb-12 sm:w-5/12 lg:w-3/12">
           <div
             className="relative rounded-2xl border-2 border-accent p-4 min-h-[350px] xl:min-h-[550px] text-white bg-cover bg-center flex flex-col justify-between transition-transform hover:scale-105 duration-300 shadow-[0_8px_30px_rgba(255,255,255,0.4)]
  overflow-hidden"
@@ -66,14 +68,7 @@ const LandingPageUserCards = () => {
           </div>
         </section>
       ))}
-      
     </article>
-
-
-
-
-  
-
   );
 };
 
