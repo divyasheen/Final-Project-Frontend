@@ -28,17 +28,17 @@ const UniversityIntro = () => {
 
   // Sample exercises data
   const exercises = {
-    'Lesson 1': [
-      { id: 1, name: 'Name of Exercise 1', status: 'Done' },
-      { id: 2, name: 'Name of Exercise 2', status: 'Done' },
-      { id: 3, name: 'Name of Exercise 3', status: '+ 20 XP' },
-      { id: 4, name: 'Name of Exercise 4', status: '+ 20 XP' }
+    "Lesson 1": [
+      { id: 1, name: "Name of Exercise 1", status: "Done" },
+      { id: 2, name: "Name of Exercise 2", status: "Done" },
+      { id: 3, name: "Name of Exercise 3", status: "+ 20 XP" },
+      { id: 4, name: "Name of Exercise 4", status: "+ 20 XP" },
     ],
-    'Lesson 2': [
-      { id: 1, name: 'Name of Exercise 1', status: '+ 20 XP' },
-      { id: 2, name: 'Name of Exercise 2', status: '+ 20 XP' },
-      { id: 3, name: 'Name of Exercise 3', status: '+ 20 XP' },
-      { id: 4, name: 'Name of Exercise 4', status: '+ 20 XP' }
+    "Lesson 2": [
+      { id: 1, name: "Name of Exercise 1", status: "+ 20 XP" },
+      { id: 2, name: "Name of Exercise 2", status: "+ 20 XP" },
+      { id: 3, name: "Name of Exercise 3", status: "+ 20 XP" },
+      { id: 4, name: "Name of Exercise 4", status: "+ 20 XP" },
     ],
     'Lesson 3': [
       { id: 1, name: 'Name of Exercise 1', status: '+ 20 XP' },
