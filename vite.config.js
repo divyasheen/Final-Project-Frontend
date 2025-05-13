@@ -8,5 +8,12 @@ export default defineConfig({
     react(),
 
   ],
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@use "sass:color";`
+      }
+    }
+  }
 })
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import './University.scss';
+import { useParams } from 'react-router-dom';
 
 const STORAGE_KEY = 'universityCode';
 const DEFAULT_CODE = `<!DOCTYPE html>
@@ -15,6 +16,7 @@ const DEFAULT_CODE = `<!DOCTYPE html>
 </html>`;
 
 export default function University() {
+  const { exerciseId } = useParams();
   const [code, setCode] = useState(() =>
     localStorage.getItem(STORAGE_KEY) || DEFAULT_CODE
   );
