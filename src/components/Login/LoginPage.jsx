@@ -16,7 +16,6 @@ const LoginPage = () => {
     email: "",
     password: "",
   });
-console.log(errors);
 
   const handleInput = (e) => {
     setUserform((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -40,7 +39,7 @@ console.log(errors);
       if (res.ok) {
        
       
-      navigateTo(`/landingPageUser`)
+      navigateTo(`/landingPageUser/${data.id}`)
       
       } else {
         setErrors(data.errors || [{ msg: data.error }]);
