@@ -4,7 +4,14 @@ import Frame3 from "../../assets/images/Frame3.png";
 import UserImage from "../../assets/images/userImage.jpeg";
 import LandingPageUserCards from "./LandingPageUserCards";
 import LandingPageUserCardsImage from "../../assets/images/LandingPageUserBackGround.jpg";
+import { useParams } from "react-router-dom";
 const LandingPageUser = () => {
+
+const {id}=useParams()
+console.log(id);
+
+
+
   return (
     <section className=" gap-14 flex p-5 bg-background flex-col  justify-center items-center  ">
       {/* Background Image with Overlay */}
