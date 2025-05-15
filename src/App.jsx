@@ -16,6 +16,7 @@ import TowerOfAPIon from "./components/TowerOfAPIon/TowerOfAPIon";
 import NotFoundPage from "./components/NotFoundPage/NotFoundPage";
 import ProfilNav from "./components/ProfilNav/ProfilNav";
 import Layout from "./components/Layout";
+import Chatbot from "./components/Chatbot/Chatbot"
 
 import LandingPageUser from "./components/LandingPage-User/LandingPageUser";
 
@@ -40,6 +41,7 @@ function App() {
           <Route path="/playground" element={<Playground />} />
           <Route path="/towerofapion" element={<TowerOfAPIon />} />
           <Route path="/user" element={<ProfilNav />} />
+          <Route path="/chatbot" element={<Chatbot />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
