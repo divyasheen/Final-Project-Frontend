@@ -24,6 +24,7 @@ const NavBar = () => {
             "forumia",
             "playground",
             "towerofapion",
+            "Chatbot",
           ].map((path) => (
             <NavLink key={path} to={`/${path}`}>
               {path[0].toUpperCase() + path.slice(1)}

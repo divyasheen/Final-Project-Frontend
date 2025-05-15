@@ -2,9 +2,6 @@ import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 
 
@@ -25,7 +22,7 @@ export default function Chatbot() {
         setLoading(true)
 
         try {
-            const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/chatbot`, {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/chatbot`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ messages: newMessages })
@@ -44,12 +41,12 @@ export default function Chatbot() {
     }
 
     return (
-        <div className="flex flex-col max-w-xl mx-auto h-screen p-4">
+        <div className="flex flex-col max-w-xl mx-auto p-4">
             <div className="flex-1 overflow-y-auto space-y-2 mb-4">
                 {messages.map((msg, i) => (
                     <div 
                         key={i}
-                        className={`p-3 rounded-lg max-w-[75%] ${
+                        className={`p-3 rounded-lg max-w-[75%] whitespace-pre-wrap ${
                                 msg.role === "user" 
                                 ? "bg-blue-500 text-white self-end" 
                                 : "bg-gray-200 text-black self-start"
@@ -58,7 +55,7 @@ export default function Chatbot() {
                         <ReactMarkdown
                             children={msg.content}
                             components={{
-                                code({ node, inline, className, children, ...props }) {
+                                code({ inline, className, children, ...props }) {
                                     const match = /language-(\w+)/.exec(className || "")
                                     const codeText = String(children).replace(/\n$/, "")
 
@@ -99,9 +96,9 @@ export default function Chatbot() {
                         />       
                     </div>
                 ))}
-                    {loading && (<div className="text-gray-500">Assistant is typing...</div>)}
+                    {loading && (<div className="text-gray-500 italic">Assistant is typing...</div>)}
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 mt-4">
                 <input 
                     className="flex-1 border rounded-xl p-2"
                     value={input}
