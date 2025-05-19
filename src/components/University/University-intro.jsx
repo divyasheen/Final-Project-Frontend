@@ -8,14 +8,12 @@ const UniversityIntro = () => {
   const [activeLesson, setActiveLesson] = useState(null);
   const [lessonContent, setLessonContent] = useState(null);
   const [exercises, setExercises] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Fetch courses and lessons
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true);
         const response = await fetch('http://localhost:5000/api/courses');
         if (!response.ok) throw new Error('Failed to fetch courses');
         
@@ -30,9 +28,7 @@ const UniversityIntro = () => {
         }
       } catch (err) {
         setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+      } 
     };
 
     fetchData();
@@ -44,7 +40,6 @@ const UniversityIntro = () => {
     
     const fetchLessonData = async () => {
       try {
-        setLoading(true);
         // Fetch lesson content
         const lessonRes = await fetch(`http://localhost:5000/api/courses/lessons/${activeLesson}`);
         if (!lessonRes.ok) throw new Error('Failed to fetch lesson');
@@ -67,15 +62,12 @@ const UniversityIntro = () => {
         }
       } catch (err) {
         setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+      } 
     };
 
     fetchLessonData();
   }, [activeLesson, courses]);
 
-  if (loading) return <div className="text-white text-center p-8">Loading...</div>;
   if (error) return <div className="text-red-500 text-center p-8">Error: {error}</div>;
 
   return (
