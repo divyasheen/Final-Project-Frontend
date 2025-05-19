@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { FaUserCircle } from "react-icons/fa";
-import { FaGoogle, FaGithub } from "react-icons/fa";
-import { useNavigate } from 'react-router-dom';
+import { FaUserCircle, FaGoogle, FaGithub } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const navigateTo = useNavigate();
@@ -11,94 +10,80 @@ const LoginPage = () => {
     email: "",
     password: "",
   });
- //handle Input Value
+
   const handleInput = (e) => {
     setUserform((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
-   // handle Form Submit
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrors(null);
     try {
       const res = await fetch("http://localhost:5000/users/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: 'include',
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(userForm),
       });
 
       const data = await res.json();
-      console.log(data);
-
       if (res.ok) {
         navigateTo(`/landingPageUser/${data.id}`);
       } else {
         setErrors(data.errors || [{ msg: data.error }]);
       }
     } catch (error) {
-      console.log(error);
+      console.error("Login error:", error);
     }
   };
 
-  // Google login handler
   const handleGoogleLogin = async (response) => {
-    console.log(response);
+    const idToken = response.credential;
 
-    // Send the token to your backend for verification and authentication
     try {
-      const idToken = response.credential;
-         
-           
-     
-      const res = await fetch('http://localhost:5000/users/google-login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-
+      const res = await fetch("http://localhost:5000/users/google-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ credential: idToken }),
-
       });
 
+      console.log("Raw response:", res);
       const data = await res.json();
-      
-    
+       
+      console.log("Parsed data:", data);
+
       if (res.ok) {
-        console.log('worked');
-        navigateTo('/landingPageUser/11')
-        
+       
+        const userId = data.user.id 
+        navigateTo(`/landingPageUser/${userId}`);
       } else {
         setErrors(data.errors || [{ msg: data.error }]);
       }
     } catch (error) {
-      console.log(error);
+      console.error("Google login failed:", error);
     }
   };
 
-  // Initialize Google Sign-In button
   useEffect(() => {
- 
     if (window.google) {
       window.google.accounts.id.initialize({
-        client_id: "597088642216-rdog1tvplk26p1jjaf0r572c3i48cp3c.apps.googleusercontent.com", // ✅ Your actual client ID
-        callback: handleGoogleLogin, // ✅ Your response handler
+        client_id: "597088642216-rdog1tvplk26p1jjaf0r572c3i48cp3c.apps.googleusercontent.com",
+        callback: handleGoogleLogin,
       });
-  
-      // Optional: render a visible button
+
       window.google.accounts.id.renderButton(
         document.getElementById("googleButton"),
         {
           theme: "outline",
           size: "large",
+      
         }
       );
+    } else {
+      console.warn("Google API not available yet.");
     }
   }, []);
-
-
-
 
   return (
     <section className="bg-background min-h-screen flex items-center justify-center">
@@ -109,48 +94,41 @@ const LoginPage = () => {
         <h2 className="text-2xl font-vt323 text-white tracking-wider text-center mb-14">
           Login to Your Account
         </h2>
-        <form className="flex flex-col md:gap-9 space-y-4" onSubmit={handleSubmit}>
+        <form id="loginForm" className="flex flex-col md:gap-9 space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label
-              className="font-vt323 text-white block text-sm md:text-lg font-medium mb-1"
-              htmlFor="email"
-            >
+            <label htmlFor="email" className="font-vt323 text-white text-sm md:text-lg block mb-1">
               Email:
             </label>
             <input
               name="email"
-              onChange={handleInput}
-              value={userForm.email}
               id="email"
               type="email"
-              className="w-full px-4 py-2 border-b text-sm md:text-lg text-white focus:outline-none bg-transparent"
+              onChange={handleInput}
+              value={userForm.email}
               placeholder="you@example.com"
               autoComplete="email"
+              className="w-full px-4 py-2 border-b text-white bg-transparent focus:outline-none"
             />
           </div>
           <div>
-            <label
-              className="font-vt323 text-sm md:text-lg text-white block font-large mb-1"
-              htmlFor="password"
-            >
+            <label htmlFor="password" className="font-vt323 text-white text-sm md:text-lg block mb-1">
               Password:
             </label>
             <input
               name="password"
-              onChange={handleInput}
-              value={userForm.password}
               id="password"
               type="password"
-              className="w-full border-b px-4 py-2 text-white focus:outline-none bg-transparent"
+              onChange={handleInput}
+              value={userForm.password}
               placeholder="••••••••"
               autoComplete="off"
+              className="w-full px-4 py-2 border-b text-white bg-transparent focus:outline-none"
             />
-            <div className="text-white flex flex-col gap-3 sm:flex-row items-center mt-4 md:mt-4 justify-between text-xs ">
+            <div className="text-white text-xs mt-4 flex flex-col sm:flex-row justify-between gap-3">
               <label className="flex items-center">
-                <input name="checkbox" type="checkbox" className="mr-2" />
-                Remember me
+                <input type="checkbox" className="mr-2" /> Remember me
               </label>
-              <a href="#" className="text-white hover:underline">
+              <a href="#" className="hover:underline">
                 Forgot Password?
               </a>
             </div>
@@ -162,9 +140,12 @@ const LoginPage = () => {
             >
               LogIn
             </button>
-            {errors && errors.map((err, i) => {
-              return <p key={i} className="text-[13px] text-red-500">{err.msg}</p>
-            })}
+            {errors &&
+              errors.map((err, i) => (
+                <p key={i} className="text-[13px] text-red-500 mt-1">
+                  {err.msg}
+                </p>
+              ))}
           </div>
 
           <div className="flex items-center my-6">
@@ -175,11 +156,11 @@ const LoginPage = () => {
             <hr className="flex-grow border-t border-white/30" />
           </div>
 
-          <div className="flex justify-center gap-4">
-            <div id="googleButton"></div> {/* Google login button */}
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <div id="googleButton"></div>
             <button
               type="button"
-              className="flex items-center gap-2 px-4 py-2 border border-white text-white rounded-md hover:bg-white/10 transition"
+              className="flex items-center justify-center gap-2 px-4 py-2 border border-white text-white rounded-md hover:bg-white/10 transition"
             >
               <FaGithub />
               <span className="font-vt323 text-sm md:text-base">GitHub</span>

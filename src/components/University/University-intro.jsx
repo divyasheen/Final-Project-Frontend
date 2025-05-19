@@ -75,7 +75,7 @@ const UniversityIntro = () => {
     fetchLessonData();
   }, [activeLesson, courses]);
 
-  if (loading) return <div className="text-white text-center p-8">Loading...</div>;
+  if (loading) return <div className="text-white text-center p-8">Loading...</div>;  
   if (error) return <div className="text-red-500 text-center p-8">Error: {error}</div>;
 
   return (
