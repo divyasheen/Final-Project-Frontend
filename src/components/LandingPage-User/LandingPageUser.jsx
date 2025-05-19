@@ -4,11 +4,12 @@ import Frame3 from "../../assets/images/Frame3.png";
 import UserImage from "../../assets/images/userImage.jpeg";
 import LandingPageUserCards from "./LandingPageUserCards";
 import LandingPageUserCardsImage from "../../assets/images/LandingPageUserBackGround.jpg";
-import { useParams } from "react-router-dom";
+// import { useParams } from "react-router-dom";
 const LandingPageUser = () => {
 
-const {id}=useParams()
-console.log(id);
+  //we need to find the user who has the id of the param and render the user details 
+  // const {id}=useParams()
+
 
 
 
