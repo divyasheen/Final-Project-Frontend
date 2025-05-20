@@ -20,7 +20,7 @@ function ChatBot({ isOpen, onClose }) {
 
     setMessages((m) => [...m, { from: "user", text: msg.trim() }]);
     setMsg("");
-    // TODO: call your real chatbot backend here and push its reply
+    // call chatbot backend here and push its reply
     try {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/chatbot`, {
         method: "POST",
