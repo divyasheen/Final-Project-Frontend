@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import universityImage from '../../assets/images/university.png';
-import { toast } from 'react-toastify';
 
 const UniversityIntro = () => {
   const [courses, setCourses] = useState([]);
@@ -10,13 +9,11 @@ const UniversityIntro = () => {
   const [lessonContent, setLessonContent] = useState(null);
   const [exercises, setExercises] = useState([]);
   const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   // Fetch courses and lessons
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setIsLoading(true);
         const response = await fetch('http://localhost:5000/api/courses');
         if (!response.ok) throw new Error('Failed to fetch courses');
         
@@ -29,70 +26,49 @@ const UniversityIntro = () => {
             setActiveLesson(data[0].lessons[0].id);
           }
         }
-        setIsLoading(false);
       } catch (err) {
         setError(err.message);
-        setIsLoading(false);
       } 
     };
 
     fetchData();
   }, []);
 
- // Fetch lesson content and exercises when lesson changes
-useEffect(() => {
-  if (!activeLesson) return;
-
-  const fetchLessonData = async () => {
-    try {
-      setIsLoading(true);
-
-      // Fetch lesson content
-      const lessonRes = await fetch(`http://localhost:5000/api/courses/lessons/${activeLesson}`);
-      if (!lessonRes.ok) throw new Error('Failed to fetch lesson');
-      const lessonData = await lessonRes.json();
-      setLessonContent(lessonData);
-
-      // Find the course that contains this lesson
-      const course = courses.find(c => 
-        c.lessons && c.lessons.some(l => l.id === activeLesson)
-      );
-
-      if (course) {
-        try {
+  // Fetch lesson content and exercises when lesson changes
+  useEffect(() => {
+    if (!activeLesson) return;
+    
+    const fetchLessonData = async () => {
+      try {
+        // Fetch lesson content
+        const lessonRes = await fetch(`http://localhost:5000/api/courses/lessons/${activeLesson}`);
+        if (!lessonRes.ok) throw new Error('Failed to fetch lesson');
+        const lessonData = await lessonRes.json();
+        setLessonContent(lessonData);
+        
+        // Find the course that contains this lesson
+        const course = courses.find(c => 
+          c.lessons && c.lessons.some(l => l.id === activeLesson)
+        );
+        
+        if (course) {
           // Fetch exercises
           const exercisesRes = await fetch(
             `http://localhost:5000/api/courses/${course.id}/lessons/${activeLesson}/exercises`
           );
-
-          if (exercisesRes.ok) {
-            const exercisesData = await exercisesRes.json();
-            setExercises(exercisesData);
-          } else if (exercisesRes.status === 404) {
-            setExercises([]); // No exercises available
-          } else {
-            console.warn('Unexpected error fetching exercises');
-            setExercises([]);
-          }
-        } catch (exerciseErr) {
-          console.warn('Exercise fetch error:', exerciseErr);
-          setExercises([]); // On fetch error, show empty state
+          if (!exercisesRes.ok) throw new Error('Failed to fetch exercises');
+          const exercisesData = await exercisesRes.json();
+          setExercises(exercisesData);
         }
-      }
+      } catch (err) {
+        setError(err.message);
+      } 
+    };
 
-      setIsLoading(false);
-    } catch (err) {
-      setError(err.message);
-      setIsLoading(false);
-    }
-  };
-
-  fetchLessonData();
-}, [activeLesson, courses]);
-
+    fetchLessonData();
+  }, [activeLesson, courses]);
 
   if (error) return <div className="text-red-500 text-center p-8">Error: {error}</div>;
-  if (isLoading) return <div className="flex items-center justify-center h-screen bg-background text-white">Loading...</div>;
 
   return (
     <div className="min-h-screen font-vt323 bg-background text-white">
@@ -128,7 +104,7 @@ useEffect(() => {
                 }`}
                 onClick={() => {
                   setActiveCourse(course.id);
-                  if (course.lessons?.length > 0) {
+                  if (course.lessons.length > 0) {
                     setActiveLesson(course.lessons[0].id);
                   }
                 }}
@@ -152,7 +128,7 @@ useEffect(() => {
               </div>
 
               {/* Lessons dropdown */}
-              {activeCourse === course.id && course.lessons?.length > 0 && (
+              {activeCourse === course.id && (
                 <ul className="ml-4 mt-2 space-y-1 border-l-2 border-accent pl-3">
                   {course.lessons.map((lesson) => (
                     <li
@@ -209,23 +185,13 @@ useEffect(() => {
                   >
                     <div className="flex justify-between items-center">
                       <div>
-                        <h4 className="font-medium">{exercise.title}</h4>
-                        <p className="text-sm text-gray-400 mt-1 line-clamp-1">
-                          {exercise.description.split('\n')[0]}
-                        </p>
+                        <span className="text-gray-400">Exercise {exercise.id}</span>
+                        <span className="mx-2 text-gray-600">|</span>
+                        <span>{exercise.title}</span>
                       </div>
-                      <div className="flex flex-col items-end">
-                        <span className={`px-2 py-1 text-xs rounded-full mb-1 ${
-                          exercise.difficulty === 'Easy' ? 'bg-green-500' :
-                          exercise.difficulty === 'Medium' ? 'bg-yellow-500' :
-                          'bg-red-500'
-                        }`}>
-                          {exercise.difficulty}
-                        </span>
-                        <span className="text-accent text-sm">
-                          +{exercise.xp_reward} XP
-                        </span>
-                      </div>
+                      <span className="text-accent">
+                        +{exercise.xp_reward} XP
+                      </span>
                     </div>
                   </Link>
                 ))}

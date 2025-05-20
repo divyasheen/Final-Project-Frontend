@@ -17,6 +17,8 @@ import NotFoundPage from "./components/NotFoundPage/NotFoundPage";
 import ProfilNav from "./components/ProfilNav/ProfilNav";
 import Layout from "./components/Layout";
 import ForgetPass from "./components/ForgetPass/ForgetPass";
+import Chatbot from "./components/Chatbot/Chatbot"
+
 import LandingPageUser from "./components/LandingPage-User/LandingPageUser";
 import SetNewPass from "./components/SetNewPass/SetNewPass";
 // styling Files
@@ -42,6 +44,7 @@ function App() {
           <Route path="/playground" element={<Playground />} />
           <Route path="/towerofapion" element={<TowerOfAPIon />} />
           <Route path="/user" element={<ProfilNav />} />
+          <Route path="/chatbot" element={<Chatbot />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
