@@ -16,9 +16,9 @@ import TowerOfAPIon from "./components/TowerOfAPIon/TowerOfAPIon";
 import NotFoundPage from "./components/NotFoundPage/NotFoundPage";
 import ProfilNav from "./components/ProfilNav/ProfilNav";
 import Layout from "./components/Layout";
-
+import ForgetPass from "./components/ForgetPass/ForgetPass";
 import LandingPageUser from "./components/LandingPage-User/LandingPageUser";
-
+import SetNewPass from "./components/SetNewPass/SetNewPass";
 // styling Files
 import "./App.scss";
 
@@ -29,6 +29,8 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgetPAss" element ={<ForgetPass />}/>
+        <Route path="/users/reset-password/:token" element={<SetNewPass />} />
         {/* at the LandingPageUser the path should be like  /LandingPageUser/:userId */}
         <Route element={<Layout />}>
           <Route path="/landingPageUser/:id" element={<LandingPageUser />} />
