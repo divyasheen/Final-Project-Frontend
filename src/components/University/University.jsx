@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Editor from '@monaco-editor/react';
 import { useParams } from 'react-router-dom';
 import universityImage from '../../assets/images/university.png';
+
+import Chatbot from '../Chatbot/Chatbot';
 
 const STORAGE_KEY = 'universityCode';
 const DEFAULT_CODE = `<!DOCTYPE html>
@@ -19,15 +21,12 @@ export default function University() {
   const { exerciseId } = useParams();
   const [code, setCode] = useState(() => localStorage.getItem(STORAGE_KEY) || DEFAULT_CODE);
   const [srcDoc, setSrcDoc] = useState('');
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, code);
-  }, [code]);
+  const [botOpen, setBotOpen] = useState(false); // open/close bot
 
   const run = () => setSrcDoc(code);
 
   return (
-    <div className="flex flex-col h-screen bg-background text-white font-vt323">
+    <div className="relative flex flex-col h-screen bg-background text-white font-vt323">
       {/* Header */}
       <header
         className="relative w-full h-48 bg-cover bg-center"
@@ -51,7 +50,9 @@ export default function University() {
               Ettam eros erot, interdum vitae viverra sed, congue eu urna.
             </p>
             <div className="bg-footer text-white p-3 mt-2 rounded text-sm">
-              <strong className="text-white"> &lt;Lot’s of informations which will explain the topic.&gt;</strong>
+              <strong className="text-white">
+                &lt;Lot’s of informations which will explain the topic.&gt;
+              </strong>
               <br />
               Like what are loops. How they work, how to code them
             </div>
@@ -80,11 +81,17 @@ export default function University() {
           <div className="flex justify-between items-center px-4 py-2 border-b border-accent">
             <h3 className="text-accent text-xl">Code.js</h3>
             <div className="space-x-2">
-              <button onClick={run} className="bg-accent text-black px-3 py-1 rounded hover:bg-accentHover">
+              <button
+                onClick={run}
+                className="bg-accent text-black px-3 py-1 rounded hover:bg-accentHover"
+              >
                 RUN
               </button>
-              <button className="bg-footer text-white px-3 py-1 rounded border border-accent hover:bg-accentHover">
-                Ask Bot
+              <button
+                onClick={() => setBotOpen(o => !o)} // toggles open and close
+                className="bg-footer text-white px-3 py-1 rounded border border-accent hover:bg-accentHover"
+              >
+                {botOpen ? 'Close Bot' : 'Ask Bot'}
               </button>
             </div>
           </div>
@@ -116,18 +123,38 @@ export default function University() {
                 title="Preview"
               />
             ) : (
-              <div className="text-gray-400">Output will appear here after clicking RUN.</div>
+              <div className="text-gray-400">
+                Output will appear here after clicking RUN.
+              </div>
             )}
           </div>
 
           {/* Navigation Buttons */}
           <div className="flex justify-between items-center p-4 border-t border-accent">
-            <button className="px-4 py-1 bg-footer border border-accent rounded hover:bg-accentHover">Previous</button>
-            <button onClick={run} className="px-4 py-1 bg-accent text-black rounded hover:bg-accentHover">Complete</button>
-            <button className="px-4 py-1 bg-footer border border-accent rounded hover:bg-accentHover">Next</button>
+            <button className="px-4 py-1 bg-footer border border-accent rounded hover:bg-accentHover">
+              Previous
+            </button>
+            <button
+              onClick={run}
+              className="px-4 py-1 bg-accent text-black rounded hover:bg-accentHover"
+            >
+              Complete
+            </button>
+            <button className="px-4 py-1 bg-footer border border-accent rounded hover:bg-accentHover">
+              Next
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Chatbot sliding panel - NO changes inside Chatbot component */}
+      <div
+        className={`fixed top-0 right-0 h-full bg-footer border-l border-accent z-50 transition-all duration-300 ease-in-out
+          ${botOpen ? 'translate-x-0 w-1/3 opacity-100' : 'translate-x-full w-0 opacity-0 pointer-events-none'}`}
+      >
+        <Chatbot isOpen={botOpen} />
+      </div>
+
     </div>
   );
 }
