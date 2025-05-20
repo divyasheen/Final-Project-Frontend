@@ -1,11 +1,129 @@
-import React, { useState } from 'react';
-import Editor from '@monaco-editor/react';
-import { useParams } from 'react-router-dom';
-import universityImage from '../../assets/images/university.png';
+// University.jsx
+import React, { useState } from "react";
+import Editor from "@monaco-editor/react";
+import { useParams } from "react-router-dom";
+import universityImage from "../../assets/images/university.png";
 
-import Chatbot from '../Chatbot/Chatbot';
+import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
-const STORAGE_KEY = 'universityCode';
+/* ─────────────── ChatBot pane ─────────────── */
+function ChatBot({ isOpen, onClose }) {
+  const [msg, setMsg] = useState("");
+  const [messages, setMessages] = useState([
+    { from: "bot", text: "Hello 👋 – how can I help?" },
+  ]);
+
+  const send = async () => {
+    if (!msg.trim()) return;
+
+    setMessages((m) => [...m, { from: "user", text: msg.trim() }]);
+    setMsg("");
+    // TODO: call your real chatbot backend here and push its reply
+    try {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/chatbot`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [...messages, { from: "user", text: msg.trim() }].map(
+            (m) => ({
+              role: m.from === "user" ? "user" : "assistant",
+              content: m.text,
+            })
+          ),
+        }),
+      });
+
+      const data = await res.json();
+
+      setMessages((m) => [...m, { from: "bot", text: data.reply }]);
+    } catch (err) {
+      console.error(err);
+      setMessages((m) => [
+        ...m,
+        { from: "bot", text: "⚠️ Something went wrong. Try again later." },
+      ]);
+    }
+  };
+
+  return (
+    <aside
+      className={`
+        fixed right-0 top-0 h-full w-[500px] bg-footer border-l border-accent
+        transform transition-transform duration-300 ease-in-out
+        ${isOpen ? "translate-x-0" : "translate-x-full"}
+        z-50
+        flex flex-col
+      `}
+    >
+      <header className="p-3 border-b border-accent text-accent font-bold flex justify-between items-center">
+        <span>Bot</span>
+        <button
+          onClick={onClose}
+          className="text-white text-sm hover:text-accent px-2 py-1"
+          aria-label="Close chat"
+        >
+          ✕
+        </button>
+      </header>
+
+      {/* messages */}
+      <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2">
+        {messages.map((m, i) => (
+          <div key={i} className="text-sm">
+            {m.from === "user" ? (
+              <p className="text-right text-white">{m.text}</p>
+            ) : (
+              <div className="prose prose-invert text-left text-gray-300 max-w-none">
+                <ReactMarkdown
+                  components={{
+                    code({ inline, className, children, ...props }) {
+                      const match = /language-(\w+)/.exec(className || "");
+                      return !inline && match ? (
+                        <SyntaxHighlighter
+                          style={oneDark}
+                          language={match[1]}
+                          PreTag="div"
+                          {...props}
+                        >
+                          {String(children).replace(/\n$/, "")}
+                        </SyntaxHighlighter>
+                      ) : (
+                        <code
+                          className="bg-gray-800 text-accent px-1 rounded"
+                          {...props}
+                        >
+                          {children}
+                        </code>
+                      );
+                    },
+                  }}
+                >
+                  {m.text}
+                </ReactMarkdown>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* input bar */}
+      <div className="p-2 border-t border-accent flex gap-2">
+        <input
+          value={msg}
+          onChange={(e) => setMsg(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && send()}
+          className="flex-1 bg-black text-white text-sm px-2 py-1 rounded border border-accent focus:outline-none"
+          placeholder="Type your question…"
+        />
+      </div>
+    </aside>
+  );
+}
+/* ─────────── end ChatBot pane ─────────── */
+
+const STORAGE_KEY = "universityCode";
 const DEFAULT_CODE = `<!DOCTYPE html>
 <html>
 <head>
@@ -19,21 +137,33 @@ const DEFAULT_CODE = `<!DOCTYPE html>
 
 export default function University() {
   const { exerciseId } = useParams();
-  const [code, setCode] = useState(() => localStorage.getItem(STORAGE_KEY) || DEFAULT_CODE);
-  const [srcDoc, setSrcDoc] = useState('');
-  const [botOpen, setBotOpen] = useState(false); // open/close bot
+  const [code, setCode] = useState(
+    () => localStorage.getItem(STORAGE_KEY) || DEFAULT_CODE
+  );
+  const [srcDoc, setSrcDoc] = useState("");
+  const [botOpen, setBotOpen] = useState(false); // controls open/close
 
   const run = () => setSrcDoc(code);
 
+  const handleBotClose = () => setBotOpen(false);
+
   return (
-    <div className="relative flex flex-col h-screen bg-background text-white font-vt323">
+    <div
+      className={`
+      relative flex flex-col h-screen bg-background text-white font-vt323
+      transition-all duration-300 ease-in-out
+      ${botOpen ? "pr-[500px]" : ""}
+      `}
+    >
       {/* Header */}
       <header
         className="relative w-full h-48 bg-cover bg-center"
         style={{ backgroundImage: `url(${universityImage})` }}
       >
         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <h1 className="text-5xl text-accent font-bold">UNIVERSITY OF TERMINALIA</h1>
+          <h1 className="text-5xl text-accent font-bold">
+            UNIVERSITY OF TERMINALIA
+          </h1>
         </div>
       </header>
 
@@ -88,10 +218,10 @@ export default function University() {
                 RUN
               </button>
               <button
-                onClick={() => setBotOpen(o => !o)} // toggles open and close
+                onClick={() => setBotOpen((o) => !o)} // toggles open and close
                 className="bg-footer text-white px-3 py-1 rounded border border-accent hover:bg-accentHover"
               >
-                {botOpen ? 'Close Bot' : 'Ask Bot'}
+                {botOpen ? "Close Bot" : "Ask Bot"}
               </button>
             </div>
           </div>
@@ -102,12 +232,12 @@ export default function University() {
               height="100%"
               defaultLanguage="html"
               value={code}
-              onChange={v => setCode(v || '')}
+              onChange={(v) => setCode(v || "")}
               options={{
                 minimap: { enabled: false },
-                theme: 'vs-dark',
+                theme: "vs-dark",
                 fontSize: 14,
-                fontFamily: 'VT323',
+                fontFamily: "VT323",
               }}
             />
           </div>
@@ -147,14 +277,8 @@ export default function University() {
         </div>
       </div>
 
-      {/* Chatbot sliding panel - NO changes inside Chatbot component */}
-      <div
-        className={`fixed top-0 right-0 h-full bg-footer border-l border-accent z-50 transition-all duration-300 ease-in-out
-          ${botOpen ? 'translate-x-0 w-1/3 opacity-100' : 'translate-x-full w-0 opacity-0 pointer-events-none'}`}
-      >
-        <Chatbot isOpen={botOpen} />
-      </div>
-
+      {/* chatbot mounted once */}
+      <ChatBot isOpen={botOpen} onClose={handleBotClose} />
     </div>
   );
 }
