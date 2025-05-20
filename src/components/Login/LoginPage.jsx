@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaUserCircle, FaGoogle, FaGithub } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const navigateTo = useNavigate();
@@ -14,7 +14,7 @@ const LoginPage = () => {
   const handleInput = (e) => {
     setUserform((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
-
+   
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors(null);
@@ -128,9 +128,9 @@ const LoginPage = () => {
               <label className="flex items-center">
                 <input type="checkbox" className="mr-2" /> Remember me
               </label>
-              <a href="#" className="hover:underline">
+              <NavLink to='/forgetPass'  className="hover:underline">
                 Forgot Password?
-              </a>
+              </NavLink>
             </div>
           </div>
           <div>
