@@ -328,9 +328,9 @@ export default function University() {
           {exercise.example && (
             <div>
               <h3 className="text-accent text-lg mb-1">Example</h3>
-              <p className="text-sm text-gray-300 whitespace-pre-line">
-                {exercise.example}
-              </p>
+              <code className="text-sm text-gray-300 whitespace-pre-line">
+                <pre>{exercise.example}</pre>
+              </code>
             </div>
           )}
         </div>
