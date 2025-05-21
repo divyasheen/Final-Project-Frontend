@@ -9,7 +9,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 /* ─────────────── ChatBot pane ─────────────── */
-function ChatBot({ isOpen, onClose }) {
+function ChatBot({ isOpen, onClose, setWidth }) {
   const [msg, setMsg] = useState("");
   const [messages, setMessages] = useState([
     { from: "bot", text: "Hello 👋 – how can I help?" },
@@ -50,12 +50,12 @@ function ChatBot({ isOpen, onClose }) {
   return (
     <aside
       className={`
-        fixed right-0 top-0 h-full w-[500px] bg-footer border-l border-accent
+        fixed right-0 top-0 h-full bg-footer border-l border-accent
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? "translate-x-0" : "translate-x-full"}
-        z-50
-        flex flex-col
+        z-50 flex flex-col
       `}
+      style={{ width: "500px" }}
     >
       <header className="p-3 border-b border-accent text-accent font-bold flex justify-between items-center">
         <span>Bot</span>
@@ -118,6 +118,32 @@ function ChatBot({ isOpen, onClose }) {
           placeholder="Type your question…"
         />
       </div>
+      <div
+        onMouseDown={(e) => {
+          e.preventDefault()
+          const startX = e.clientX
+          const startWidth = e.currentTarget.parentNode.offsetWidth
+          const sidebar = e.currentTarget.parentNode
+
+          const onMouseMove = (eMove) => {
+            const newWidth = startWidth - (eMove.clientX - startX)
+            const clamped = Math.max(300, Math.min(800, newWidth)) // limit width
+            sidebar.style.width = clamped + "px" 
+            setWidth(clamped) // update width state aka notify parent
+          }
+
+          const onMouseUp = () => {
+            document.removeEventListener("mousemove", onMouseMove)
+            document.removeEventListener("mouseup", onMouseUp)
+          }
+
+          document.addEventListener("mousemove", onMouseMove)
+          document.addEventListener("mouseup", onMouseUp)
+        }}
+        className="absolute left-0 top-0 h-full w-1 cursor-ew-resize bg-transparent hover:bg-accent/20"
+        style={{ zIndex: 60 }}
+      >        
+      </div>
     </aside>
   );
 }
@@ -130,6 +156,7 @@ export default function University() {
   /* ─────────────── ChatBot pane ─────────────── */
   const [botOpen, setBotOpen] = useState(false)
   const handleBotClose = () => setBotOpen(false)
+  const [botWidth, setBotWidth] = useState(500)
   /* ────────────end ChatBot pane ─────────────── */
 
 
@@ -248,12 +275,11 @@ export default function University() {
   }
 
   return (
-    <div className={`
-      relative flex flex-col h-screen bg-background text-white font-vt323
-      transition-all duration-300 ease-in-out
-      ${botOpen ? "pr-[500px]" : ""}
-      `}
+    <div className=
+      "relative flex flex-col h-screen bg-background text-white font-vt323 transition-all duration-100 ease-in-out"
+      style={{ paddingRight: botOpen ? `${botWidth}px` : 0 }}
     >
+      
       {/* Header */}
       <header
         className="relative w-full h-48 bg-cover bg-center"
@@ -379,7 +405,7 @@ export default function University() {
       </div>
 
       {/* ChatBot */}
-      <ChatBot isOpen={botOpen} onClose={handleBotClose} />
+      <ChatBot isOpen={botOpen} onClose={handleBotClose} setWidth={setBotWidth} />
     </div>
   );
 }
