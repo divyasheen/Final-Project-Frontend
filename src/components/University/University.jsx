@@ -61,10 +61,10 @@ function ChatBot({ isOpen, onClose }) {
         <span>Bot</span>
         <button
           onClick={onClose}
-          className="text-white text-sm hover:text-accent px-2 py-1"
+          className="text-accent text-m hover:text-white px-2 py-1"
           aria-label="Close chat"
         >
-          ✕
+          Close
         </button>
       </header>
 
