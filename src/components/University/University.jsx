@@ -9,27 +9,24 @@ const STORAGE_KEY = 'universityCode';
 export default function University() {
   const { exerciseId } = useParams();
   const navigate = useNavigate();
+
   const [code, setCode] = useState('');
-  const [srcDoc, setSrcDoc] = useState('');
   const [exercise, setExercise] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [testResults, setTestResults] = useState([]);
+  const [terminalOutput, setTerminalOutput] = useState('');
 
   useEffect(() => {
     const fetchExercise = async () => {
       try {
         setIsLoading(true);
-       // Fetch exercise data
         const response = await fetch(`http://localhost:5000/api/courses/exercises/${exerciseId}`);
         if (!response.ok) throw new Error('Failed to fetch exercise');
-        
         const data = await response.json();
         setExercise(data);
-        
-        // Try to load saved code or use empty string if none exists
         const savedCode = localStorage.getItem(`${STORAGE_KEY}_${exerciseId}`);
         setCode(savedCode || '');
-        
         setIsLoading(false);
       } catch (err) {
         toast.error(err.message);
@@ -44,25 +41,56 @@ export default function University() {
     localStorage.setItem(`${STORAGE_KEY}_${exerciseId}`, code);
   }, [code, exerciseId]);
 
-  const run = () => setSrcDoc(code);
-
-  const handleComplete = async () => {
+  const run = async () => {
     try {
-      // Here you would typically verify the code against the exercise requirements
-      // For now, we'll just mark it as completed
-      setIsCompleted(true);
+      // Reset completion status before running new tests
+      setIsCompleted(false);
       
-      // In a real app, you would send the completed exercise to the backend
-      // await fetch('/api/complete-exercise', {
-      //   method: 'POST',
-      //   body: JSON.stringify({ exerciseId, code }),
-      //   headers: { 'Content-Type': 'application/json' }
-      // });
-      
-      toast.success(`Exercise completed! +${exercise.xp_reward} XP earned`);
+      const res = await fetch('http://localhost:5000/api/evaluations/evaluate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code,
+          exerciseId,
+          language: exercise?.language || 'html'
+        })
+      });
+
+      const result = await res.json();
+      if (!res.ok || !result.success) {
+        throw new Error('Evaluation failed');
+      }
+
+      setTestResults(result.tests);
+      setTerminalOutput(
+        result.tests.map((test, i) =>
+          `#${i + 1}: ${test.description || test.test_type} - ${test.passed ? '✅ Passed' : '❌ Failed'}\nExpected: ${test.expected_value}\nActual: ${test.actual || 'N/A'}\n`
+        ).join('\n')
+      );
+
+      // Only set as completed if ALL tests pass
+      const allTestsPassed = result.tests.every(test => test.passed);
+      if (allTestsPassed) {
+        setIsCompleted(true);
+        toast.success(`✅ All tests passed! +${exercise.xp_reward} XP`);
+      } else {
+        setIsCompleted(false); // Explicitly set to false if not all pass
+        toast.info(`⚠️ Some tests failed. Score: ${result.score}%`);
+      }
     } catch (err) {
-      toast.error('Failed to complete exercise');
+      setIsCompleted(false); // Also set to false on error
+      setTerminalOutput('❌ Error during evaluation');
+      toast.error(err.message);
     }
+  };
+
+  const handleComplete = () => {
+    if (!isCompleted) {
+      toast.error("❗ Please pass all tests before completing.");
+      return;
+    }
+
+    toast.success(`✅ Exercise marked as complete! +${exercise.xp_reward} XP`);
   };
 
   if (isLoading) {
@@ -136,7 +164,7 @@ export default function University() {
         <div className="w-1/2 flex flex-col border-l border-accent">
           {/* Editor Header */}
           <div className="flex justify-between items-center px-4 py-2 border-b border-accent">
-            <h3 className="text-accent text-xl">Code.js</h3>
+            <h3 className="text-accent text-xl">Code.{exercise.language || 'html'}</h3>
             <div className="space-x-2">
               <button 
                 onClick={run} 
@@ -154,7 +182,7 @@ export default function University() {
           <div className="flex-1">
             <Editor
               height="100%"
-              defaultLanguage="html"
+              defaultLanguage={exercise.language || 'html'}
               value={code}
               onChange={v => setCode(v || '')}
               options={{
@@ -169,16 +197,9 @@ export default function University() {
           {/* Terminal */}
           <div className="h-56 border-t border-accent p-2 bg-black text-white text-sm overflow-auto">
             <h4 className="mb-1 text-accent">Terminal</h4>
-            {srcDoc ? (
-              <iframe
-                srcDoc={srcDoc}
-                sandbox="allow-scripts"
-                className="w-full h-full bg-white"
-                title="Preview"
-              />
-            ) : (
-              <div className="text-gray-400">Output will appear here after clicking RUN.</div>
-            )}
+            <pre className="whitespace-pre-wrap text-sm text-green-300">
+              {terminalOutput || 'Click RUN to evaluate your code.'}
+            </pre>
           </div>
 
           {/* Navigation Buttons */}

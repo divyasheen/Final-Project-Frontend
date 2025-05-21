@@ -92,7 +92,7 @@ useEffect(() => {
 
 
   if (error) return <div className="text-red-500 text-center p-8">Error: {error}</div>;
-  if (isLoading) return <div className="flex items-center justify-center h-screen bg-background text-white">Loading...</div>;
+  //if (isLoading) return <div className="flex items-center justify-center h-screen bg-background text-white">Loading...</div>;
 
   return (
     <div className="min-h-screen font-vt323 bg-background text-white">
