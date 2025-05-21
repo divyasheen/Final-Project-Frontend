@@ -4,6 +4,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import universityImage from '../../assets/images/university.png';
 import { toast } from 'react-toastify';
 
+import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+
 const STORAGE_KEY = 'universityCode';
 
 export default function University() {
