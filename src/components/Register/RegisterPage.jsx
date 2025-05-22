@@ -1,9 +1,18 @@
 import React from "react";
 import { useState } from "react";
 import { FaUserCircle } from "react-icons/fa";
-import { FaGoogle, FaGithub } from "react-icons/fa";
+import {  useNavigate } from 'react-router-dom'
+
+
+
+
+
+
 
 const RegisterPage = () => {
+
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -13,6 +22,8 @@ const RegisterPage = () => {
 
   const [errors, setErrors] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [showPassword,setShowPassword]=useState(false)
+
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -36,14 +47,19 @@ const RegisterPage = () => {
       });
 
       const data = await res.json();
-
+       
+       
       if (res.ok) {
-        setSuccess("Registration successful!");
+        setSuccess("Registration successful! Please check your email to verify your account");
+        setTimeout(() => {
+          
+           navigate('/login')
+        }, 3000);
       } else {
         setErrors(data.errors || [{ msg: data.error }]);
       }
     } catch (err) {
-      setErrors([{ msg: "Server error. Please try again later." }]);
+      setErrors([err||{ msg: "Server error. Please try again later." }]);
     }
   };
 
@@ -113,7 +129,7 @@ const RegisterPage = () => {
             <input
               id="password"
               name="password"
-              type="password"
+              type={showPassword?'text':'password'}
               value={formData.password}
               onChange={handleChange}
               className="w-full border-b  px-4 py-2 text-white   focus:outline-none f bg-transparent"
@@ -121,6 +137,12 @@ const RegisterPage = () => {
               autoComplete="off"
               required
             />
+              <div className="text-white text-xs mt-4 flex flex-col sm:flex-row justify-between gap-3">
+              <label className="flex items-center">
+                <input onChange={()=>setShowPassword(!showPassword)} type="checkbox" className="mr-2" />Show Password
+              </label>
+           
+            </div>
           </div>
 
           <button
