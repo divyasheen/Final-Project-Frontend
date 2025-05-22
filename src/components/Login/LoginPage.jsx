@@ -10,7 +10,7 @@ const LoginPage = () => {
     email: "",
     password: "",
   });
-
+ const [showPassword,setShowPassword]=useState(false)
   const handleInput = (e) => {
     setUserform((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -117,7 +117,7 @@ const LoginPage = () => {
             <input
               name="password"
               id="password"
-              type="password"
+              type={showPassword?'text':'password'}
               onChange={handleInput}
               value={userForm.password}
               placeholder="••••••••"
@@ -126,7 +126,7 @@ const LoginPage = () => {
             />
             <div className="text-white text-xs mt-4 flex flex-col sm:flex-row justify-between gap-3">
               <label className="flex items-center">
-                <input type="checkbox" className="mr-2" /> Remember me
+                <input onChange={()=>setShowPassword(!showPassword)} type="checkbox" className="mr-2" />Show Password
               </label>
               <NavLink to='/forgetPass'  className="hover:underline">
                 Forgot Password?

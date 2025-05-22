@@ -20,6 +20,8 @@ import ForgetPass from "./components/ForgetPass/ForgetPass";
 import Chatbot from "./components/Chatbot/Chatbot"
 
 import LandingPageUser from "./components/LandingPage-User/LandingPageUser";
+import VerificationSuccess from "./components/VerificationSucces/VerificationSuccess";
+import VerificationError from "./components/VerificationError/VerificationError";
 import SetNewPass from "./components/SetNewPass/SetNewPass";
 // styling Files
 import "./App.scss";
@@ -33,7 +35,8 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgetPAss" element ={<ForgetPass />}/>
         <Route path="/users/reset-password/:token" element={<SetNewPass />} />
-        {/* at the LandingPageUser the path should be like  /LandingPageUser/:userId */}
+        <Route path="/verification-success" element={<VerificationSuccess />}/>
+        <Route path="/verification-error" element={<VerificationError />}/>
         <Route element={<Layout />}>
           <Route path="/landingPageUser/:id" element={<LandingPageUser />} />
           <Route path="/university" element={<UniversityIntro />} />
