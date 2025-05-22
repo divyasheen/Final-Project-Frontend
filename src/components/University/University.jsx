@@ -120,30 +120,29 @@ function ChatBot({ isOpen, onClose, setWidth }) {
       </div>
       <div
         onMouseDown={(e) => {
-          e.preventDefault()
-          const startX = e.clientX
-          const startWidth = e.currentTarget.parentNode.offsetWidth
-          const sidebar = e.currentTarget.parentNode
+          e.preventDefault();
+          const startX = e.clientX;
+          const startWidth = e.currentTarget.parentNode.offsetWidth;
+          const sidebar = e.currentTarget.parentNode;
 
           const onMouseMove = (eMove) => {
-            const newWidth = startWidth - (eMove.clientX - startX)
-            const clamped = Math.max(300, Math.min(800, newWidth)) // limit width
-            sidebar.style.width = clamped + "px" 
-            setWidth(clamped) // update width state aka notify parent
-          }
+            const newWidth = startWidth - (eMove.clientX - startX);
+            const clamped = Math.max(300, Math.min(800, newWidth)); // limit width
+            sidebar.style.width = clamped + "px";
+            setWidth(clamped); // update width state aka notify parent
+          };
 
           const onMouseUp = () => {
-            document.removeEventListener("mousemove", onMouseMove)
-            document.removeEventListener("mouseup", onMouseUp)
-          }
+            document.removeEventListener("mousemove", onMouseMove);
+            document.removeEventListener("mouseup", onMouseUp);
+          };
 
-          document.addEventListener("mousemove", onMouseMove)
-          document.addEventListener("mouseup", onMouseUp)
+          document.addEventListener("mousemove", onMouseMove);
+          document.addEventListener("mouseup", onMouseUp);
         }}
         className="absolute left-0 top-0 h-full w-1 cursor-ew-resize bg-transparent hover:bg-accent/20"
         style={{ zIndex: 60 }}
-      >        
-      </div>
+      ></div>
     </aside>
   );
 }
@@ -152,13 +151,11 @@ function ChatBot({ isOpen, onClose, setWidth }) {
 const STORAGE_KEY = "universityCode";
 
 export default function University() {
-
   /* ─────────────── ChatBot pane ─────────────── */
-  const [botOpen, setBotOpen] = useState(false)
-  const handleBotClose = () => setBotOpen(false)
-  const [botWidth, setBotWidth] = useState(500)
+  const [botOpen, setBotOpen] = useState(false);
+  const handleBotClose = () => setBotOpen(false);
+  const [botWidth, setBotWidth] = useState(500);
   /* ────────────end ChatBot pane ─────────────── */
-
 
   const { exerciseId } = useParams();
   const navigate = useNavigate();
@@ -169,6 +166,8 @@ export default function University() {
   const [isCompleted, setIsCompleted] = useState(false);
   const [testResults, setTestResults] = useState([]);
   const [terminalOutput, setTerminalOutput] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState("");
 
   useEffect(() => {
     const fetchExercise = async () => {
@@ -198,7 +197,6 @@ export default function University() {
 
   const run = async () => {
     try {
-      // Reset completion status before running new tests
       setIsCompleted(false);
 
       const res = await fetch(
@@ -233,22 +231,23 @@ export default function University() {
           .join("\n")
       );
 
-      // Only set as completed if ALL tests pass
+      // Set the preview HTML
+      setPreviewHtml(result.htmlPreview || code);
+
       const allTestsPassed = result.tests.every((test) => test.passed);
       if (allTestsPassed) {
         setIsCompleted(true);
         toast.success(`✅ All tests passed! +${exercise.xp_reward} XP`);
       } else {
-        setIsCompleted(false); // Explicitly set to false if not all pass
+        setIsCompleted(false);
         toast.info(`⚠️ Some tests failed. Score: ${result.score}%`);
       }
     } catch (err) {
-      setIsCompleted(false); // Also set to false on error
+      setIsCompleted(false);
       setTerminalOutput("❌ Error during evaluation");
       toast.error(err.message);
     }
   };
-
   const handleComplete = () => {
     if (!isCompleted) {
       toast.error("❗ Please pass all tests before completing.");
@@ -275,11 +274,10 @@ export default function University() {
   }
 
   return (
-    <div className=
-      "relative flex flex-col h-screen bg-background text-white font-vt323 transition-all duration-100 ease-in-out"
+    <div
+      className="relative flex flex-col h-screen bg-background text-white font-vt323 transition-all duration-100 ease-in-out"
       style={{ paddingRight: botOpen ? `${botWidth}px` : 0 }}
     >
-      
       {/* Header */}
       <header
         className="relative w-full h-48 bg-cover bg-center"
@@ -350,10 +348,16 @@ export default function University() {
                 RUN
               </button>
               <button
-                onClick={() => setBotOpen((o) => !o)} // toggle open/close bot 
+                onClick={() => setShowPreview((p) => !p)}
                 className="bg-footer text-white px-3 py-1 rounded border border-accent hover:bg-accentHover"
               >
-                {botOpen ? "Close Bot" : "Ask Bot"} 
+                {showPreview ? "Hide Preview" : "Preview"}
+              </button>
+              <button
+                onClick={() => setBotOpen((o) => !o)} // toggle open/close bot
+                className="bg-footer text-white px-3 py-1 rounded border border-accent hover:bg-accentHover"
+              >
+                {botOpen ? "Close Bot" : "Ask Bot"}
               </button>
             </div>
           </div>
@@ -373,6 +377,19 @@ export default function University() {
               }}
             />
           </div>
+          {showPreview && (
+            <div className="h-56 border-t border-accent bg-white overflow-auto">
+              <h4 className="text-black font-bold p-2 bg-accent">
+                Live Preview
+              </h4>
+              <iframe
+                title="Preview"
+                srcDoc={previewHtml}
+                className="w-full h-full"
+                sandbox="allow-scripts"
+              />
+            </div>
+          )}
 
           {/* Terminal */}
           <div className="h-56 border-t border-accent p-2 bg-black text-white text-sm overflow-auto">
@@ -405,7 +422,11 @@ export default function University() {
       </div>
 
       {/* ChatBot */}
-      <ChatBot isOpen={botOpen} onClose={handleBotClose} setWidth={setBotWidth} />
+      <ChatBot
+        isOpen={botOpen}
+        onClose={handleBotClose}
+        setWidth={setBotWidth}
+      />
     </div>
   );
 }
