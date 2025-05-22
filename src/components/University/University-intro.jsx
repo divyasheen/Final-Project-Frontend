@@ -71,7 +71,7 @@ const UniversityIntro = () => {
   if (error) return <div className="text-red-500 text-center p-8">Error: {error}</div>;
 
   return (
-    <div className="min-h-screen font-vt323 bg-background text-white">
+    <div className="min-h-screen font-poppins bg-background text-white">
       {/* Header */}
       <div 
         className="relative w-full h-[200px] sm:h-[300px] md:h-[400px] lg:h-[500px] mx-auto mb-6 md:mb-8 overflow-hidden"
