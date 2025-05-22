@@ -25,6 +25,7 @@ export default function Chatbot() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: newMessages }),
       });
+      console.log(res)
 
       const data = await res.json();
       

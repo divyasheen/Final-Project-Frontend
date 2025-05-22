@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import universityImage from '../../assets/images/university.png';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import universityImage from "../../assets/images/university.png";
 
 const UniversityIntro = () => {
   const [courses, setCourses] = useState([]);
@@ -14,12 +14,12 @@ const UniversityIntro = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/courses');
-        if (!response.ok) throw new Error('Failed to fetch courses');
-        
+        const response = await fetch("http://localhost:5000/api/courses");
+        if (!response.ok) throw new Error("Failed to fetch courses");
+
         const data = await response.json();
         setCourses(data);
-        
+
         if (data.length > 0) {
           setActiveCourse(data[0].id);
           if (data[0].lessons && data[0].lessons.length > 0) {
@@ -28,7 +28,7 @@ const UniversityIntro = () => {
         }
       } catch (err) {
         setError(err.message);
-      } 
+      }
     };
 
     fetchData();
@@ -37,54 +37,59 @@ const UniversityIntro = () => {
   // Fetch lesson content and exercises when lesson changes
   useEffect(() => {
     if (!activeLesson) return;
-    
+
     const fetchLessonData = async () => {
       try {
         // Fetch lesson content
-        const lessonRes = await fetch(`http://localhost:5000/api/courses/lessons/${activeLesson}`);
-        if (!lessonRes.ok) throw new Error('Failed to fetch lesson');
+        const lessonRes = await fetch(
+          `http://localhost:5000/api/courses/lessons/${activeLesson}`
+        );
+        if (!lessonRes.ok) throw new Error("Failed to fetch lesson");
         const lessonData = await lessonRes.json();
         setLessonContent(lessonData);
-        
+
         // Find the course that contains this lesson
-        const course = courses.find(c => 
-          c.lessons && c.lessons.some(l => l.id === activeLesson)
+        const course = courses.find(
+          (c) => c.lessons && c.lessons.some((l) => l.id === activeLesson)
         );
-        
+
         if (course) {
           // Fetch exercises
           const exercisesRes = await fetch(
             `http://localhost:5000/api/courses/${course.id}/lessons/${activeLesson}/exercises`
           );
-          if (!exercisesRes.ok) throw new Error('Failed to fetch exercises');
+          if (!exercisesRes.ok) throw new Error("Failed to fetch exercises");
           const exercisesData = await exercisesRes.json();
           setExercises(exercisesData);
         }
       } catch (err) {
         setError(err.message);
-      } 
+      }
     };
 
     fetchLessonData();
   }, [activeLesson, courses]);
 
-  if (error) return <div className="text-red-500 text-center p-8">Error: {error}</div>;
+  if (error)
+    return <div className="text-red-500 text-center p-8">Error: {error}</div>;
 
   return (
-    <div className="min-h-screen font-vt323 bg-background text-white">
+    <div className="min-h-screen font-poppins bg-background text-white">
       {/* Header */}
-      <div 
+      <div
         className="relative w-full h-[200px] sm:h-[300px] md:h-[400px] lg:h-[500px] mx-auto mb-6 md:mb-8 overflow-hidden"
         style={{
-          boxShadow: 'inset 0px -250px 250px 30px #0E0E1A',
+          boxShadow: "inset 0px -250px 250px 30px #0E0E1A",
           backgroundImage: `url(${universityImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
+          backgroundSize: "cover",
+          backgroundPosition: "center",
         }}
       >
         <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-accent font-bold text-center tracking-wide">
-            UNIVERSITY OF<br />TERMINALIA
+            UNIVERSITY OF
+            <br />
+            TERMINALIA
           </h1>
         </div>
       </div>
@@ -96,10 +101,10 @@ const UniversityIntro = () => {
           <h2 className="text-xl mb-4">Courses</h2>
           {courses.map((course) => (
             <div key={course.id} className="mb-4">
-              <div 
+              <div
                 className={`flex justify-between items-center p-2 cursor-pointer rounded-md ${
-                  activeCourse === course.id 
-                    ? "bg-accent text-background" 
+                  activeCourse === course.id
+                    ? "bg-accent text-background"
                     : "hover:bg-gray-700/50"
                 }`}
                 onClick={() => {
@@ -118,11 +123,11 @@ const UniversityIntro = () => {
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M19 9l-7 7-7-7" 
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
                   />
                 </svg>
               </div>
@@ -154,17 +159,29 @@ const UniversityIntro = () => {
           {/* Lesson Content */}
           <div className="border-2 border-accent rounded-lg p-4 md:p-6 bg-gray-900/50">
             {lessonContent ? (
-              <div>
-                <h2 className="text-2xl md:text-3xl mb-4 text-accent">
-                  {lessonContent.title}
-                </h2>
-                <div 
-                  className="prose prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ 
-                    __html: lessonContent.content.replace(/\n/g, '<br />') 
-                  }}
-                />
-              </div>
+              <>
+                <div>
+                  <h2 className="text-2xl md:text-3xl mb-4 text-accent">
+                    {lessonContent.title}
+                  </h2>
+                  <div
+                    className="prose prose-invert max-w-none"
+                    dangerouslySetInnerHTML={{
+                      __html: lessonContent.content.replace(/\n/g, "<br />"),
+                    }}
+                  />
+                </div>
+                <div>
+                  {lessonContent.example && (
+                    <div>
+                      <h3 className="text-accent text-lg mb-1">Example</h3>
+                      <code className="text-sm text-gray-300 whitespace-pre-line">
+                        <pre>{lessonContent.example}</pre>
+                      </code>
+                    </div>
+                  )}
+                </div>
+              </>
             ) : (
               <p className="text-gray-400 italic">
                 Select a lesson to view its content
@@ -185,7 +202,9 @@ const UniversityIntro = () => {
                   >
                     <div className="flex justify-between items-center">
                       <div>
-                        <span className="text-gray-400">Exercise {exercise.id}</span>
+                        <span className="text-gray-400">
+                          Exercise {exercise.id}
+                        </span>
                         <span className="mx-2 text-gray-600">|</span>
                         <span>{exercise.title}</span>
                       </div>
