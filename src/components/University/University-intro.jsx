@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import universityImage from "../../assets/images/university.png";
 
 const UniversityIntro = () => {
@@ -9,6 +10,8 @@ const UniversityIntro = () => {
   const [lessonContent, setLessonContent] = useState(null);
   const [exercises, setExercises] = useState([]);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const [lessonCompletion, setLessonCompletion] = useState({});
 
   // Fetch courses and lessons
   useEffect(() => {
@@ -40,7 +43,7 @@ const UniversityIntro = () => {
 
     const fetchLessonData = async () => {
       try {
-        // Fetch lesson content
+        // Fetch lesson content first
         const lessonRes = await fetch(
           `http://localhost:5000/api/courses/lessons/${activeLesson}`
         );
@@ -53,15 +56,47 @@ const UniversityIntro = () => {
           (c) => c.lessons && c.lessons.some((l) => l.id === activeLesson)
         );
 
-        if (course) {
-          // Fetch exercises
-          const exercisesRes = await fetch(
-            `http://localhost:5000/api/courses/${course.id}/lessons/${activeLesson}/exercises`
-          );
-          if (!exercisesRes.ok) throw new Error("Failed to fetch exercises");
-          const exercisesData = await exercisesRes.json();
-          setExercises(exercisesData);
+        if (!course) return;
+
+        // Fetch exercises for this lesson
+        const exercisesRes = await fetch(
+          `http://localhost:5000/api/courses/${course.id}/lessons/${activeLesson}/exercises`
+        );
+        if (!exercisesRes.ok) throw new Error("Failed to fetch exercises");
+        let exercisesData = await exercisesRes.json();
+
+        // Fetch progress for this lesson
+        const progressRes = await fetch(
+          `http://localhost:5000/api/courses/lessons/${activeLesson}/progress`,
+          { credentials: "include" }
+        );
+        if (progressRes.ok) {
+          const progressData = await progressRes.json();
+          console.log("Progress Data:", progressData); // Debug log
+
+          // Convert is_completed (1/0) to boolean
+          exercisesData = exercisesData.map((exercise) => {
+            const progress = progressData.find((p) => p.id === exercise.id);
+            return {
+              ...exercise,
+              completed: progress ? Boolean(progress.is_completed) : false,
+            };
+          });
+
+          const completedExercises = exercisesData.filter(
+            (e) => e.completed
+          ).length;
+
+          setLessonCompletion((prev) => ({
+            ...prev,
+            [activeLesson]: {
+              completed: completedExercises,
+              total: exercisesData.length,
+              allDone: completedExercises === exercisesData.length,
+            },
+          }));
         }
+        setExercises(exercisesData);
       } catch (err) {
         setError(err.message);
       }
@@ -109,7 +144,7 @@ const UniversityIntro = () => {
                 }`}
                 onClick={() => {
                   setActiveCourse(course.id);
-                  if (course.lessons.length > 0) {
+                  if (course.lessons && course.lessons.length > 0) {
                     setActiveLesson(course.lessons[0].id);
                   }
                 }}
@@ -133,7 +168,7 @@ const UniversityIntro = () => {
               </div>
 
               {/* Lessons dropdown */}
-              {activeCourse === course.id && (
+              {activeCourse === course.id && course.lessons && (
                 <ul className="ml-4 mt-2 space-y-1 border-l-2 border-accent pl-3">
                   {course.lessons.map((lesson) => (
                     <li
@@ -157,9 +192,27 @@ const UniversityIntro = () => {
         {/* Right content area */}
         <div className="flex-1 flex flex-col gap-6">
           {/* Lesson Content */}
-          <div className="border-2 border-accent rounded-lg p-4 md:p-6 bg-gray-900/50">
+          <div className="border-2 border-accent rounded-lg p-4 md:p-6 bg-gray-900/50 relative">
             {lessonContent ? (
               <>
+                {/* Add completion badge */}
+                {lessonCompletion[activeLesson]?.allDone && (
+                  <div className="absolute top-4 right-4 bg-green-500 text-black text-xs font-bold px-2 py-1 rounded-full flex items-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-3 w-3 mr-1"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    COMPLETED
+                  </div>
+                )}
                 <div>
                   <h2 className="text-2xl md:text-3xl mb-4 text-accent">
                     {lessonContent.title}
@@ -189,16 +242,31 @@ const UniversityIntro = () => {
             )}
           </div>
 
-          {/* Exercises */}
+          {/* Exercises - Enhanced with progress indicator */}
           <div className="border-2 border-accent rounded-lg p-4 md:p-6 bg-gray-900/50">
-            <h3 className="text-xl md:text-2xl mb-4">Exercises</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl md:text-2xl">Exercises</h3>
+              {lessonCompletion[activeLesson] && (
+                <div className="text-sm text-gray-400">
+                  {lessonCompletion[activeLesson].completed}/
+                  {lessonCompletion[activeLesson].total} completed
+                  {lessonCompletion[activeLesson].allDone && (
+                    <span className="ml-2 text-green-500">✓</span>
+                  )}
+                </div>
+              )}
+            </div>
             {exercises.length > 0 ? (
               <div className="grid gap-3">
                 {exercises.map((exercise) => (
                   <Link
                     to={`/university/${exercise.id}`}
                     key={exercise.id}
-                    className="block p-3 border border-gray-700 rounded-lg hover:bg-gray-700/30 transition-colors no-underline"
+                    className={`block p-3 border rounded-lg transition-colors no-underline ${
+                      exercise.completed
+                        ? "border-green-500 bg-green-500/10"
+                        : "border-gray-700 hover:bg-gray-700/30"
+                    }`}
                   >
                     <div className="flex justify-between items-center">
                       <div>
