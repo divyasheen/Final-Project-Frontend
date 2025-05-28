@@ -18,12 +18,12 @@ const NavBar = () => {
         <div className={"navRealm"}>
           {[
             "university",
-            "bugadune",
-            "csscrypta",
+            //"bugadune",
+            //"csscrypta",
 
             "forumia",
             "playground",
-            "towerofapion",
+            //"towerofapion",
             "Chatbot",
           ].map((path) => (
             <NavLink key={path} to={`/${path}`}>
