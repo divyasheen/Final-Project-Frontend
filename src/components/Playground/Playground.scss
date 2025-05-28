@@ -1,41 +1,41 @@
-.playground-container {
-    padding: 1rem;
+// .playground-container {
+//     padding: 1rem;
   
-    .controls {
-      display: flex;
-      align-items: center;
-    }
+//     .controls {
+//       display: flex;
+//       align-items: center;
+//     }
   
-    .preview-area {
-      margin-top: 1rem;
+//     .preview-area {
+//       margin-top: 1rem;
   
-      .preview-iframe {
-        width: 100%;
-        height: 30vh;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-      }
+//       .preview-iframe {
+//         width: 100%;
+//         height: 30vh;
+//         border: 1px solid #ccc;
+//         border-radius: 4px;
+//       }
   
-      .console-output {
-        background: #111;
-        color: #0f0;
-        padding: 0.5rem;
-        min-height: 20vh;
-        overflow: auto;
-        border-radius: 4px;
-      }
+//       .console-output {
+//         background: #111;
+//         color: #0f0;
+//         padding: 0.5rem;
+//         min-height: 20vh;
+//         overflow: auto;
+//         border-radius: 4px;
+//       }
   
-      .markdown-output {
-        background: #f8f9fa;
-        padding: 1rem;
-        border-radius: 4px;
-        min-height: 20vh;
-      }
-    }
+//       .markdown-output {
+//         background: #f8f9fa;
+//         padding: 1rem;
+//         border-radius: 4px;
+//         min-height: 20vh;
+//       }
+//     }
   
-    .monaco-editor {
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-  }
+//     .monaco-editor {
+//       border: 1px solid #ddd;
+//       border-radius: 4px;
+//     }
+//   }
   
