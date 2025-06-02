@@ -1,17 +1,55 @@
-import React from "react";
+import React,  { useState, useEffect } from "react";
 import "./LandingPageUser.scss";
 import Frame3 from "../../assets/images/Frame3.png";
 import UserImage from "../../assets/images/userImage.jpeg";
 import LandingPageUserCards from "./LandingPageUserCards";
 import LandingPageUserCardsImage from "../../assets/images/LandingPageUserBackGround.jpg";
-// import { useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+
+
 const LandingPageUser = () => {
 
   //we need to find the user who has the id of the param and render the user details 
-  // const {id}=useParams()
+  const {id}=useParams();
+  const [userProgress, setUserProgress] = useState(null);
+  const [userData, setUserData] = useState(null);
 
 
 
+  useEffect(() => {
+    const fetchUserProgress = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/user/progress`, {
+          credentials: 'include',
+        });
+        
+        if (!response.ok) throw new Error('Failed to fetch progress');
+        
+        const data = await response.json();
+        setUserProgress(data);
+      } catch (error) {
+        console.error('Error fetching progress:', error);
+      }
+    };
+
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/user/${id}`, {
+          credentials: 'include',
+        });
+        
+        if (!response.ok) throw new Error('Failed to fetch user data');
+        
+        const data = await response.json();
+        setUserData(data);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserProgress();
+    fetchUserData();
+  }, [id]);
 
   return (
     <section className=" gap-14 flex p-5 bg-background flex-col  justify-center items-center  ">
@@ -33,17 +71,25 @@ const LandingPageUser = () => {
       </div>
 
       <div className="z-10 container w-full xl:absolute bottom-[0rem]  text-white font-semibold md:gap-4 gap-5 xl:gap-0 flex flex-col md:flex-row justify-between ">
-        <article
-          className=" shadow-[0_8px_30px_rgba(255,255,255,0.4)]
- bg-background  flex justify-center items-center border-2 border-accent rounded-md  md:rounded-2xl w-full  md:w-3/5     text-white text-center "
-        >
-          <h1 className="  text-xl">Lesson stuff ... Status and Next Lesson</h1>
+        <article className="shadow-[0_8px_30px_rgba(255,255,255,0.4)] bg-background flex justify-center items-center border-2 border-accent rounded-md md:rounded-2xl w-full md:w-3/5 text-white text-center">
+          <div className="p-4">
+            <h1 className="text-xl mb-2">Your Progress</h1>
+            {userProgress ? (
+              <>
+                <p>Completed: {userProgress.completedExercises} / {userProgress.totalExercises}</p>
+                {userProgress.nextExercise && (
+                  <p className="mt-2">
+                    Next: {userProgress.nextExercise.title}
+                  </p>
+                )}
+              </>
+            ) : (
+              <p>Loading progress...</p>
+            )}
+          </div>
         </article>
 
-        <article
-          className="bg-background border-2 border-accent rounded-md   md:rounded-2xl py-14 md:w-2/5 xl:w-1/5 shadow-[0_8px_30px_rgba(255,255,255,0.4)]
- "
-        >
+        <article className="bg-background border-2 border-accent rounded-md md:rounded-2xl py-14 md:w-2/5 xl:w-1/5 shadow-[0_8px_30px_rgba(255,255,255,0.4)]">
           <div className="mb-5 flex items-center justify-around">
             <img
               className="w-14 h-14 rounded-full"
@@ -52,24 +98,23 @@ const LandingPageUser = () => {
               alt="userImage"
             />
             <p className="flex flex-col items-center">
-              Username
-              <span className="text-xs font-normal">level 9000</span>
+              {userData?.username || 'Loading...'}
+              <span className="text-xs font-normal">Level {userData?.level || 1}</span>
             </p>
           </div>
-          <div className=" mt-6 mb-4 flex items-center   justify-around">
+          <div className="mt-6 mb-4 flex items-center justify-around">
             <p className="flex flex-col items-center">
               Badges
-              <span className="text-xs font-normal">12</span>
+              <span className="text-xs font-normal">{userData?.badges?.length || 0}</span>
             </p>
             <p className="flex flex-col items-center">
               XP
-              <span className="text-xs font-normal">3000</span>
+              <span className="text-xs font-normal">{userData?.xp || 0}</span>
             </p>
           </div>
-
-          <p className="flex flex-col text-center items-center ">
+          <p className="flex flex-col text-center items-center">
             Rank
-            <span className="text-xs font-normal">12</span>
+            <span className="text-xs font-normal">#{userData?.rank || 'N/A'}</span>
           </p>
         </article>
       </div>

@@ -179,6 +179,21 @@ export default function University() {
         if (!response.ok) throw new Error("Failed to fetch exercise");
         const data = await response.json();
         setExercise(data);
+        
+        // Check if exercise is already completed
+        const progressRes = await fetch(
+          `http://localhost:5000/api/courses/lessons/${data.lesson_id}/progress`,
+          { credentials: "include" }
+        );
+        
+        if (progressRes.ok) {
+          const progress = await progressRes.json();
+          const currentEx = progress.find(ex => ex.id === parseInt(exerciseId));
+          if (currentEx?.completed) {
+            setIsCompleted(true);
+          }
+        }
+
         const savedCode = localStorage.getItem(`${STORAGE_KEY}_${exerciseId}`);
         setCode(savedCode || "");
         setIsLoading(false);
@@ -248,15 +263,51 @@ export default function University() {
       toast.error(err.message);
     }
   };
-  const handleComplete = () => {
-    if (!isCompleted) {
-      toast.error("❗ Please pass all tests before completing.");
-      return;
+ const handleComplete = async () => {
+  if (!isCompleted) {
+    toast.error("❗ Please pass all tests before completing.");
+    return;
+  }
+   try {
+      const response = await fetch(
+        `http://localhost:5000/api/courses/exercises/${exerciseId}/complete`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to mark exercise complete");
+
+      toast.success(`✅ Exercise completed! +${exercise.xp_reward} XP`);
+      navigate("/university"); // Return to lesson list
+    } catch (error) {
+      console.error("Completion error:", error);
+      toast.error(error.message);
     }
+};
 
-    toast.success(`✅ Exercise marked as complete! +${exercise.xp_reward} XP`);
+  const handleNextExercise = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/courses/exercises/${exerciseId}/next`,
+        { credentials: "include" }
+      );
+
+      if (response.ok) {
+        const { nextExerciseId } = await response.json();
+        if (nextExerciseId) {
+          navigate(`/university/${nextExerciseId}`);
+        } else {
+          toast.info("🎉 No more exercises in this lesson!");
+          navigate("/university");
+        }
+      }
+    } catch (error) {
+      console.error("Error getting next exercise:", error);
+      toast.error("Failed to get next exercise");
+    }
   };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-background text-white">
@@ -401,20 +452,27 @@ export default function University() {
 
           {/* Navigation Buttons */}
           <div className="flex justify-between items-center p-4 border-t border-accent">
-            <button
+             <button
               className="px-4 py-1 bg-footer border border-accent rounded hover:bg-accentHover"
-              onClick={() => navigate(-1)}
+              onClick={() => navigate("/university")}
             >
               Back
             </button>
             <button
               onClick={handleComplete}
-              className="px-4 py-1 bg-accent text-black rounded hover:bg-accentHover"
-              disabled={isCompleted}
+              className={`px-4 py-1 rounded ${
+                isCompleted 
+                  ? "bg-green-500 text-white" 
+                  : "bg-gray-600 text-gray-400 cursor-not-allowed"
+              }`}
+              disabled={!isCompleted}
             >
-              {isCompleted ? "Completed!" : "Complete"}
+              Complete
             </button>
-            <button className="px-4 py-1 bg-footer border border-accent rounded hover:bg-accentHover">
+        <button
+              onClick={handleNextExercise}
+              className="px-4 py-1 bg-footer border border-accent rounded hover:bg-accentHover"
+            >
               Next
             </button>
           </div>
