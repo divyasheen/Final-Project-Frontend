@@ -1,48 +1,83 @@
 import ProgressBar from "@ramonak/react-progress-bar";
+import { useState, useEffect } from "react";
+import Apion from "../../assets/images/Apion.png";
 
 function ProfilNav() {
+  // ------------ JB: PLACEHOLDER TILL FETCHING WORKS -----------------
   const badges = ["HTML-Badge", "CSS-Badge", "JS-Badge"];
+  const userId = 30;
+
+  // -*-*- States -*-*-
+  const [userData, setUserData] = useState();
+
+  useEffect(() => {
+    // JB: We fetch one time (because of the dependency [id] of the useEffect) the user and store it inside useData
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/user/${userId}`,
+          {
+            credentials: "include",
+          }
+        );
+
+        if (!response.ok) throw new Error("Failed to fetch user data");
+
+        const data = await response.json();
+        setUserData(data);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, [userId]);
 
   return (
     <>
-      <h1>ProfileUser</h1>
-      <div>
-        <div>Profil Picture</div>
-        <div>Username</div>
-        <div>Followers</div>
-        <div>Following</div>
-      </div>
+      {userData ? (
+        <div>
+          <h1>ProfileUser</h1>
+          <div>
+            <img src="https://placekeanu.com/100/100" />
+            <div>{userData.username}</div>
+          </div>
 
-      <div>
-        <h2>Info</h2>
-        <div>Individual text about you</div>
-        <div>Location - from BE</div>
-        <div>Joined at - from BE</div>
-        <div>List of linked Profiles (Insta, Github)</div>
-        <div>Skills/Languages - from BE</div>
-      </div>
+          <div>
+            <h2>Info</h2>
+            <div>Individual text about you</div>
+            <div>Location - from BE</div>
+            <div>Joined: {userData.created_at}</div>
+            <div>List of linked Profiles (Insta, Github)</div>
+            <div>Skills/Languages - from BE</div>
+          </div>
 
-      <div>
-        <h2>Stats</h2>
-        <div>XP - from BE</div>
-        <ProgressBar completed={50} />
-        <div>Badges - from BE</div>
-        <div>Amount of Exercises - from BE</div>
-        <div>Daily strikes - from BE</div>
-      </div>
+          <div>
+            <h2>Stats</h2>
+            <div>XP:</div>
+            <ProgressBar completed={userData.xp} />
+            <div>Badges - from BE</div>
+            <div>Amount of Exercises - from BE</div>
+            <div>Daily strikes - from BE</div>
+          </div>
 
-      <div>
-        <div>Post 1</div>
-        <div>Post 2</div>
-        <div>Post 3</div>
-        <div>Post 4</div>
-      </div>
+          <div>
+            <div>Post 1</div>
+            <div>Post 2</div>
+            <div>Post 3</div>
+            <div>Post 4</div>
+          </div>
 
-      {/* JB: Form to upload picture - might go into an edit-page */}
-      <form action="/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="avatar" />
-        <button type="submit">Hochladen</button>
-      </form>
+          {/* JB: Form to upload picture - might go into an edit-page */}
+          <form action="/upload" method="post" encType="multipart/form-data">
+            <input type="text" name="username" />
+            <input type="file" name="picture" />
+            <button type="submit">Upload</button>
+          </form>
+        </div>
+      ) : (
+        <p>No exercises available for this lesson</p>
+      )}
     </>
   );
 }
