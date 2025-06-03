@@ -179,23 +179,25 @@ export default function University() {
         if (!response.ok) throw new Error("Failed to fetch exercise");
         const data = await response.json();
         setExercise(data);
-        
+
         // Check if exercise is already completed
         const progressRes = await fetch(
           `http://localhost:5000/api/courses/lessons/${data.lesson_id}/progress`,
           { credentials: "include" }
         );
-        
+
         if (progressRes.ok) {
           const progress = await progressRes.json();
-          const currentEx = progress.find(ex => ex.id === parseInt(exerciseId));
+          const currentEx = progress.find(
+            (ex) => ex.id === parseInt(exerciseId)
+          );
           if (currentEx?.completed) {
             setIsCompleted(true);
           }
         }
 
         const savedCode = localStorage.getItem(`${STORAGE_KEY}_${exerciseId}`);
-        setCode(savedCode || "");
+        setCode(savedCode || data.placeholder || "");
         setIsLoading(false);
       } catch (err) {
         toast.error(err.message);
@@ -263,12 +265,12 @@ export default function University() {
       toast.error(err.message);
     }
   };
- const handleComplete = async () => {
-  if (!isCompleted) {
-    toast.error("❗ Please pass all tests before completing.");
-    return;
-  }
-   try {
+  const handleComplete = async () => {
+    if (!isCompleted) {
+      toast.error("❗ Please pass all tests before completing.");
+      return;
+    }
+    try {
       const response = await fetch(
         `http://localhost:5000/api/courses/exercises/${exerciseId}/complete`,
         {
@@ -285,7 +287,7 @@ export default function University() {
       console.error("Completion error:", error);
       toast.error(error.message);
     }
-};
+  };
 
   const handleNextExercise = async () => {
     try {
@@ -426,6 +428,27 @@ export default function University() {
                 fontSize: 14,
                 fontFamily: "VT323",
               }}
+              // Add this to show placeholder text
+              beforeMount={(monaco) => {
+                monaco.editor.defineTheme("myTheme", {
+                  base: "vs-dark",
+                  inherit: true,
+                  rules: [
+                    { token: "", foreground: "CCCCCC", background: "000000" },
+                  ],
+                  colors: {
+                    "editor.background": "#000000",
+                    "editor.foreground": "#CCCCCC",
+                  },
+                });
+              }}
+              onMount={(editor, monaco) => {
+                if (!code && exercise.placeholder) {
+                  editor.setValue(exercise.placeholder);
+                  setCode(exercise.placeholder);
+                }
+                monaco.editor.setTheme("myTheme");
+              }}
             />
           </div>
           {showPreview && (
@@ -452,7 +475,7 @@ export default function University() {
 
           {/* Navigation Buttons */}
           <div className="flex justify-between items-center p-4 border-t border-accent">
-             <button
+            <button
               className="px-4 py-1 bg-footer border border-accent rounded hover:bg-accentHover"
               onClick={() => navigate("/university")}
             >
@@ -461,15 +484,15 @@ export default function University() {
             <button
               onClick={handleComplete}
               className={`px-4 py-1 rounded ${
-                isCompleted 
-                  ? "bg-green-500 text-white" 
+                isCompleted
+                  ? "bg-green-500 text-white"
                   : "bg-gray-600 text-gray-400 cursor-not-allowed"
               }`}
               disabled={!isCompleted}
             >
               Complete
             </button>
-        <button
+            <button
               onClick={handleNextExercise}
               className="px-4 py-1 bg-footer border border-accent rounded hover:bg-accentHover"
             >
