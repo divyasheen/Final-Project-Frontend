@@ -36,8 +36,13 @@ function ProfilNav() {
         <div>Post 2</div>
         <div>Post 3</div>
         <div>Post 4</div>
-
       </div>
+
+      {/* JB: Form to upload picture - might go into an edit-page */}
+      <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="avatar" />
+        <button type="submit">Hochladen</button>
+      </form>
     </>
   );
 }
