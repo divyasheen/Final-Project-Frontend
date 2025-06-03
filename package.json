@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
+    "@ramonak/react-progress-bar": "^5.4.0",
     "@react-oauth/google": "^0.12.2",
     "dotenv": "^16.5.0",
     "motion": "^12.9.4",
