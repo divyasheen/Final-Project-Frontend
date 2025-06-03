@@ -40,7 +40,7 @@ const NavBar = () => {
           <img src="https://placekeanu.com/50/50/" alt="" />
           <p>UserName</p>
           <li>
-            <NavLink to={"/:user"}>Profil</NavLink>
+            <NavLink to={"/user"}>Profil</NavLink>
           </li>
           <li>
             <NavLink to={"/:user/edit"}>Edit</NavLink>

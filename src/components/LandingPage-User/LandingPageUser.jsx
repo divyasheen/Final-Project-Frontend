@@ -6,15 +6,12 @@ import LandingPageUserCards from "./LandingPageUserCards";
 import LandingPageUserCardsImage from "../../assets/images/LandingPageUserBackGround.jpg";
 import { useParams } from "react-router-dom";
 
-
 const LandingPageUser = () => {
 
   //we need to find the user who has the id of the param and render the user details 
   const {id}=useParams();
   const [userProgress, setUserProgress] = useState(null);
   const [userData, setUserData] = useState(null);
-
-
 
   useEffect(() => {
     const fetchUserProgress = async () => {
