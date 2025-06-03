@@ -18,13 +18,14 @@ import ProfilNav from "./components/ProfilNav/ProfilNav";
 import Layout from "./components/Layout";
 import ForgetPass from "./components/ForgetPass/ForgetPass";
 import Chatbot from "./components/Chatbot/Chatbot"
-
+import Logout from "./components/logout/Logout.jsx";
 import LandingPageUser from "./components/LandingPage-User/LandingPageUser";
 import VerificationSuccess from "./components/VerificationSucces/VerificationSuccess";
 import VerificationError from "./components/VerificationError/VerificationError";
 import SetNewPass from "./components/SetNewPass/SetNewPass";
 // styling Files
 import "./App.scss";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
 function App() {
   return (
@@ -38,18 +39,29 @@ function App() {
         <Route path="/verification-success" element={<VerificationSuccess />}/>
         <Route path="/verification-error" element={<VerificationError />}/>
         <Route element={<Layout />}>
-          <Route path="/landingPageUser/:id" element={<LandingPageUser />} />
-          <Route path="/university" element={<UniversityIntro />} />
-          <Route path="/university/:exerciseId" element={<University />} />
-          <Route path="/bugadune" element={<Bugadune />} />
-          <Route path="/csscrypta" element={<CSSCrypta />} />
-          <Route path="/forumia" element={<Forumia />} />
-          <Route path="/playground" element={<Playground />} />
-          <Route path="/towerofapion" element={<TowerOfAPIon />} />
-          <Route path="/user" element={<ProfilNav />} />
-          <Route path="/chatbot" element={<Chatbot />} />
+          <Route path="/landingPageUser/:id" element={
+            <ProtectedRoute><LandingPageUser /></ProtectedRoute>} />
+          <Route path="/university" element={
+            <ProtectedRoute><UniversityIntro /></ProtectedRoute>} />
+          <Route path="/university/:exerciseId" element={
+             <ProtectedRoute><University /></ProtectedRoute>} />
+          <Route path="/bugadune" element={
+             <ProtectedRoute><Bugadune /></ProtectedRoute>} />
+          <Route path="/csscrypta" element={
+             <ProtectedRoute><CSSCrypta /></ProtectedRoute>} />
+          <Route path="/forumia" element={
+             <ProtectedRoute><Forumia /></ProtectedRoute>} />
+          <Route path="/playground" element={
+             <ProtectedRoute><Playground /></ProtectedRoute>} />
+          <Route path="/towerofapion" element={
+             <ProtectedRoute><TowerOfAPIon /></ProtectedRoute>} />
+          <Route path="/user" element={
+             <ProtectedRoute><ProfilNav /></ProtectedRoute>} />
+          <Route path="/chatbot" element={
+             <ProtectedRoute><Chatbot /></ProtectedRoute>} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
+        <Route path="/logout" element={<Logout />} />
       </Routes>
     </>
   );
