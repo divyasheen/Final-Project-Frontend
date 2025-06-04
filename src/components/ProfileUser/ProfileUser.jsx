@@ -5,22 +5,20 @@ import EditProfile from "../EditProfile";
 import { UserContext } from "../../contexts/userIdContext";
 
 function ProfilNav() {
-
   // ------------ JB: PLACEHOLDER TILL FETCHING WORKS -----------------
   const badges = ["HTML-Badge", "CSS-Badge", "JS-Badge"];
 
   // -*-*- Hooks: State, Navigate -*-*-
   const [userData, setUserData] = useState();
-  const {userId} = useContext(UserContext)
+  const { userId } = useContext(UserContext);
   const navigate = useNavigate();
 
   // -*-*- onClick -*-*-
-  
+
   // -*-*- Loading User -*-*_
   useEffect(() => {
-    
     // JB: We fetch one time (because of the dependency [id] of the useEffect) the user and store it inside useData
-   const fetchUserData = async () => {
+    const fetchUserData = async () => {
       try {
         const response = await fetch(
           `http://localhost:5000/api/user/${userId}`,
@@ -38,8 +36,7 @@ function ProfilNav() {
       }
     };
 
-   fetchUserData();
-    
+    fetchUserData();
   }, [userId]);
 
   return (
@@ -59,7 +56,9 @@ function ProfilNav() {
             <div>Joined: {userData.created_at}</div>
             <div>List of linked Profiles (Insta, Github)</div>
             <div>Skills/Languages - from BE</div>
-            <button onClick = {() => navigate("/edit-profile")}>Edit Profile</button>
+            <button onClick={() => navigate("/edit-profile")}>
+              Edit Profile
+            </button>
           </div>
 
           <div>
@@ -77,13 +76,6 @@ function ProfilNav() {
             <div>Post 3</div>
             <div>Post 4</div>
           </div>
-
-          {/* JB: Form to upload picture - might go into an edit-page */}
-          <form action="/upload" method="post" encType="multipart/form-data">
-            <input type="text" name="username" />
-            <input type="file" name="picture" />
-            <button type="submit">Upload</button>
-          </form>
         </div>
       ) : (
         <p>No exercises available for this lesson</p>
