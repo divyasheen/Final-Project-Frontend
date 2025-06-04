@@ -18,8 +18,6 @@ function ProfilNav() {
   
   // -*-*- Loading User -*-*_
   useEffect(() => {
-
-    console.log(userId);
     
     // JB: We fetch one time (because of the dependency [id] of the useEffect) the user and store it inside useData
    const fetchUserData = async () => {
