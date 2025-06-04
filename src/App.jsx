@@ -25,10 +25,14 @@ import VerificationError from "./components/VerificationError/VerificationError"
 import SetNewPass from "./components/SetNewPass/SetNewPass";
 // styling Files
 import "./App.scss";
+import EditProfile from "./components/EditProfile";
+import { UserProvider } from "./contexts/userIdContext";
 
 function App() {
   return (
     <>
+    <UserProvider>
+
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -48,9 +52,11 @@ function App() {
           <Route path="/towerofapion" element={<TowerOfAPIon />} />
           <Route path="/user" element={<ProfilNav />} />
           <Route path="/chatbot" element={<Chatbot />} />
+          <Route path="/edit-profile" element = {<EditProfile />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+    </UserProvider>
     </>
   );
 }

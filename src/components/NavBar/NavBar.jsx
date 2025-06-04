@@ -1,10 +1,9 @@
 import React from "react";
 import "./_navbar.scss";
-import Footer from "../Footer/Footer";
-
 import { NavLink} from "react-router-dom";
 
 const NavBar = () => {
+
   const logout = () => {
     // JB: clear token
     window.localStorage.clear();
@@ -20,7 +19,6 @@ const NavBar = () => {
             "university",
             //"bugadune",
             //"csscrypta",
-
             "forumia",
             "playground",
             //"towerofapion",
@@ -43,7 +41,7 @@ const NavBar = () => {
             <NavLink to={"/user"}>Profil</NavLink>
           </li>
           <li>
-            <NavLink to={"/:user/edit"}>Edit</NavLink>
+            <NavLink to={"/edit-profile"}>Edit</NavLink>
           </li>
           <li onClick={logout}>Logout</li>
         </ul>
@@ -54,5 +52,6 @@ const NavBar = () => {
     </>
   );
 };
+
 
 export default NavBar;

@@ -1,18 +1,26 @@
 import ProgressBar from "@ramonak/react-progress-bar";
-import { useState, useEffect } from "react";
-import Apion from "../../assets/images/Apion.png";
+import { useState, useEffect, use, useCallback, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import EditProfile from "../EditProfile";
+import { UserContext } from "../../contexts/userIdContext";
 
 function ProfilNav() {
+
   // ------------ JB: PLACEHOLDER TILL FETCHING WORKS -----------------
   const badges = ["HTML-Badge", "CSS-Badge", "JS-Badge"];
-  const userId = 30;
 
-  // -*-*- States -*-*-
+  // -*-*- Hooks: State, Navigate -*-*-
   const [userData, setUserData] = useState();
+  const {userId} = useContext(UserContext)
+  const navigate = useNavigate();
 
+  // -*-*- onClick -*-*-
+  
+  // -*-*- Loading User -*-*_
   useEffect(() => {
+    
     // JB: We fetch one time (because of the dependency [id] of the useEffect) the user and store it inside useData
-    const fetchUserData = async () => {
+   const fetchUserData = async () => {
       try {
         const response = await fetch(
           `http://localhost:5000/api/user/${userId}`,
@@ -30,7 +38,8 @@ function ProfilNav() {
       }
     };
 
-    fetchUserData();
+   fetchUserData();
+    
   }, [userId]);
 
   return (
@@ -50,6 +59,7 @@ function ProfilNav() {
             <div>Joined: {userData.created_at}</div>
             <div>List of linked Profiles (Insta, Github)</div>
             <div>Skills/Languages - from BE</div>
+            <button onClick = {() => navigate("/edit-profile")}>Edit Profile</button>
           </div>
 
           <div>
