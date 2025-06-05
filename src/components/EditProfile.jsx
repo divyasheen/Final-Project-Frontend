@@ -1,11 +1,13 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { UserContext } from "../contexts/userIdContext";
 
 function EditProfile() {
   // -*-*- Hooks: States, Contexts ... -*-*-
-  const { userId } = useContext(UserContext);
-  const [formData, setFormData] = useState({ id: userId });
+  const { userId} = useContext(UserContext);
 
+  // JB: userId is stored as a string at the localStorage therefore we need to change it into a Number to work with this at the BE - the 10 stands for decimal number
+  const [formData, setFormData] = useState({ id: parseInt(userId, 10) }); 
+  
   // -*-*- Handlers -*-*-
   //JB: Let's make magic happen when change the input fields
   const handleChange = (e) => {
@@ -15,14 +17,15 @@ function EditProfile() {
   const handleSubmit = async (e) => {
     //JB: Do not reset the page! Never! EVER!
     e.preventDefault();
-
+    
     //JB: instead try to fetch the api to update the user (postman can do this but the stupid browser is stupid)
     try {
       const res = await fetch(`http://localhost:5000/api/user/${userId}/edit`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          },
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
         credentials: "include",
         body: JSON.stringify(formData),
       });
