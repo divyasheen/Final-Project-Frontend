@@ -14,7 +14,7 @@ import Forumia from "./components/Forumia/Forumia";
 import Playground from "./components/Playground/Playground";
 import TowerOfAPIon from "./components/TowerOfAPIon/TowerOfAPIon";
 import NotFoundPage from "./components/NotFoundPage/NotFoundPage";
-import ProfilNav from "./components/ProfilNav/ProfilNav";
+import ProfilNav from "./components/ProfileUser/ProfileUser";
 import Layout from "./components/Layout";
 import ForgetPass from "./components/ForgetPass/ForgetPass";
 import Chatbot from "./components/Chatbot/Chatbot";
@@ -32,10 +32,14 @@ import HTML from"./components/HtmlCommunityPosts/Html"
 import HelloWorld from "./components/HelloWorldCommunityPosts/HelloWorld";
 // styling Files
 import "./App.scss";
+import EditProfile from "./components/EditProfile";
+import { UserProvider } from "./contexts/userIdContext";
 
 function App() {
   return (
     <>
+    <UserProvider>
+
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -64,9 +68,11 @@ function App() {
           <Route path="/towerofapion" element={<TowerOfAPIon />} />
           <Route path="/user" element={<ProfilNav />} />
           <Route path="/chatbot" element={<Chatbot />} />
+          <Route path="/edit-profile" element = {<EditProfile />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+    </UserProvider>
     </>
   );
 }
