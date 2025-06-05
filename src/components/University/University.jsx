@@ -203,6 +203,23 @@ export default function University() {
         const data = await response.json();
         setExercise(data);
 
+        // Check if exercise is already completed
+        const progressRes = await fetch(
+          `http://localhost:5000/api/courses/lessons/${data.lesson_id}/progress`,
+          { credentials: "include" }
+        );
+
+        if (progressRes.ok) {
+          const progress = await progressRes.json();
+          const currentEx = progress.find(
+            (ex) => ex.id === parseInt(exerciseId)
+          );
+          if (currentEx?.completed) {
+            setIsCompleted(true);
+          }
+        }
+
+
         console.log("Fetched exercise language:", data.language)
 
         const savedCode = localStorage.getItem(`${STORAGE_KEY}_${exerciseId}`);
@@ -212,7 +229,7 @@ export default function University() {
         } else if ((data.language === 'html' || data.language === 'css') && !savedCode) {
             setCode('<!DOCTYPE html>\n<html>\n<head>\n<title>My Page</title>\n<style>\n  body { font-family: sans-serif; }\n</style>\n</head>\n<body>\n  <h1>Welcome!</h1>\n</body>\n</html>');
         } else {
-            setCode(savedCode || "");
+            setCode(savedCode || data.placeholder || "");
         }
         setIsLoading(false);
       } catch (err) {
@@ -309,17 +326,53 @@ export default function University() {
       setIsEvaluating(false);
     }
   };
-  const handleComplete = () => {
+  const handleComplete = async () => {
     const allTestsPassed = testResults.length > 0 && testResults.every(test => test.passed);
 
     if (!allTestsPassed) {
       toast.error("❗ Please pass all tests before completing.");
       return;
     }
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/courses/exercises/${exerciseId}/complete`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
 
-    toast.success(`✅ Exercise marked as complete! +${exercise.xp_reward} XP`);
+      if (!response.ok) throw new Error("Failed to mark exercise complete");
+
+      toast.success(`✅ Exercise completed! +${exercise.xp_reward} XP`);
+      navigate("/university"); // Return to lesson list
+    } catch (error) {
+      console.error("Completion error:", error);
+      toast.error(error.message);
+    }
   };
 
+  const handleNextExercise = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/courses/exercises/${exerciseId}/next`,
+        { credentials: "include" }
+      );
+
+      if (response.ok) {
+        const { nextExerciseId } = await response.json();
+        if (nextExerciseId) {
+          navigate(`/university/${nextExerciseId}`);
+        } else {
+          toast.info("🎉 No more exercises in this lesson!");
+          navigate("/university");
+        }
+      }
+    } catch (error) {
+      console.error("Error getting next exercise:", error);
+      toast.error("Failed to get next exercise");
+    }
+  };
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-background text-white">
@@ -466,6 +519,27 @@ export default function University() {
                 fontSize: 14,
                 fontFamily: "VT323",
               }}
+              // Add this to show placeholder text
+              beforeMount={(monaco) => {
+                monaco.editor.defineTheme("myTheme", {
+                  base: "vs-dark",
+                  inherit: true,
+                  rules: [
+                    { token: "", foreground: "CCCCCC", background: "000000" },
+                  ],
+                  colors: {
+                    "editor.background": "#000000",
+                    "editor.foreground": "#CCCCCC",
+                  },
+                });
+              }}
+              onMount={(editor, monaco) => {
+                if (!code && exercise.placeholder) {
+                  editor.setValue(exercise.placeholder);
+                  setCode(exercise.placeholder);
+                }
+                monaco.editor.setTheme("myTheme");
+              }}
             />
           </div>
           {/* Live Preview (Conditional based on language) */}
@@ -495,18 +569,25 @@ export default function University() {
           <div className="flex justify-between items-center p-4 border-t border-accent">
             <button
               className="px-4 py-1 bg-footer border border-accent rounded hover:bg-accentHover"
-              onClick={() => navigate(-1)}
+              onClick={() => navigate("/university")}
             >
               Back
             </button>
             <button
               onClick={handleComplete}
-              className="px-4 py-1 bg-accent text-black rounded hover:bg-accentHover disabled:bg-gray-600 disabled:cursor-not-allowed"
+              className={`px-4 py-1 rounded ${
+                isCompleted
+                  ? "bg-green-500 text-white"
+                  : "bg-gray-600 text-gray-400 cursor-not-allowed"
+              }`}
               disabled={!isCompleted}
             >
-              {isCompleted ? "Completed!" : "Complete"}
+              Complete
             </button>
-            <button className="px-4 py-1 bg-footer border border-accent rounded hover:bg-accentHover">
+            <button
+              onClick={handleNextExercise}
+              className="px-4 py-1 bg-footer border border-accent rounded hover:bg-accentHover"
+            >
               Next
             </button>
           </div>

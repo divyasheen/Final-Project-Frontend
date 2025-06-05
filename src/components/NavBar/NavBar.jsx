@@ -1,10 +1,9 @@
 import React from "react";
 import "./_navbar.scss";
-import Footer from "../Footer/Footer";
-
 import { NavLink} from "react-router-dom";
 
 const NavBar = () => {
+
   const logout = () => {
     // JB: clear token
     window.localStorage.clear();
@@ -18,12 +17,11 @@ const NavBar = () => {
         <div className={"navRealm"}>
           {[
             "university",
-            "bugadune",
-            "csscrypta",
-
+            //"bugadune",
+            //"csscrypta",
             "forumia",
             "playground",
-            "towerofapion",
+            //"towerofapion",
             "Chatbot",
           ].map((path) => (
             <NavLink key={path} to={`/${path}`}>
@@ -40,10 +38,10 @@ const NavBar = () => {
           <img src="https://placekeanu.com/50/50/" alt="" />
           <p>UserName</p>
           <li>
-            <NavLink to={"/:user"}>Profil</NavLink>
+            <NavLink to={"/user"}>Profil</NavLink>
           </li>
           <li>
-            <NavLink to={"/:user/edit"}>Edit</NavLink>
+            <NavLink to={"/edit-profile"}>Edit</NavLink>
           </li>
           <li onClick={logout}>Logout</li>
         </ul>
@@ -54,5 +52,6 @@ const NavBar = () => {
     </>
   );
 };
+
 
 export default NavBar;

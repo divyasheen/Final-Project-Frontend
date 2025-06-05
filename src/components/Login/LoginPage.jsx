@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { FaUserCircle, FaGoogle, FaGithub } from "react-icons/fa";
 import { NavLink, useNavigate } from "react-router-dom";
+import { UserContext } from "../../contexts/userIdContext";
 
 const LoginPage = () => {
   const navigateTo = useNavigate();
@@ -27,6 +28,7 @@ const LoginPage = () => {
       });
 
       const data = await res.json();
+      
       if (res.ok) {
         navigateTo(`/landingPageUser/${data.id}`);
       } else {
@@ -38,6 +40,7 @@ const LoginPage = () => {
   };
 
   const handleGoogleLogin = async (response) => {
+
     const idToken = response.credential;
 
     try {
