@@ -7,12 +7,21 @@ function EditProfile() {
 
   // JB: userId is stored as a string at the localStorage therefore we need to change it into a Number to work with this at the BE - the 10 stands for decimal number
   const [formData, setFormData] = useState({ id: parseInt(userId, 10) }); 
+
+  const [file, setFile] = useState();
   
   // -*-*- Handlers -*-*-
   //JB: Let's make magic happen when change the input fields
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
+
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+
+    console.log(file);
+    
+  }
 
   const handleSubmit = async (e) => {
     //JB: Do not reset the page! Never! EVER!
@@ -39,6 +48,23 @@ function EditProfile() {
     }
   };
 
+  const handleUpload = async() => {
+    try {
+      const res = await fetch(` http://localhost:5000/${userId}/upload`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        credentials: "include",
+        body: JSON.stringify(file, userId),
+      });const data = await res.json();
+      console.log('Upload success:', data);
+    } catch (err) {
+      console.error('Upload error:', err);
+    }
+  }
+
   const borderButton = {
     border: "1px solid blue",
     backgroundColor: "lightblue",
@@ -47,14 +73,13 @@ function EditProfile() {
   return (
     <>
       <div>
-        {/* JB: Form to upload picture - might go into an edit-page */}
-        <form action="/upload" method="post" encType="multipart/form-data">
+        <div>
           <label>Upload a picture</label>
-          <input type="file" name="picture" />
-          <button type="submit" style={borderButton}>
+          <input type="file" name="picture" accept="image/*" onChange = {handleFileChange}/>
+          <button onClick = {handleUpload} style={borderButton}>
             Upload
           </button>
-        </form>
+        </div>
 
         <form action="" method="put" onSubmit={handleSubmit}>
           <label>Location</label>
