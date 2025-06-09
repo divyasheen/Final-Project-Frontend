@@ -94,7 +94,7 @@ function EditProfile() {
       // console.log(imageUrl);
       
       setProfilPic(imageUrl);
-      return profilPic
+
     } catch (error) {
       console.error("Error fetching profile picture:", error);
     }
@@ -156,13 +156,13 @@ function EditProfile() {
             Save changes
           </button>
         </form>
+
         <form action="/reset-password" method="post">
           <button type="submit" style={borderButton}>
             Reset Password
           </button>
         </form>
       </div>
-
 
       <img src={profilPic} />
     </>
