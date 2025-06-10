@@ -53,7 +53,6 @@ function ChatBot({ isOpen, onClose, setWidth }) {
     }
   }, [messages]);
 
-
   return (
     <aside
       className={`
@@ -181,14 +180,14 @@ export default function University() {
   // Helper to get file extension for display - MOVED HERE!
   const getLanguageExtension = (language) => {
     switch (language) {
-      case 'javascript':
-        return 'js';
-      case 'html':
-        return 'html';
-      case 'css':
-        return 'css';
+      case "javascript":
+        return "js";
+      case "html":
+        return "html";
+      case "css":
+        return "css";
       default:
-        return 'txt'; // Fallback for unknown languages or if language is null/undefined
+        return "txt"; // Fallback for unknown languages or if language is null/undefined
     }
   };
 
@@ -197,7 +196,9 @@ export default function University() {
       try {
         setIsLoading(true);
         const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/courses/exercises/${exerciseId}`
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/courses/exercises/${exerciseId}`
         );
         if (!response.ok) throw new Error("Failed to fetch exercise");
         const data = await response.json();
@@ -219,17 +220,14 @@ export default function University() {
           }
         }
 
-
-        console.log("Fetched exercise language:", data.language)
+        console.log("Fetched exercise language:", data.language);
 
         const savedCode = localStorage.getItem(`${STORAGE_KEY}_${exerciseId}`);
         // Set default code based on language or empty string if not saved
-        if (data.language === 'javascript' && !savedCode) {
-            setCode('// Write your JavaScript code here\nconsole.log("Hello, world!");');
-        } else if ((data.language === 'html' || data.language === 'css') && !savedCode) {
-            setCode('<!DOCTYPE html>\n<html>\n<head>\n<title>My Page</title>\n<style>\n  body { font-family: sans-serif; }\n</style>\n</head>\n<body>\n  <h1>Welcome!</h1>\n</body>\n</html>');
+        if (!savedCode) {
+          setCode(data.placeholder || "// Write your code here...");
         } else {
-            setCode(savedCode || data.placeholder || "");
+          setCode(savedCode);
         }
         setIsLoading(false);
       } catch (err) {
@@ -271,49 +269,63 @@ export default function University() {
 
       setTestResults(result.tests);
 
-      const output = result.tests.map((test, i) => {
-        let testStatus = `#${i + 1}: ${test.description || test.test_type} - ${
-          test.passed ? "✅ Passed" : "❌ Failed"
-        }`;
-        let details = `  Status: ${test.status_description || 'N/A'}\n`;
+      const output = result.tests
+        .map((test, i) => {
+          let testStatus = `#${i + 1}: ${
+            test.description || test.test_type
+          } - ${test.passed ? "✅ Passed" : "❌ Failed"}`;
+          let details = `  Status: ${test.status_description || "N/A"}\n`;
 
-        if (test.passed) {
-          details += `  Expected: ${test.expected_output ? JSON.stringify(test.expected_output.trim()) : 'None'}\n`;
-          details += `  Actual: ${test.actual ? JSON.stringify(test.actual.trim()) : 'None'}\n`;
-        } else {
-          if (test.error) {
-            details += `  Error: ${test.error}\n`;
+          if (test.passed) {
+            details += `  Expected: ${
+              test.expected_output
+                ? JSON.stringify(test.expected_output.trim())
+                : "None"
+            }\n`;
+            details += `  Actual: ${
+              test.actual ? JSON.stringify(test.actual.trim()) : "None"
+            }\n`;
+          } else {
+            if (test.error) {
+              details += `  Error: ${test.error}\n`;
+            }
+            if (test.expected_output) {
+              details += `  Expected Output: ${JSON.stringify(
+                test.expected_output.trim()
+              )}\n`;
+            }
+            if (test.actual && test.actual.trim() !== "") {
+              details += `  Actual Output: ${JSON.stringify(
+                test.actual.trim()
+              )}\n`;
+            }
           }
-          if (test.expected_output) {
-              details += `  Expected Output: ${JSON.stringify(test.expected_output.trim())}\n`;
-          }
-          if (test.actual && test.actual.trim() !== '') {
-              details += `  Actual Output: ${JSON.stringify(test.actual.trim())}\n`;
-          }
-        }
 
-        if (exercise?.language === 'javascript') {
+          if (exercise?.language === "javascript") {
             if (test.time !== undefined) details += `  Time: ${test.time}s\n`;
-            if (test.memory !== undefined) details += `  Memory: ${test.memory}KB\n`;
-        }
+            if (test.memory !== undefined)
+              details += `  Memory: ${test.memory}KB\n`;
+          }
 
-        return testStatus + '\n' + details;
-      }).join("\n---\n");
+          return testStatus + "\n" + details;
+        })
+        .join("\n---\n");
 
       setTerminalOutput(output);
 
-      if (exercise?.language === 'html' || exercise?.language === 'css') {
+      if (exercise?.language === "html" || exercise?.language === "css") {
         setPreviewHtml(result.htmlPreview || code);
       } else {
         setPreviewHtml("");
         setShowPreview(false);
       }
 
-
       const allTestsPassed = result.tests.every((test) => test.passed);
       if (allTestsPassed) {
         setIsCompleted(true);
-        toast.success(`✅ All tests passed! Score: ${result.score}% +${exercise.xp_reward} XP`);
+        toast.success(
+          `✅ All tests passed! Score: ${result.score}% +${exercise.xp_reward} XP`
+        );
       } else {
         setIsCompleted(false);
         toast.info(`⚠️ Some tests failed. Score: ${result.score}%`);
@@ -327,7 +339,8 @@ export default function University() {
     }
   };
   const handleComplete = async () => {
-    const allTestsPassed = testResults.length > 0 && testResults.every(test => test.passed);
+    const allTestsPassed =
+      testResults.length > 0 && testResults.every((test) => test.passed);
 
     if (!allTestsPassed) {
       toast.error("❗ Please pass all tests before completing.");
@@ -489,7 +502,8 @@ export default function University() {
               >
                 {isEvaluating ? "RUNNING..." : "RUN"}
               </button>
-              {(exercise.language === 'html' || exercise.language === 'css') && (
+              {(exercise.language === "html" ||
+                exercise.language === "css") && (
                 <button
                   onClick={() => setShowPreview((p) => !p)}
                   className="bg-footer text-white px-3 py-1 rounded border border-accent hover:bg-accentHover"
@@ -533,29 +547,23 @@ export default function University() {
                   },
                 });
               }}
-              onMount={(editor, monaco) => {
-                if (!code && exercise.placeholder) {
-                  editor.setValue(exercise.placeholder);
-                  setCode(exercise.placeholder);
-                }
-                monaco.editor.setTheme("myTheme");
-              }}
             />
           </div>
           {/* Live Preview (Conditional based on language) */}
-          {(exercise.language === 'html' || exercise.language === 'css') && showPreview && (
-            <div className="h-56 border-t border-accent bg-white overflow-auto">
-              <h4 className="text-black font-bold p-2 bg-accent">
-                Live Preview
-              </h4>
-              <iframe
-                title="Preview"
-                srcDoc={previewHtml}
-                className="w-full h-full"
-                sandbox="allow-scripts"
-              />
-            </div>
-          )}
+          {(exercise.language === "html" || exercise.language === "css") &&
+            showPreview && (
+              <div className="h-56 border-t border-accent bg-white overflow-auto">
+                <h4 className="text-black font-bold p-2 bg-accent">
+                  Live Preview
+                </h4>
+                <iframe
+                  title="Preview"
+                  srcDoc={previewHtml}
+                  className="w-full h-full"
+                  sandbox="allow-scripts"
+                />
+              </div>
+            )}
 
           {/* Terminal */}
           <div className="h-56 border-t border-accent p-2 bg-black text-white text-sm overflow-auto">
