@@ -5,17 +5,18 @@ import { UserContext } from "../../contexts/userIdContext";
 
 const LoginPage = () => {
   const navigateTo = useNavigate();
+  const { setUserId, setToken, setUser } = useContext(UserContext);
 
   const [errors, setErrors] = useState(null);
   const [userForm, setUserform] = useState({
     email: "",
     password: "",
   });
- const [showPassword,setShowPassword]=useState(false)
+  const [showPassword, setShowPassword] = useState(false);
   const handleInput = (e) => {
     setUserform((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
-   
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors(null);
@@ -28,8 +29,14 @@ const LoginPage = () => {
       });
 
       const data = await res.json();
-      
+
       if (res.ok) {
+        setUserId(data.id); // assuming data.id is the user ID
+        setToken(data.token); // assuming backend sends JWT or session token
+        setUser(data.user); // full user object if available
+        // Save token & userId to localStorage here
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("userId", data.id);
         navigateTo(`/landingPageUser/${data.id}`);
       } else {
         setErrors(data.errors || [{ msg: data.error }]);
@@ -40,10 +47,9 @@ const LoginPage = () => {
   };
 
   const handleGoogleLogin = async (response) => {
-
-    const idToken = response.credential;
-
     try {
+      const idToken = response.credential;
+
       const res = await fetch("http://localhost:5000/users/google-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -53,26 +59,89 @@ const LoginPage = () => {
 
       console.log("Raw response:", res);
       const data = await res.json();
-       
       console.log("Parsed data:", data);
 
-      if (res.ok) {
-       
-        const userId = data.user.id 
-        navigateTo(`/landingPageUser/${userId}`);
+      if (res.ok && data.user && data.user.id) {
+        // Verify token format before storing
+        if (!data.token || typeof data.token !== 'string') {
+          console.error('Invalid token received from server:', data.token);
+          setErrors([{ msg: "Login failed: Invalid token received" }]);
+          return;
+        }
+
+        // Log the token parts for debugging
+        const tokenParts = data.token.split('.');
+        console.log('Token parts:', {
+          header: tokenParts[0],
+          payload: tokenParts[1],
+          signature: tokenParts[2],
+          totalParts: tokenParts.length
+        });
+
+        if (tokenParts.length !== 3) {
+          console.error('Invalid token format received from server');
+          setErrors([{ msg: "Login failed: Invalid token format" }]);
+          return;
+        }
+
+        // Store token first
+        localStorage.setItem("token", data.token);
+        
+        // Verify token was stored correctly
+        const storedToken = localStorage.getItem("token");
+        console.log('Token storage verification:', {
+          original: data.token,
+          stored: storedToken,
+          match: data.token === storedToken
+        });
+
+        if (storedToken !== data.token) {
+          console.error('Token storage failed');
+          setErrors([{ msg: "Login failed: Token storage error" }]);
+          return;
+        }
+
+        // Then update other state
+        setUserId(data.user.id);
+        setToken(data.token);
+        setUser(data.user);
+        
+        // Store other data
+        localStorage.setItem("userId", data.user.id);
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        // Verify all data was stored
+        console.log('Final storage state:', {
+          token: localStorage.getItem("token"),
+          userId: localStorage.getItem("userId"),
+          user: localStorage.getItem("user")
+        });
+
+        // Add a small delay before navigation
+        setTimeout(() => {
+          console.log("Navigating to:", `/landingPageUser/${data.user.id}`);
+          navigateTo(`/landingPageUser/${data.user.id}`);
+        }, 100);
       } else {
-        setErrors(data.errors || [{ msg: data.error }]);
+        console.error("Login response missing required data:", data);
+        setErrors([{ msg: "Login failed. Please try again." }]);
       }
     } catch (error) {
       console.error("Google login failed:", error);
+      setErrors([{ msg: "Google login failed. Please try again." }]);
     }
   };
 
   useEffect(() => {
     if (window.google) {
       window.google.accounts.id.initialize({
-        client_id: "597088642216-rdog1tvplk26p1jjaf0r572c3i48cp3c.apps.googleusercontent.com",
-        callback: handleGoogleLogin,
+      client_id: "597088642216-rdog1tvplk26p1jjaf0r572c3i48cp3c.apps.googleusercontent.com",
+      callback: handleGoogleLogin,
+      auto_select: false,
+      cancel_on_tap_outside: true,
+      context: 'signin',
+      ux_mode: 'popup',  
+      origin: window.location.origin 
       });
 
       window.google.accounts.id.renderButton(
@@ -80,7 +149,6 @@ const LoginPage = () => {
         {
           theme: "outline",
           size: "large",
-      
         }
       );
     } else {
@@ -97,9 +165,16 @@ const LoginPage = () => {
         <h2 className="text-2xl font-vt323 text-white tracking-wider text-center mb-14">
           Login to Your Account
         </h2>
-        <form id="loginForm" className="flex flex-col md:gap-9 space-y-4" onSubmit={handleSubmit}>
+        <form
+          id="loginForm"
+          className="flex flex-col md:gap-9 space-y-4"
+          onSubmit={handleSubmit}
+        >
           <div>
-            <label htmlFor="email" className="font-vt323 text-white text-sm md:text-lg block mb-1">
+            <label
+              htmlFor="email"
+              className="font-vt323 text-white text-sm md:text-lg block mb-1"
+            >
               Email:
             </label>
             <input
@@ -114,13 +189,16 @@ const LoginPage = () => {
             />
           </div>
           <div>
-            <label htmlFor="password" className="font-vt323 text-white text-sm md:text-lg block mb-1">
+            <label
+              htmlFor="password"
+              className="font-vt323 text-white text-sm md:text-lg block mb-1"
+            >
               Password:
             </label>
             <input
               name="password"
               id="password"
-              type={showPassword?'text':'password'}
+              type={showPassword ? "text" : "password"}
               onChange={handleInput}
               value={userForm.password}
               placeholder="••••••••"
@@ -129,9 +207,14 @@ const LoginPage = () => {
             />
             <div className="text-white text-xs mt-4 flex flex-col sm:flex-row justify-between gap-3">
               <label className="flex items-center">
-                <input onChange={()=>setShowPassword(!showPassword)} type="checkbox" className="mr-2" />Show Password
+                <input
+                  onChange={() => setShowPassword(!showPassword)}
+                  type="checkbox"
+                  className="mr-2"
+                />
+                Show Password
               </label>
-              <NavLink to='/forgetPass'  className="hover:underline">
+              <NavLink to="/forgetPass" className="hover:underline">
                 Forgot Password?
               </NavLink>
             </div>

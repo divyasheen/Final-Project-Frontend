@@ -154,6 +154,37 @@ function ChatBot({ isOpen, onClose, setWidth }) {
   );
 }
 /* ─────────── end ChatBot pane ─────────── */
+// NEW: Add these helper functions for editor enhancements
+function registerHtmlSnippets(monaco) {
+  monaco.languages.registerCompletionItemProvider("html", {
+    provideCompletionItems: () => {
+      const tags = [
+        "div", "p", "h1", "h2", "span", "a", "img", "ul", "ol", "li",
+        "button", "input", "form", "section", "article", "footer", "header",
+        "nav", "main", "link"
+      ];
+      const suggestions = tags.map((tag) => ({
+        label: tag,
+        kind: monaco.languages.CompletionItemKind.Snippet,
+        insertText: tag === "img" || tag === "input" 
+          ? `<${tag} $1 />` 
+          : `<${tag}>$1</${tag}>`,
+        insertTextRules: 
+          monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        documentation: `${tag} element`,
+      }));
+      return { suggestions };
+    },
+  });
+}
+
+// NEW: Enable ALT+Z word wrap toggle
+function enableAltZToggle(editor, monaco) {
+  editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyZ, () => {
+    const current = editor.getRawOptions().wordWrap;
+    editor.updateOptions({ wordWrap: current === "on" ? "off" : "on" });
+  });
+}
 
 const STORAGE_KEY = "universityCode";
 
@@ -190,6 +221,10 @@ export default function University() {
         return "txt"; // Fallback for unknown languages or if language is null/undefined
     }
   };
+// NEW: Auto-save to localStorage
+  useEffect(() => {
+    localStorage.setItem(`${STORAGE_KEY}_${exerciseId}`, code);
+  }, [code, exerciseId]);
 
   useEffect(() => {
     const fetchExercise = async () => {
@@ -532,6 +567,13 @@ export default function University() {
                 theme: "vs-dark",
                 fontSize: 14,
                 fontFamily: "VT323",
+                 // NEW: Enhanced editor configuration
+                tabCompletion: "on",
+                quickSuggestions: true,
+                autoClosingBrackets: "always",
+                autoClosingQuotes: "always",
+                suggestOnTriggerCharacters: true,
+                wordBasedSuggestions: true,
               }}
               // Add this to show placeholder text
               beforeMount={(monaco) => {
@@ -546,6 +588,68 @@ export default function University() {
                     "editor.foreground": "#CCCCCC",
                   },
                 });
+                // NEW: Set up language-specific features
+                if (exercise.language === "html") {
+                  monaco.languages.html.htmlDefaults.setOptions({
+                    suggest: { html5: true }
+                  });
+                  registerHtmlSnippets(monaco);
+                  
+                  // NEW: HTML boilerplate snippet
+                  monaco.languages.registerCompletionItemProvider("html", {
+                    triggerCharacters: ["!"],
+                    provideCompletionItems(model, position) {
+                      const word = model.getWordUntilPosition(position);
+                      const range = {
+                        startLineNumber: position.lineNumber,
+                        endLineNumber: position.lineNumber,
+                        startColumn: word.startColumn - 1,
+                        endColumn: word.endColumn,
+                      };
+                      return {
+                        suggestions: [
+                          {
+                            label: "!doctype",
+                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            insertText: `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>\${1:Document}</title>
+    <style>
+      \${2:/* CSS here */}
+    </style>
+  </head>
+  <body>
+    \${3:<!-- HTML here -->}
+  </body>
+</html>`,
+                            insertTextRules:
+                              monaco.languages.CompletionItemInsertTextRule
+                                .InsertAsSnippet,
+                            documentation: "Full HTML5 boilerplate with doctype",
+                            range,
+                          },
+                        ],
+                      };
+                    },
+                  });
+                }
+
+                if (exercise.language === "css") {
+                  monaco.languages.css.cssDefaults.setOptions({
+                    lint: { unknownProperties: "ignore" }
+                  });
+                }
+              }}
+              onMount={(editor, monaco) => {
+                if (!code && exercise.placeholder) {
+                  editor.setValue(exercise.placeholder);
+                  setCode(exercise.placeholder);
+                }
+                monaco.editor.setTheme("myTheme");
+                enableAltZToggle(editor, monaco); // NEW: Enable ALT+Z toggle
               }}
             />
           </div>
