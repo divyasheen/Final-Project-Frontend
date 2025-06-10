@@ -1,7 +1,6 @@
 import ProgressBar from "@ramonak/react-progress-bar";
 import { useState, useEffect, use, useCallback, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import EditProfile from "../EditProfile";
 import { UserContext } from "../../contexts/userIdContext";
 
 function ProfilNav() {
@@ -10,7 +9,7 @@ function ProfilNav() {
 
   // -*-*- Hooks: State, Navigate -*-*-
   const [userData, setUserData] = useState();
-  const { userId } = useContext(UserContext);
+  const { userId, avatar } = useContext(UserContext);
   const navigate = useNavigate();
 
   // -*-*- onClick -*-*-
@@ -45,16 +44,16 @@ function ProfilNav() {
         <div>
           <h1>ProfileUser</h1>
           <div>
-            <img src="https://placekeanu.com/100/100" />
+            <img src={avatar} />
             <div>{userData.username}</div>
           </div>
 
           <div>
             <h2>Info</h2>
-            <div>Individual text about you</div>
-            <div>Location - from BE</div>
+            <div>{userData.info}</div>
+            <div>{userData.location}</div>
             <div>Joined: {userData.created_at}</div>
-            <div>List of linked Profiles (Insta, Github)</div>
+            <div>{userData.social}</div>
             <div>Skills/Languages - from BE</div>
             <button onClick={() => navigate("/edit-profile")}>
               Edit Profile

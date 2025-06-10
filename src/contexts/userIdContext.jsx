@@ -17,8 +17,41 @@ export const UserProvider = ({ children }) => {
     }
   }, [userId]);
 
+  const [avatar, setAvatar] = useState();
+
+  const fetchAvatar = async () => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/user/${userId}/getProfilPic`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch profile picture!");
+      }
+
+      const data = await res.json(); 
+      const imageUrl = data.image_url;  
+
+      // console.log(data);
+      // console.log(imageUrl);
+      
+      setAvatar(imageUrl);
+
+    } catch (error) {
+      console.error("Error fetching profile picture:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAvatar();
+  },[userId]);
+
   return (
-    <UserContext.Provider value={{ userId, setUserId }}>
+    <UserContext.Provider value={{ userId, setUserId, avatar, setAvatar }}>
       {children}
     </UserContext.Provider>
   );

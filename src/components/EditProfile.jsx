@@ -3,14 +3,14 @@ import { UserContext } from "../contexts/userIdContext";
 
 function EditProfile() {
   // -*-*- Hooks: States, Contexts ... -*-*-
-  const { userId } = useContext(UserContext);
+  const { userId, avatar } = useContext(UserContext);
 
   // JB: userId is stored as a string at the localStorage therefore we need to change it into a Number to work with this at the BE - the 10 stands for decimal number
   const [formData, setFormData] = useState({ id: parseInt(userId, 10) });
 
   const [file, setFile] = useState();
 
-  const [profilPic, setProfilPic] = useState();
+/*   const [profilPic, setProfilPic] = useState(); */
 
   // -*-*- Handlers -*-*-
   //JB: Let's make magic happen when change the input fields
@@ -42,7 +42,7 @@ function EditProfile() {
     }
   };
 
-  const handleUpload = async (e) => {
+   const handleUpload = async (e) => {
     e.preventDefault();
 
     const formData = new FormData();
@@ -71,9 +71,9 @@ function EditProfile() {
     } catch (error) {
       console.error("Upload error:", error);
     }
-  };
+  }; 
 
-  const fetchProfilePicture = async () => {
+/*  const fetchProfilePicture = async () => {
     try {
       const res = await fetch(`http://localhost:5000/api/user/${userId}/getProfilPic`, {
         method: "GET",
@@ -102,9 +102,8 @@ function EditProfile() {
 
   useEffect(() => {
     fetchProfilePicture();
-  },[userId]);
-
-  console.log(profilPic)
+  },[profilPic]);
+ */
 
   const borderButton = {
     border: "1px solid blue",
@@ -164,7 +163,7 @@ function EditProfile() {
         </form>
       </div>
 
-      <img src={profilPic} />
+      <img src={avatar} />
     </>
   );
 }

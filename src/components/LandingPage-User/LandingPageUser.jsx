@@ -10,13 +10,15 @@ import { UserContext } from "../../contexts/userIdContext";
 const LandingPageUser = () => {
 
   // JB: !!!IMPORTANT!!!! Do NOT change this. Here we create the userId context which we can use everywhere! AND I really hope everywhere is a global >.<
-  const {setUserId} = useContext(UserContext)
+  const {setUserId, avatar} = useContext(UserContext)
 
   //we need to find the user who has the id of the param and render the user details 
   const {id}=useParams();
 
   // JB: FINGERS OFF! ò.ó
-  setUserId(id)
+  useEffect(() => {
+    setUserId(id)
+  }, [id, setUserId])
 
   const [userProgress, setUserProgress] = useState(null);
   const [userData, setUserData] = useState(null);
@@ -99,7 +101,7 @@ const LandingPageUser = () => {
             <img
               className="w-14 h-14 rounded-full"
               loading="lazy"
-              src={UserImage}
+              src={avatar}
               alt="userImage"
             />
             <p className="flex flex-col items-center">
