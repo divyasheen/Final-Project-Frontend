@@ -1,15 +1,23 @@
-import React,  { useState, useEffect } from "react";
+import React,  { useState, useEffect, useContext } from "react";
 import "./LandingPageUser.scss";
 import Frame3 from "../../assets/images/Frame3.png";
 import UserImage from "../../assets/images/userImage.jpeg";
 import LandingPageUserCards from "./LandingPageUserCards";
 import LandingPageUserCardsImage from "../../assets/images/LandingPageUserBackGround.jpg";
 import { useParams } from "react-router-dom";
+import { UserContext } from "../../contexts/userIdContext";
 
 const LandingPageUser = () => {
 
+  // JB: !!!IMPORTANT!!!! Do NOT change this. Here we create the userId context which we can use everywhere! AND I really hope everywhere is a global >.<
+  const {setUserId} = useContext(UserContext)
+
   //we need to find the user who has the id of the param and render the user details 
   const {id}=useParams();
+
+  // JB: FINGERS OFF! ò.ó
+  setUserId(id)
+
   const [userProgress, setUserProgress] = useState(null);
   const [userData, setUserData] = useState(null);
 
@@ -58,7 +66,7 @@ const LandingPageUser = () => {
           alt=""
         />
         <img
-          className="  z-10 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 w-3/12"
+          className="  z-10 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3/12"
           src={Frame3}
           alt="CodeRealm"
           loading="lazy"

@@ -17,27 +17,39 @@ import NotFoundPage from "./components/NotFoundPage/NotFoundPage";
 import ProfilNav from "./components/ProfileUser/ProfileUser";
 import Layout from "./components/Layout";
 import ForgetPass from "./components/ForgetPass/ForgetPass";
-import Chatbot from "./components/Chatbot/Chatbot"
-import Logout from "./components/logout/Logout.jsx";
+import Chatbot from "./components/Chatbot/Chatbot";
+import CreatePost from "./components/CreatePost/CreatePost";import Logout from "./components/logout/Logout.jsx";
 import LandingPageUser from "./components/LandingPage-User/LandingPageUser";
 import VerificationSuccess from "./components/VerificationSucces/VerificationSuccess";
 import VerificationError from "./components/VerificationError/VerificationError";
 import SetNewPass from "./components/SetNewPass/SetNewPass";
+import JavaScript from "./components/JavaScriptCommunityPosts/JavaScript";
+import Rules from "./components/RulesCommunityPosts/Rules"
+import Css from "./components/CssCommunityPosts/Css"
+import GeneralDiscussions from "./components/GeneralCommunityPosts/GeneralDiscussions"
+import OffTobic from "./components/OffTopicCommunityPosts/OffTopic"
+import HTML from"./components/HtmlCommunityPosts/Html"
+import HelloWorld from "./components/HelloWorldCommunityPosts/HelloWorld";
 // styling Files
 import "./App.scss";
+import EditProfile from "./components/EditProfile";
+import { UserProvider } from "./contexts/userIdContext";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
 function App() {
   return (
     <>
+    <UserProvider>
+
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgetPAss" element ={<ForgetPass />}/>
+        <Route path="/forgetPAss" element={<ForgetPass />} />
         <Route path="/users/reset-password/:token" element={<SetNewPass />} />
-        <Route path="/verification-success" element={<VerificationSuccess />}/>
-        <Route path="/verification-error" element={<VerificationError />}/>
+        <Route path="/verification-success" element={<VerificationSuccess />} />
+        <Route path="/verification-error" element={<VerificationError />} />
+        <Route path="/createPost" element={<CreatePost />} />
         <Route element={<Layout />}>
           <Route path="/landingPageUser/:id" element={
             <ProtectedRoute><LandingPageUser /></ProtectedRoute>} />
@@ -51,6 +63,14 @@ function App() {
              <ProtectedRoute><CSSCrypta /></ProtectedRoute>} />
           <Route path="/forumia" element={
              <ProtectedRoute><Forumia /></ProtectedRoute>} />
+          <Route path="forumia/posts/JavaScript" element={<JavaScript />} />
+          <Route path="forumia/posts/Css" element={<Css />} />
+          <Route path="forumia/posts/General-Discussions" element={<GeneralDiscussions />} />
+          <Route path="forumia/posts/Off-Topic" element={<OffTobic />} />
+          <Route path="forumia/posts/HTML" element={<HTML />} />
+          <Route path="forumia/posts/Hello-World" element={<HelloWorld />} />
+          <Route path="forumia/posts/Rules" element={<Rules />} />
+
           <Route path="/playground" element={
              <ProtectedRoute><Playground /></ProtectedRoute>} />
           <Route path="/towerofapion" element={
@@ -59,10 +79,12 @@ function App() {
              <ProtectedRoute><ProfilNav /></ProtectedRoute>} />
           <Route path="/chatbot" element={
              <ProtectedRoute><Chatbot /></ProtectedRoute>} />
+          <Route path="/edit-profile" element = {<EditProfile />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
         <Route path="/logout" element={<Logout />} />
       </Routes>
+    </UserProvider>
     </>
   );
 }
