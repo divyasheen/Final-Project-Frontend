@@ -1,15 +1,15 @@
-import React from "react";
+import React, { useContext }from "react";
 import "./_navbar.scss";
 import { NavLink} from "react-router-dom";
+import { UserContext } from "../../contexts/userIdContext";
 
+
+
+
+  
 const NavBar = () => {
+  const { logout } = useContext(UserContext);
 
-  const logout = () => {
-    // JB: clear token
-    window.localStorage.clear();
-    // JB: redirect to home
-    window.location.replace("/");
-  };
 
   return (
     <>
