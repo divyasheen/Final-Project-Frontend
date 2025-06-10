@@ -10,7 +10,7 @@ import { UserContext } from "../../contexts/userIdContext";
 const LandingPageUser = () => {
 
   // JB: !!!IMPORTANT!!!! Do NOT change this. Here we create the userId context which we can use everywhere! AND I really hope everywhere is a global >.<
-  const {setUserId, avatar} = useContext(UserContext)
+  const {setUserId, avatar, userProgress, userData} = useContext(UserContext)
 
   //we need to find the user who has the id of the param and render the user details 
   const {id}=useParams();
@@ -20,43 +20,6 @@ const LandingPageUser = () => {
     setUserId(id)
   }, [id, setUserId])
 
-  const [userProgress, setUserProgress] = useState(null);
-  const [userData, setUserData] = useState(null);
-
-  useEffect(() => {
-    const fetchUserProgress = async () => {
-      try {
-        const response = await fetch(`http://localhost:5000/api/user/progress`, {
-          credentials: 'include',
-        });
-        
-        if (!response.ok) throw new Error('Failed to fetch progress');
-        
-        const data = await response.json();
-        setUserProgress(data);
-      } catch (error) {
-        console.error('Error fetching progress:', error);
-      }
-    };
-
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch(`http://localhost:5000/api/user/${id}`, {
-          credentials: 'include',
-        });
-        
-        if (!response.ok) throw new Error('Failed to fetch user data');
-        
-        const data = await response.json();
-        setUserData(data);
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
-
-    fetchUserProgress();
-    fetchUserData();
-  }, [id]);
 
   return (
     <section className=" gap-14 flex p-5 bg-background flex-col  justify-center items-center  ">

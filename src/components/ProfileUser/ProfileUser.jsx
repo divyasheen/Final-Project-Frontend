@@ -4,39 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../contexts/userIdContext";
 
 function ProfilNav() {
-  // ------------ JB: PLACEHOLDER TILL FETCHING WORKS -----------------
-  const badges = ["HTML-Badge", "CSS-Badge", "JS-Badge"];
-
   // -*-*- Hooks: State, Navigate -*-*-
-  const [userData, setUserData] = useState();
-  const { userId, avatar } = useContext(UserContext);
+  const { userId, avatar, userData, userProgress } = useContext(UserContext);
   const navigate = useNavigate();
-
-  // -*-*- onClick -*-*-
-
-  // -*-*- Loading User -*-*_
-  useEffect(() => {
-    // JB: We fetch one time (because of the dependency [id] of the useEffect) the user and store it inside useData
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:5000/api/user/${userId}`,
-          {
-            credentials: "include",
-          }
-        );
-
-        if (!response.ok) throw new Error("Failed to fetch user data");
-
-        const data = await response.json();
-        setUserData(data);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
-
-    fetchUserData();
-  }, [userId]);
 
   return (
     <>
@@ -64,8 +34,16 @@ function ProfilNav() {
             <h2>Stats</h2>
             <div>XP:</div>
             <ProgressBar completed={userData.xp} />
-            <div>Badges - from BE</div>
-            <div>Amount of Exercises - from BE</div>
+            <div>Badges: {userData.badgesCount}</div>
+            <div>
+              {userProgress ? (
+                <div>
+                  Amount of Exercises: {userProgress.completedExercises}
+                </div>
+              ) : (
+                <div>Loading exercises...</div>
+              )}
+            </div>
             <div>Daily strikes - from BE</div>
           </div>
 
