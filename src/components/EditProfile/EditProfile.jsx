@@ -10,8 +10,6 @@ function EditProfile() {
 
   const [file, setFile] = useState();
 
-  /*   const [profilPic, setProfilPic] = useState(); */
-
   // -*-*- Handlers -*-*-
   //JB: Let's make magic happen when change the input fields
   const handleChange = (e) => {
