@@ -11,7 +11,8 @@ const LandingPageUser = () => {
   // JB: !!!IMPORTANT!!!! Do NOT change this. Here we create the userId context which we can use everywhere! AND I really hope everywhere is a global >.<
   const { setUserId } = useContext(UserContext);
   // dmr: Token as well
-  const { token } = useContext(UserContext);
+  const { token, avatar /* userProgress,  userData */ } =
+    useContext(UserContext);
 
   //we need to find the user who has the id of the param and render the user details
   const { id } = useParams();
@@ -26,9 +27,9 @@ const LandingPageUser = () => {
     const fetchUserProgress = async () => {
       try {
         // Get token from context or localStorage
-        const currentToken = token || localStorage.getItem('token');
+        const currentToken = token || localStorage.getItem("token");
         if (!currentToken) {
-          console.error('No token available for API call');
+          console.error("No token available for API call");
           return;
         }
 
@@ -36,21 +37,21 @@ const LandingPageUser = () => {
           `http://localhost:5000/api/user/progress`,
           {
             headers: {
-              'Authorization': `Bearer ${currentToken}`,
-              'Content-Type': 'application/json'
+              Authorization: `Bearer ${currentToken}`,
+              "Content-Type": "application/json",
             },
-            credentials: 'include'
+            credentials: "include",
           }
         );
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          console.error('Progress fetch failed:', {
+          console.error("Progress fetch failed:", {
             status: response.status,
             statusText: response.statusText,
-            error: errorData
+            error: errorData,
           });
-          throw new Error(errorData.error || 'Failed to fetch progress');
+          throw new Error(errorData.error || "Failed to fetch progress");
         }
 
         const data = await response.json();
@@ -63,35 +64,34 @@ const LandingPageUser = () => {
     const fetchUserData = async () => {
       try {
         // Get token from context or localStorage
-        const currentToken = token || localStorage.getItem('token');
+        const currentToken = token || localStorage.getItem("token");
         if (!currentToken) {
-          console.error('No token available for API call');
+          console.error("No token available for API call");
           return;
         }
 
         // Use /me endpoint if no id is provided, otherwise use /:id endpoint
-        const endpoint = id ? `http://localhost:5000/api/user/${id}` : 'http://localhost:5000/api/user/me';
-        
-        const response = await fetch(
-          endpoint,
-          {
-            headers: {
-              'Authorization': `Bearer ${currentToken}`,
-              'Content-Type': 'application/json'
-            },
-            credentials: 'include'
-          }
-        );
+        const endpoint = id
+          ? `http://localhost:5000/api/user/${id}`
+          : "http://localhost:5000/api/user/me";
+
+        const response = await fetch(endpoint, {
+          headers: {
+            Authorization: `Bearer ${currentToken}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          console.error('User data fetch failed:', {
+          console.error("User data fetch failed:", {
             status: response.status,
             statusText: response.statusText,
             error: errorData,
-            endpoint
+            endpoint,
           });
-          throw new Error(errorData.error || 'Failed to fetch user data');
+          throw new Error(errorData.error || "Failed to fetch user data");
         }
 
         const data = await response.json();
@@ -153,7 +153,7 @@ const LandingPageUser = () => {
             <img
               className="w-14 h-14 rounded-full"
               loading="lazy"
-              src={UserImage}
+              src={avatar}
               alt="userImage"
             />
             <p className="flex flex-col items-center">

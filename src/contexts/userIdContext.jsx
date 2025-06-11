@@ -15,6 +15,10 @@ export const UserProvider = ({ children }) => {
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
+/*   const [userProgress, setUserProgress] = useState(); */
+  const [userData, setUserData] = useState();
+  const [avatar, setAvatar] = useState();
+
   // JB: If the browser finds a userId it will store it in the localStorage ... everytime when the userId changes (dependecy of the useEffect)
   useEffect(() => {
     if (userId) localStorage.setItem("userId", userId);
@@ -52,9 +56,40 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  const fetchAvatar = async () => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/user/${userId}/getProfilPic`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch profile picture!");
+      }
+
+      const data = await res.json(); 
+      const imageUrl = data.image_url;  
+
+      // console.log(data);
+      // console.log(imageUrl);
+      
+      setAvatar(imageUrl);
+
+    } catch (error) {
+      console.error("Error fetching profile picture:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAvatar();
+  },[userId]);
+
   return (
     <UserContext.Provider
-      value={{ userId, setUserId, token, setToken, user, setUser, logout }}
+      value={{ userId, setUserId, token, setToken, user, setUser, logout, avatar, setAvatar}}
     >
       {children}
     </UserContext.Provider>

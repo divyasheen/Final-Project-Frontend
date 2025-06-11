@@ -1,13 +1,11 @@
-import React, { useContext }from "react";
+import React, { useContext } from "react";
 import "./_navbar.scss";
 import { NavLink} from "react-router-dom";
 import { UserContext } from "../../contexts/userIdContext";
 
-
-
-
-  
 const NavBar = () => {
+
+  const {avatar} = useContext(UserContext)
   const { logout } = useContext(UserContext);
 
 
@@ -31,11 +29,11 @@ const NavBar = () => {
         </div>
 
         <div className={"profilPic"}>
-          <img src="https://placekeanu.com/50/50/" alt="" />{" "}
+          <img src={avatar} alt="" />{" "}
           {/* JB: Placeholder for BE-User-Pic */}
           <div className={"dropdown"}>
         <ul>
-          <img src="https://placekeanu.com/50/50/" alt="" />
+          <img src={avatar} alt="" />
           <p>UserName</p>
           <li>
             <NavLink to={"/user"}>Profil</NavLink>
