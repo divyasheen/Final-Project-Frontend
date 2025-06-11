@@ -6,13 +6,8 @@ import { UserContext } from "../../contexts/userIdContext";
 const NavBar = () => {
 
   const {avatar} = useContext(UserContext)
+  const { logout } = useContext(UserContext);
 
-  const logout = () => {
-    // JB: clear token
-    window.localStorage.clear();
-    // JB: redirect to home
-    window.location.replace("/");
-  };
 
   return (
     <>

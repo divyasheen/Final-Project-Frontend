@@ -1,4 +1,4 @@
-import React,  { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "./LandingPageUser.scss";
 import Frame3 from "../../assets/images/Frame3.png";
 import UserImage from "../../assets/images/userImage.jpeg";
@@ -8,18 +8,104 @@ import { useParams } from "react-router-dom";
 import { UserContext } from "../../contexts/userIdContext";
 
 const LandingPageUser = () => {
-
   // JB: !!!IMPORTANT!!!! Do NOT change this. Here we create the userId context which we can use everywhere! AND I really hope everywhere is a global >.<
-  const {setUserId, avatar, userProgress, userData} = useContext(UserContext)
+  const { setUserId } = useContext(UserContext);
+  // dmr: Token as well
+  const { token, avatar /* userProgress,  userData */ } =
+    useContext(UserContext);
 
-  //we need to find the user who has the id of the param and render the user details 
-  const {id}=useParams();
+  //we need to find the user who has the id of the param and render the user details
+  const { id } = useParams();
 
   // JB: FINGERS OFF! ò.ó
-  useEffect(() => {
-    setUserId(id)
-  }, [id, setUserId])
+  setUserId(id);
 
+  const [userProgress, setUserProgress] = useState(null);
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    const fetchUserProgress = async () => {
+      try {
+        // Get token from context or localStorage
+        const currentToken = token || localStorage.getItem("token");
+        if (!currentToken) {
+          console.error("No token available for API call");
+          return;
+        }
+
+        const response = await fetch(
+          `http://localhost:5000/api/user/progress`,
+          {
+            headers: {
+              Authorization: `Bearer ${currentToken}`,
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error("Progress fetch failed:", {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorData,
+          });
+          throw new Error(errorData.error || "Failed to fetch progress");
+        }
+
+        const data = await response.json();
+        setUserProgress(data);
+      } catch (error) {
+        console.error("Error fetching progress:", error);
+      }
+    };
+
+    const fetchUserData = async () => {
+      try {
+        // Get token from context or localStorage
+        const currentToken = token || localStorage.getItem("token");
+        if (!currentToken) {
+          console.error("No token available for API call");
+          return;
+        }
+
+        // Use /me endpoint if no id is provided, otherwise use /:id endpoint
+        const endpoint = id
+          ? `http://localhost:5000/api/user/${id}`
+          : "http://localhost:5000/api/user/me";
+
+        const response = await fetch(endpoint, {
+          headers: {
+            Authorization: `Bearer ${currentToken}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error("User data fetch failed:", {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorData,
+            endpoint,
+          });
+          throw new Error(errorData.error || "Failed to fetch user data");
+        }
+
+        const data = await response.json();
+        setUserData(data);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    if (id) {
+      fetchUserProgress();
+      fetchUserData();
+    }
+  }, [id, token]);
 
   return (
     <section className=" gap-14 flex p-5 bg-background flex-col  justify-center items-center  ">
@@ -46,7 +132,10 @@ const LandingPageUser = () => {
             <h1 className="text-xl mb-2">Your Progress</h1>
             {userProgress ? (
               <>
-                <p>Completed: {userProgress.completedExercises} / {userProgress.totalExercises}</p>
+                <p>
+                  Completed: {userProgress.completedExercises} /{" "}
+                  {userProgress.totalExercises}
+                </p>
                 {userProgress.nextExercise && (
                   <p className="mt-2">
                     Next: {userProgress.nextExercise.title}
@@ -68,14 +157,18 @@ const LandingPageUser = () => {
               alt="userImage"
             />
             <p className="flex flex-col items-center">
-              {userData?.username || 'Loading...'}
-              <span className="text-xs font-normal">Level {userData?.level || 1}</span>
+              {userData?.username || "Loading..."}
+              <span className="text-xs font-normal">
+                Level {userData?.level || 1}
+              </span>
             </p>
           </div>
           <div className="mt-6 mb-4 flex items-center justify-around">
             <p className="flex flex-col items-center">
               Badges
-              <span className="text-xs font-normal">{userData?.badges?.length || 0}</span>
+              <span className="text-xs font-normal">
+                {userData?.badges?.length || 0}
+              </span>
             </p>
             <p className="flex flex-col items-center">
               XP
@@ -84,7 +177,9 @@ const LandingPageUser = () => {
           </div>
           <p className="flex flex-col text-center items-center">
             Rank
-            <span className="text-xs font-normal">#{userData?.rank || 'N/A'}</span>
+            <span className="text-xs font-normal">
+              #{userData?.rank || "N/A"}
+            </span>
           </p>
         </article>
       </div>
@@ -99,23 +194,28 @@ const LandingPageUser = () => {
       <LandingPageUserCards />
 
       <article className="border-accent rounded-2xl flex flex-col justify-center items-center p-8 bg-background shadow-lg">
-  <h3 className="font-bold text-2xl text-white mb-4">
-    Invite a <span className="text-4xl font-normal  font-vt323 text-accent tracking-wider">Friend</span>
-  </h3>
-  <p className="text-lg text-white mb-6 text-center leading-relaxed max-w-lg">
-    Having fun with CODEREALM? Share the love with a friend (or two)! Enter their email, and we’ll send them a personal invite to join the community.
-  </p>
-  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md">
-    <input
-      type="email"
-      placeholder="Enter friend's email"
-      className="px-4 py-2 w-full sm:w-72 rounded-md border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent text-gray-800"
-    />
-    <button className="mt-4 sm:mt-0 px-6 py-3 bg-accent rounded-md hover:bg-accent-dark transition duration-300">
-      Send Invite
-    </button>
-  </div>
-</article>
+        <h3 className="font-bold text-2xl text-white mb-4">
+          Invite a{" "}
+          <span className="text-4xl font-normal  font-vt323 text-accent tracking-wider">
+            Friend
+          </span>
+        </h3>
+        <p className="text-lg text-white mb-6 text-center leading-relaxed max-w-lg">
+          Having fun with CODEREALM? Share the love with a friend (or two)!
+          Enter their email, and we'll send them a personal invite to join the
+          community.
+        </p>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md">
+          <input
+            type="email"
+            placeholder="Enter friend's email"
+            className="px-4 py-2 w-full sm:w-72 rounded-md border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent text-gray-800"
+          />
+          <button className="mt-4 sm:mt-0 px-6 py-3 bg-accent rounded-md hover:bg-accent-dark transition duration-300">
+            Send Invite
+          </button>
+        </div>
+      </article>
     </section>
   );
 };

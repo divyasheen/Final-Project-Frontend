@@ -5,8 +5,96 @@ import { UserContext } from "../../contexts/userIdContext";
 
 function ProfilNav() {
   // -*-*- Hooks: State, Navigate -*-*-
-  const { userId, avatar, userData, userProgress } = useContext(UserContext);
+  const { userId, avatar, token} = useContext(UserContext);
+  const [userProgress, setUserProgress] = useState(null);
+  const [userData, setUserData] = useState(null); 
+
   const navigate = useNavigate();
+ 
+   useEffect(() => {
+     const fetchUserProgress = async () => {
+       try {
+         // Get token from context or localStorage
+         const currentToken = token || localStorage.getItem('token');
+         if (!currentToken) {
+           console.error('No token available for API call');
+           return;
+         }
+ 
+         const response = await fetch(
+           `http://localhost:5000/api/user/progress`,
+           {
+             headers: {
+               'Authorization': `Bearer ${currentToken}`,
+               'Content-Type': 'application/json'
+             },
+             credentials: 'include'
+           }
+         );
+ 
+         if (!response.ok) {
+           const errorData = await response.json().catch(() => ({}));
+           console.error('Progress fetch failed:', {
+             status: response.status,
+             statusText: response.statusText,
+             error: errorData
+           });
+           throw new Error(errorData.error || 'Failed to fetch progress');
+         }
+ 
+         const data = await response.json();
+         setUserProgress(data);
+       } catch (error) {
+         console.error("Error fetching progress:", error);
+       }
+     };
+ 
+     const fetchUserData = async () => {
+       try {
+         // Get token from context or localStorage
+         const currentToken = token || localStorage.getItem('token');
+         if (!currentToken) {
+           console.error('No token available for API call');
+           return;
+         }
+ 
+         // Use /me endpoint if no id is provided, otherwise use /:id endpoint
+         const endpoint = userId ? `http://localhost:5000/api/user/${userId}` : 'http://localhost:5000/api/user/me';
+         
+         const response = await fetch(
+           endpoint,
+           {
+             headers: {
+               'Authorization': `Bearer ${currentToken}`,
+               'Content-Type': 'application/json'
+             },
+             credentials: 'include'
+           }
+         );
+
+         if (!response.ok) {
+           const errorData = await response.json().catch(() => ({}));
+           console.error('User data fetch failed:', {
+             status: response.status,
+             statusText: response.statusText,
+             error: errorData,
+             endpoint
+           });
+           throw new Error(errorData.error || 'Failed to fetch user data');
+         }
+ 
+         const data = await response.json();
+         setUserData(data);
+       } catch (error) {
+         console.error("Error fetching user data:", error);
+       }
+     };
+ 
+     if (userId) {
+       fetchUserProgress();
+       fetchUserData();
+     }
+   }, [userId, token]);
 
   return (
     <>

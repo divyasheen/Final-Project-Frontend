@@ -4,50 +4,55 @@ import React, { createContext, useState, useEffect } from "react";
 export const UserContext = createContext();
 
 // JB: Create a provider for the userId context
+
+// JB: search for the userId inside the localStorage
+//DMR: Added token as well
 export const UserProvider = ({ children }) => {
-  const [userId, setUserId] = useState(() => {
-    // JB: search for the userId inside the localStorage
-    return localStorage.getItem("userId") || null;
+  const [userId, setUserId] = useState(() => localStorage.getItem("userId"));
+  const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  const [userProgress, setUserProgress] = useState();
+/*   const [userProgress, setUserProgress] = useState(); */
   const [userData, setUserData] = useState();
   const [avatar, setAvatar] = useState();
 
   // JB: If the browser finds a userId it will store it in the localStorage ... everytime when the userId changes (dependecy of the useEffect)
   useEffect(() => {
-    if (userId) {
-      localStorage.setItem("userId", userId);
-    }
-  }, [userId]);
-
-  const fetchUserProgress = async () => {
+    if (userId) localStorage.setItem("userId", userId);
+    if (token) localStorage.setItem("token", token);
+    if (user) localStorage.setItem("user", JSON.stringify(user));
+  }, [userId, token, user]);
+  
+  const logout = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/user/progress`, {
-        credentials: 'include',
+      const response = await fetch("http://localhost:5000/users/logout", {
+        method: "POST",
+        credentials: "include",
       });
-      
-      if (!response.ok) throw new Error('Failed to fetch progress');
-      
-      const data = await response.json();
-      setUserProgress(data);
-    } catch (error) {
-      console.error('Error fetching progress:', error);
-    }
-  };
 
-  const fetchUserData = async () => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/user/${userId}`, {
-        credentials: 'include',
-      });
+      if (!response.ok) {
+        throw new Error(`Logout failed: ${response.statusText}`);
+      }
+
+      // Clear all auth data regardless of server response
+      setUser(null);
+      setUserId(null);
+      setToken(null);
+      localStorage.clear();
       
-      if (!response.ok) throw new Error('Failed to fetch user data');
-      
-      const data = await response.json();
-      setUserData(data);
-    } catch (error) {
-      console.error('Error fetching user data:', error);
+      // Redirect to home page
+      window.location.replace("/");
+    } catch (err) {
+      console.error("Logout failed:", err);
+      // Still clear local data even if server request fails
+      setUser(null);
+      setUserId(null);
+      setToken(null);
+      localStorage.clear();
+      window.location.replace("/");
     }
   };
 
@@ -79,13 +84,13 @@ export const UserProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    fetchUserProgress();
-    fetchUserData();
     fetchAvatar();
   },[userId]);
 
   return (
-    <UserContext.Provider value={{ userId, setUserId, avatar, setAvatar, userData, setUserData, userProgress, setUserProgress }}>
+    <UserContext.Provider
+      value={{ userId, setUserId, token, setToken, user, setUser, logout, avatar, setAvatar}}
+    >
       {children}
     </UserContext.Provider>
   );
