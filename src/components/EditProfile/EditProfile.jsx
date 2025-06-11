@@ -3,7 +3,7 @@ import { UserContext } from "../../contexts/userIdContext";
 
 function EditProfile() {
   // -*-*- Hooks: States, Contexts ... -*-*-
-  const { userId } = useContext(UserContext);
+  const { userId, avatar } = useContext(UserContext);
 
   // JB: userId is stored as a string at the localStorage therefore we need to change it into a Number to work with this at the BE - the 10 stands for decimal number
   const [formData, setFormData] = useState({ id: parseInt(userId, 10) });
@@ -60,8 +60,6 @@ function EditProfile() {
         }
       );
 
-      //console.log(res);
-
       if (!res.ok) {
         throw new Error("Failed to upload file!");
       }
@@ -69,6 +67,7 @@ function EditProfile() {
       console.error("Upload error:", error);
     }
   };
+
 
   const borderButton = {
     border: "1px solid blue",
@@ -124,6 +123,7 @@ function EditProfile() {
             Reset Password
           </button>
         </form>
+
       </div>
     </>
   );

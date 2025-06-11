@@ -31,7 +31,7 @@ const LandingPageUser = () => {
     setUserId(id);
   }, [id, token]);
 
-  useEffect(() => {
+  
     const fetchUserProgress = async () => {
       try {
         // Get token from context or localStorage
@@ -111,6 +111,13 @@ const LandingPageUser = () => {
 
     const fetchAvatar = async () => {
       try {
+
+        const currentToken = token || localStorage.getItem("token");
+        if (!currentToken) {
+          console.error("No token available for API call");
+          return;
+        }
+
         const res = await fetch(
           `http://localhost:5000/api/user/${id}/getProfilPic`,
           {
@@ -123,7 +130,7 @@ const LandingPageUser = () => {
         );
 
         if (!res.ok) {
-          throw new Error("Failed to fetch profile picture!");
+          throw new Error("Failed to fetch avatar at LPU!");
         }
 
         const data = await res.json();
@@ -138,6 +145,7 @@ const LandingPageUser = () => {
       }
     };
 
+    useEffect(() => {
     if (id) {
       fetchUserProgress();
       fetchUserData();

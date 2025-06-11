@@ -15,12 +15,51 @@ export const UserProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);
   const [avatar, setAvatar] = useState();
 
+  const fetchAvatar = async () => {
+    const userId = localStorage.getItem("userId");
+    const token = localStorage.getItem("token");
+
+    if (!userId || !token) return;
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/user/${userId}/getProfilPic`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch avatar");
+      }
+
+      const data = await response.json();
+      setAvatar(data.image_url); // Update avatar state
+    } catch (error) {
+      console.error("Error fetching avatar:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAvatar()
+  }, [avatar])
+  
+  useEffect(() => {
+    const savedAvatar = localStorage.getItem("avatar");
+    if (savedAvatar) {
+      setAvatar(savedAvatar);
+    }
+  }, []); 
+
   // JB: If the browser finds a userId it will store it in the localStorage ... everytime when the userId changes (dependecy of the useEffect)
   useEffect(() => {
     if (userId) localStorage.setItem("userId", userId);
     if (token) localStorage.setItem("token", token);
     if (user) localStorage.setItem("user", JSON.stringify(user));
-  }, [userId, token, user]);
+    if (avatar) {
+      localStorage.setItem("avatar", avatar);
+    }
+  }, [userId, token, avatar]);
 
   const logout = async () => {
     try {
