@@ -1,7 +1,7 @@
 import React from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
-//Pages
+// Pages
 import LandingPage from "./components/LandingPage/LandingPage";
 import LoginPage from "./components/Login/LoginPage";
 import RegisterPage from "./components/Register/RegisterPage";
@@ -23,17 +23,18 @@ import ProfilNav from "./components/ProfileUser/ProfileUser";
 import Chatbot from "./components/Chatbot/Chatbot";
 import CreatePost from "./components/CreatePost/CreatePost";
 import LandingPageUser from "./components/LandingPage-User/LandingPageUser";
-import JavaScript from "./components/JavaScriptCommunityPosts/JavaScript";
-import Rules from "./components/RulesCommunityPosts/Rules"
-import Css from "./components/CssCommunityPosts/Css"
-import GeneralDiscussions from "./components/GeneralCommunityPosts/GeneralDiscussions"
-import OffTobic from "./components/OffTopicCommunityPosts/OffTopic"
-import HTML from"./components/HtmlCommunityPosts/Html"
-import HelloWorld from "./components/HelloWorldCommunityPosts/HelloWorld";
+
+
 import EditProfile from "./components/EditProfile/EditProfile";
 
-// styling Files
+
+// 👇 New dynamic community component
+import CommunityPage from "./components/CommunityPage/CommunityPostPage";
+
+// Styling
 import "./App.scss";
+
+// Layout and Routing
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
@@ -50,15 +51,17 @@ function App() {
           <Route path="/verification-success" element={<VerificationSuccess />} />
           <Route path="/verification-error" element={<VerificationError />} />
 
-          {/* Protected Routes */}
-          <Route
-            path="/createPost"
-            element={
-              <ProtectedRoute>
-                <CreatePost />
-              </ProtectedRoute>
-            }
-          />
+        {/* Protected Routes */}
+        <Route
+          path="/createPost"
+          element={
+            <ProtectedRoute>
+              <CreatePost />
+            </ProtectedRoute>
+          }
+        />
+       
+         
           <Route element={<Layout />}>
             <Route
               path="/landingPageUser/:id/:token"
@@ -108,62 +111,9 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="forumia/posts/JavaScript"
-              element={
-                <ProtectedRoute>
-                  <JavaScript />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="forumia/posts/Css"
-              element={
-                <ProtectedRoute>
-                  <Css />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="forumia/posts/General-Discussions"
-              element={
-                <ProtectedRoute>
-                  <GeneralDiscussions />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="forumia/posts/Off-Topic"
-              element={
-                <ProtectedRoute>
-                  <OffTobic />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="forumia/posts/HTML"
-              element={
-                <ProtectedRoute>
-                  <HTML />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="forumia/posts/Hello-World"
-              element={
-                <ProtectedRoute>
-                  <HelloWorld />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="forumia/posts/Rules"
-              element={
-                <ProtectedRoute>
-                  <Rules />
-                </ProtectedRoute>
-              }
-            />
+          
+           
+            
             <Route
               path="/playground"
               element={
@@ -204,6 +154,15 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            {/* 👇 Dynamic route for any community */}
+          <Route
+            path="forumia/posts/:community"
+            element={
+              <ProtectedRoute>
+                <CommunityPage />
+              </ProtectedRoute>
+            }
+          />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

@@ -2,21 +2,21 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import userImage from "../../assets/images/userImage.jpeg";
 
-const General = ({ posts }) => {
+const TheHub = ({ posts }) => {
   const navigate = useNavigate();
 
-  const userPosts = [
+  const hubPosts = [
     {
       id: 1,
-      title: "Rules",
-      description: "Learn the Do's and Don't's of Forumioa",
-      post: posts.filter((p) => p.community === "Rules"),
+      title: "Off-Topic",
+      description: "Whatever comes to your mind",
+      post: posts.filter((p) => p.community === "Off-Topic"),
     },
     {
       id: 2,
-      title: "Hello-world",
-      description: "Introduce yourself",
-      post: posts.filter((p) => p.community === "Hello-world"),
+      title: "General-Discussions",
+      description: "Whatever comes to your mind",
+      post: posts.filter((p) => p.community === "General-Discussions"),
     },
   ].map((item) => {
     const postsLength = item.post.length;
@@ -32,11 +32,11 @@ const General = ({ posts }) => {
   return (
     <article className="w-[90%] max-w-full mx-auto mt-10 p-6">
       <h3 className="text-white border-b-4 py-4 border-accent font-vt323 text-[25px] font-normal">
-        General
+        The Hub
       </h3>
 
       <div className="flex flex-col mt-5">
-        {userPosts.map((item) => (
+        {hubPosts.map((item) => (
           <div
             key={item.id}
             className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b-2 border-accent min-h-[64px] cursor-pointer hover:bg-accent/20 p-3 hover:rounded-md transition-colors"
@@ -56,15 +56,15 @@ const General = ({ posts }) => {
             </div>
 
             {/* Right side */}
-            <div className=" flex items-center w-full sm:w-1/3 mt-4 sm:mt-0 justify-between text-white text-sm min-h-[64px]">
-              <div className="relative pl-4 ml-4 flex flex-col text-[11px] items-center ">
+            <div className="flex items-center w-full sm:w-1/3 mt-4 sm:mt-0 justify-between text-white text-sm min-h-[64px]">
+              <div className="relative pl-4 ml-4 flex flex-col text-[11px] items-center">
                 Posts
                 <span className="px-2">{item.postsLength}</span>
               </div>
-            
+
               {item.postsLength > 0 && (
                 <div
-                  className=" relative w-3/5 pl-4 ml-4 flex items-center justify-evenly gap-4 before:absolute before:top-2 before:left-0 before:h-4/5 before:w-[2px] before:bg-accent before:rounded"
+                  className="relative w-3/5 justify-evenly pl-4 ml-4 flex items-center gap-4 before:absolute before:top-2 before:left-0 before:h-4/5 before:w-[2px] before:bg-accent before:rounded"
                 >
                   <img
                     src={userImage}
@@ -72,9 +72,9 @@ const General = ({ posts }) => {
                     className="w-8 h-8 rounded-full object-cover"
                   />
 
-                  <div className=" flex w-2/5 overflow-hidden flex-col items-start text-[11px] max-w-[100px] ">
+                  <div className="flex w-3/5 flex-col items-start text-[11px] max-w-[100px]">
                     <p className="overflow-hidden text-ellipsis whitespace-nowrap w-full block text-left">
-                      From:
+                      {item.latestPost?.title || "No Title"}
                     </p>
                     <span>{item.latestPost?.author || "Anonymous"}</span>
                     <span className="text-accent">
@@ -93,4 +93,4 @@ const General = ({ posts }) => {
   );
 };
 
-export default General;
+export default TheHub;
