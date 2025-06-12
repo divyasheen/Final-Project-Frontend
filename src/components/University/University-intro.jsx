@@ -12,6 +12,76 @@ const UniversityIntro = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const [lessonCompletion, setLessonCompletion] = useState({});
+  const [unlockedExercises, setUnlockedExercises] = useState(new Set());
+
+  // Function to find the previous exercise across all courses
+  const findPreviousExercise = (currentExercise) => {
+    // Get all exercises across all courses, sorted by course_id, lesson_id, and exercise id
+    const allExercises = courses
+      .sort((a, b) => a.id - b.id)
+      .flatMap(course => 
+        course.lessons
+          .sort((a, b) => a.id - b.id)
+          .flatMap(lesson => 
+            exercises
+              .filter(e => e.lesson_id === lesson.id)
+              .sort((a, b) => a.id - b.id)
+          )
+      );
+
+    console.log('All exercises in order:', allExercises.map(e => ({ id: e.id, completed: e.completed })));
+    
+    const currentIndex = allExercises.findIndex(e => e.id === currentExercise.id);
+    if (currentIndex <= 0) return null;
+    const prev = allExercises[currentIndex - 1];
+    console.log('Previous exercise for', currentExercise.id, ':', prev ? { id: prev.id, completed: prev.completed } : null);
+    return prev;
+  };
+
+  // Function to determine if an exercise is unlocked
+  const isExerciseUnlocked = (exercise) => {
+    // First exercise of first lesson is always unlocked
+    if (exercise.id === 1) {
+      console.log('Exercise 1 is always unlocked');
+      return true;
+    }
+    
+    // If exercise is completed, it's unlocked
+    if (exercise.completed) {
+      console.log('Exercise', exercise.id, 'is completed, so it\'s unlocked');
+      return true;
+    }
+
+    // Find the previous exercise across all courses
+    const previousExercise = findPreviousExercise(exercise);
+    if (!previousExercise) {
+      console.log('No previous exercise found for', exercise.id);
+      return false;
+    }
+
+    // Exercise is unlocked if previous exercise is completed
+    const isUnlocked = previousExercise.completed;
+    console.log('Exercise', exercise.id, 'unlock status:', isUnlocked, 'based on previous exercise', previousExercise.id);
+    return isUnlocked;
+  };
+
+  // Update unlocked exercises whenever exercises, courses, or completion status changes
+  useEffect(() => {
+    if (!courses.length || !exercises.length) return;
+    
+    console.log('Updating unlocked exercises. Current exercises:', 
+      exercises.map(e => ({ id: e.id, completed: e.completed })));
+    
+    const unlocked = new Set();
+    exercises.forEach(exercise => {
+      if (isExerciseUnlocked(exercise)) {
+        unlocked.add(exercise.id);
+      }
+    });
+    
+    console.log('New unlocked exercises:', Array.from(unlocked));
+    setUnlockedExercises(unlocked);
+  }, [exercises, courses]);
 
   // Fetch courses and lessons
   useEffect(() => {
@@ -72,16 +142,19 @@ const UniversityIntro = () => {
         );
         if (progressRes.ok) {
           const progressData = await progressRes.json();
-          console.log("Progress Data:", progressData); // Debug log
+          console.log("Progress Data for lesson", activeLesson, ":", progressData);
 
-          // Convert is_completed (1/0) to boolean
+          // Convert is_completed (1/0) to boolean and add lesson_id
           exercisesData = exercisesData.map((exercise) => {
             const progress = progressData.find((p) => p.id === exercise.id);
             return {
               ...exercise,
+              lesson_id: activeLesson, // Add lesson_id to each exercise
               completed: progress ? Boolean(progress.is_completed) : false,
             };
           });
+
+          console.log("Processed exercises data:", exercisesData);
 
           const completedExercises = exercisesData.filter(
             (e) => e.completed
@@ -258,30 +331,50 @@ const UniversityIntro = () => {
             </div>
             {exercises.length > 0 ? (
               <div className="grid gap-3">
-                {exercises.map((exercise) => (
-                  <Link
-                    to={`/university/${exercise.id}`}
-                    key={exercise.id}
-                    className={`block p-3 border rounded-lg transition-colors no-underline ${
-                      exercise.completed
-                        ? "border-green-500 bg-green-500/10"
-                        : "border-gray-700 hover:bg-gray-700/30"
-                    }`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <span className="text-gray-400">
-                          Exercise {exercise.id}
-                        </span>
-                        <span className="mx-2 text-gray-600">|</span>
-                        <span>{exercise.title}</span>
+                {exercises.map((exercise) => {
+                  const isUnlocked = unlockedExercises.has(exercise.id);
+                  const previousExercise = findPreviousExercise(exercise);
+                  return (
+                    <div
+                      key={exercise.id}
+                      className={`block p-3 border rounded-lg transition-colors ${
+                        exercise.completed
+                          ? "border-green-500 bg-green-500/10"
+                          : isUnlocked
+                          ? "border-accent hover:bg-gray-700/30 cursor-pointer"
+                          : "border-gray-700 bg-gray-800/50 cursor-not-allowed opacity-50"
+                      }`}
+                      onClick={() => {
+                        if (isUnlocked) {
+                          navigate(`/university/${exercise.id}`);
+                        }
+                      }}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <span className="text-gray-400">
+                            Exercise {exercise.id}
+                          </span>
+                          <span className="mx-2 text-gray-600">|</span>
+                          <span>{exercise.title}</span>
+                          {!isUnlocked && previousExercise && (
+                            <span className="ml-2 text-sm text-gray-500">
+                              (Complete Exercise {previousExercise.id} to unlock)
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {exercise.completed && (
+                            <span className="text-green-500">✓</span>
+                          )}
+                          <span className="text-accent">
+                            +{exercise.xp_reward} XP
+                          </span>
+                        </div>
                       </div>
-                      <span className="text-accent">
-                        +{exercise.xp_reward} XP
-                      </span>
                     </div>
-                  </Link>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <p className="text-gray-400 italic">
