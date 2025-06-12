@@ -1,14 +1,17 @@
-import { useContext, useState, useEffect, Profiler } from "react";
+import { useContext, useState, useEffect, Profiler, use } from "react";
 import { UserContext } from "../../contexts/userIdContext";
+import { useNavigate } from "react-router-dom";
 
 function EditProfile() {
   // -*-*- Hooks: States, Contexts ... -*-*-
-  const { userId } = useContext(UserContext);
+  const { userId, avatar, setAvatar, token } = useContext(UserContext);
 
   // JB: userId is stored as a string at the localStorage therefore we need to change it into a Number to work with this at the BE - the 10 stands for decimal number
   const [formData, setFormData] = useState({ id: parseInt(userId, 10) });
 
   const [file, setFile] = useState();
+
+  const navigate = useNavigate();
 
   // -*-*- Handlers -*-*-
   //JB: Let's make magic happen when change the input fields
@@ -59,8 +62,6 @@ function EditProfile() {
           body: formData,
         }
       );
-
-      //console.log(res);
 
       if (!res.ok) {
         throw new Error("Failed to upload file!");
@@ -118,12 +119,17 @@ function EditProfile() {
             Save changes
           </button>
         </form>
-
-        <form action="/reset-password" method="post">
-          <button type="submit" style={borderButton}>
+     
+          <button onClick={() => navigate("/users/reset-password/:token")} style={borderButton}>
             Reset Password
           </button>
-        </form>
+
+
+       <a onClick={() => navigate("/profile/22")} style={borderButton}>
+          Other user: 22
+        </a> 
+
+        <img src={avatar} />
       </div>
     </>
   );
