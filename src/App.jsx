@@ -61,7 +61,7 @@ function App() {
           />
           <Route element={<Layout />}>
             <Route
-              path="/landingPageUser/:id"
+              path="/landingPageUser/:id/:token"
               element={
                 <ProtectedRoute>
                   <LandingPageUser />

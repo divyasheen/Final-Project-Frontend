@@ -5,13 +5,13 @@ import { UserContext } from "../../contexts/userIdContext";
 
 const NavBar = () => {
 
-  const {avatar, logout, userId} = useContext(UserContext)
+  const {avatar, logout, userId, token} = useContext(UserContext)
   const navigate = useNavigate();
 
   // Handler for Home button
   const handleHomeClick = () => {
     if (userId) {
-      navigate(`/landingPageUser/${userId}`);
+      navigate(`/landingPageUser/${userId}/${token}`);
     } else {
       navigate("/");
     }

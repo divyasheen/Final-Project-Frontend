@@ -119,8 +119,8 @@ const LoginPage = () => {
 
         // Add a small delay before navigation
         setTimeout(() => {
-          console.log("Navigating to:", `/landingPageUser/${data.user.id}`);
-          navigateTo(`/landingPageUser/${data.user.id}`);
+          console.log("Navigating to:", `/landingPageUser/${data.user.id}/${storedToken}`);
+          navigateTo(`/landingPageUser/${data.user.id}/${storedToken}`);
         }, 100);
       } else {
         console.error("Login response missing required data:", data);
