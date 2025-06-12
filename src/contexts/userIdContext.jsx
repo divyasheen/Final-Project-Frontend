@@ -34,7 +34,8 @@ export const UserProvider = ({ children }) => {
       }
 
       const data = await response.json();
-      setAvatar(data.image_url); // Update avatar state
+      setAvatar(data.image_url);
+      
     } catch (error) {
       console.error("Error fetching avatar:", error);
     }
@@ -42,7 +43,7 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     fetchAvatar()
-  }, [avatar])
+  }, [])
   
   useEffect(() => {
     const savedAvatar = localStorage.getItem("avatar");

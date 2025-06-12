@@ -1,14 +1,23 @@
 import ProgressBar from "@ramonak/react-progress-bar";
 import { useState, useEffect, use, useCallback, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { UserContext } from "../../contexts/userIdContext";
+import placeholderAvatar from "../../assets/images/placeholder_Avatar.jpg"
 
 function ProfilNav() {
   // -*-*- Hooks: State, Navigate -*-*-
-  const { userId, avatar, token } = useContext(UserContext);
+  const { userId, token } = useContext(UserContext);
   const [userProgress, setUserProgress] = useState(null);
   const [userData, setUserData] = useState(null);
   const [badges, setBadges] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [profileAvatar, setProfileAvatar] = useState();
+
+  const { id } = useParams();
+  // console.log("params id:", id);
+
+  const profileId = id;
+  // console.log(profileId);
 
   const navigate = useNavigate();
 
@@ -17,6 +26,7 @@ function ProfilNav() {
       try {
         // Get token from context or localStorage
         const currentToken = token || localStorage.getItem("token");
+
         if (!currentToken) {
           console.error("No token available for API call");
           return;
@@ -40,10 +50,13 @@ function ProfilNav() {
             statusText: response.statusText,
             error: errorData,
           });
+
           throw new Error(errorData.error || "Failed to fetch progress");
         }
 
         const data = await response.json();
+        // console.log("progressData: ", data);
+
         setUserProgress(data);
       } catch (error) {
         console.error("Error fetching progress:", error);
@@ -54,6 +67,7 @@ function ProfilNav() {
       try {
         // Get token from context or localStorage
         const currentToken = token || localStorage.getItem("token");
+
         if (!currentToken) {
           console.error("No token available for API call");
           return;
@@ -61,7 +75,7 @@ function ProfilNav() {
 
         // Use /me endpoint if no id is provided, otherwise use /:id endpoint
         const endpoint = userId
-          ? `http://localhost:5000/api/user/${userId}`
+          ? `http://localhost:5000/api/user/${profileId}`
           : "http://localhost:5000/api/user/me";
 
         const response = await fetch(endpoint, {
@@ -74,12 +88,14 @@ function ProfilNav() {
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
+
           console.error("User data fetch failed:", {
             status: response.status,
             statusText: response.statusText,
             error: errorData,
             endpoint,
           });
+
           throw new Error(errorData.error || "Failed to fetch user data");
         }
 
@@ -93,7 +109,7 @@ function ProfilNav() {
     const fetchBadges = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/user/${userId}/getBadges`,
+          `http://localhost:5000/api/user/${profileId}/getBadges`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -111,30 +127,120 @@ function ProfilNav() {
       }
     };
 
-    if (userId) {
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:5000/posts/userPosts/${profileId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          }
+        );
+
+        const postsJsn = await response.json();
+
+        // console.log(postsJsn);
+
+        setPosts(postsJsn);
+      } catch (error) {
+        console.error("FE - Error fetching user posts: ", error);
+      }
+    };
+
+    const fetchProfileAvatar = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/user/${profileId}/getProfilPic`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      setProfileAvatar(data.image_url);
+
+    } catch (error) {
+      console.error("Error fetching profileAvatar:", error);
+    }
+  }
+
+    if (profileId) {
       fetchUserProgress();
       fetchUserData();
       fetchBadges();
+      fetchPosts();
+      fetchProfileAvatar();
     }
-  }, [userId, token]);
+  }, [profileId, token]);
+
+  const readDateForPosts = () => {
+    const readableDates = [];
+
+    posts?.map((post) => {
+      const date = new Date(post.created_at);
+      const readableDate = date.toLocaleDateString("en-EN", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      readableDates.push(readableDate);
+    });
+
+    return readableDates;
+  };
+
+  const readDate = () => {
+    const date = new Date(userData?.created_at);
+    const readableDate = date.toLocaleDateString("en-EN", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    return readableDate;
+  };
+
+  const joined = readDate();
+  const dates = readDateForPosts();
+
+  // console.log(dates);
+
+  const borderButton = {
+    border: "1px solid blue",
+    backgroundColor: "lightblue",
+    cursor: "pointer",
+  };
+
+  const styleAvatar = {
+    width: "100px",
+    borderRadius: "50px"
+  }
 
   return (
     <>
       {userData ? (
         <div>
-          <h1>ProfileUser</h1>
+
           <div>
-            <img src={avatar} />
+            <img style = {styleAvatar}src={profileAvatar || placeholderAvatar} />
             <div>{userData.username}</div>
           </div>
 
           <div>
             <h2>Info</h2>
-            <div>{userData.info}</div>
+            <div>{userData.info > 0 ? userData.info : "Hello! Nice to meet you!"}</div>
             <div>{userData.location}</div>
-            <div>Joined: {userData.created_at}</div>
+            <div>Joined: {joined}</div>
             <div>{userData.social}</div>
-            <button onClick={() => navigate("/edit-profile")}>
+            <button style = {borderButton} onClick={() => navigate("/edit-profile")}>
               Edit Profile
             </button>
           </div>
@@ -142,7 +248,7 @@ function ProfilNav() {
           <div>
             <h2>Stats</h2>
             <div>XP:</div>
-            <ProgressBar completed={userData.xp} />
+            <ProgressBar maxCompleted={300} completed={userData.xp} />
             <div>Badges: {userData.badgesCount}</div>
             <div>
               {badges[0]?.map((badge, index) => (
@@ -152,7 +258,7 @@ function ProfilNav() {
                 </div>
               ))}
             </div>
-            <div>
+            {/*   <div>
               {userProgress ? (
                 <div>
                   Amount of Exercises: {userProgress.completedExercises}
@@ -160,14 +266,18 @@ function ProfilNav() {
               ) : (
                 <div>Loading exercises...</div>
               )}
-            </div>
+            </div> */}
           </div>
 
           <div>
-            <div>Post 1</div>
-            <div>Post 2</div>
-            <div>Post 3</div>
-            <div>Post 4</div>
+            {posts?.map((post, index) => (
+              <div key={index}>
+                <p>POST {index + 1}</p>
+                <h3>TITEL: {post.title}</h3>
+                <p>BODY: {post.body}</p>
+                <p>DATE: {dates[index]}</p>
+              </div>
+            ))}
           </div>
         </div>
       ) : (

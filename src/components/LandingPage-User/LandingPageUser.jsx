@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import "./LandingPageUser.scss";
 import Frame3 from "../../assets/images/Frame3.png";
-import UserImage from "../../assets/images/userImage.jpeg";
 import LandingPageUserCards from "./LandingPageUserCards";
 import LandingPageUserCardsImage from "../../assets/images/LandingPageUserBackGround.jpg";
 import { useParams } from "react-router-dom";

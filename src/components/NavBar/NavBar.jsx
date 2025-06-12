@@ -5,9 +5,7 @@ import { UserContext } from "../../contexts/userIdContext";
 
 const NavBar = () => {
 
-  const {avatar} = useContext(UserContext)
-  const { logout } = useContext(UserContext);
-
+  const {avatar, logout, userId} = useContext(UserContext)
 
   return (
     <>
@@ -36,7 +34,7 @@ const NavBar = () => {
           <img src={avatar} alt="" />
           <p>UserName</p>
           <li>
-            <NavLink to={"/user"}>Profil</NavLink>
+            <NavLink to={`/profile/${userId}`}>Profil</NavLink>
           </li>
           <li>
             <NavLink to={"/edit-profile"}>Edit</NavLink>

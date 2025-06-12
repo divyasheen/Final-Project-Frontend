@@ -30,20 +30,16 @@ import GeneralDiscussions from "./components/GeneralCommunityPosts/GeneralDiscus
 import OffTobic from "./components/OffTopicCommunityPosts/OffTopic"
 import HTML from"./components/HtmlCommunityPosts/Html"
 import HelloWorld from "./components/HelloWorldCommunityPosts/HelloWorld";
-import EditProfile from "./components/EditProfile";
+import EditProfile from "./components/EditProfile/EditProfile";
 
 // styling Files
 import "./App.scss";
-
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
-
-import { UserProvider } from "./contexts/userIdContext";
 
 function App() {
   return (
     <>
-      <UserProvider>
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
@@ -185,7 +181,7 @@ function App() {
               }
             />
             <Route
-              path="/user"
+              path="/profile/:id"
               element={
                 <ProtectedRoute>
                   <ProfilNav />
@@ -211,7 +207,6 @@ function App() {
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
-      </UserProvider>
     </>
   );
 }
