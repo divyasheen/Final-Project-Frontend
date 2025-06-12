@@ -1,20 +1,31 @@
-import React, { useContext }from "react";
+import React, { useContext } from "react";
 import "./_navbar.scss";
-import { NavLink} from "react-router-dom";
+import { NavLink, useNavigate} from "react-router-dom";
 import { UserContext } from "../../contexts/userIdContext";
 
-
-
-
-  
 const NavBar = () => {
-  const { logout } = useContext(UserContext);
+
+  const {avatar, logout, userId, token} = useContext(UserContext)
+  const navigate = useNavigate();
+
+  // Handler for Home button
+  const handleHomeClick = () => {
+    if (userId) {
+      navigate(`/landingPageUser/${userId}/${token}`);
+    } else {
+      navigate("/");
+    }
+  };
+
 
 
   return (
     <>
       <nav style={{}}>
         <div className={"navRealm"}>
+           <button className="navHomeBtn" onClick={handleHomeClick}>
+            Home
+          </button>
           {[
             "university",
             //"bugadune",
@@ -31,14 +42,14 @@ const NavBar = () => {
         </div>
 
         <div className={"profilPic"}>
-          <img src="https://placekeanu.com/50/50/" alt="" />{" "}
+          <img src={avatar} alt="" />{" "}
           {/* JB: Placeholder for BE-User-Pic */}
           <div className={"dropdown"}>
         <ul>
-          <img src="https://placekeanu.com/50/50/" alt="" />
+          <img src={avatar} alt="" />
           <p>UserName</p>
           <li>
-            <NavLink to={"/user"}>Profil</NavLink>
+            <NavLink to={`/profile/${userId}`}>Profil</NavLink>
           </li>
           <li>
             <NavLink to={"/edit-profile"}>Edit</NavLink>

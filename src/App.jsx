@@ -23,7 +23,10 @@ import ProfilNav from "./components/ProfileUser/ProfileUser";
 import Chatbot from "./components/Chatbot/Chatbot";
 import CreatePost from "./components/CreatePost/CreatePost";
 import LandingPageUser from "./components/LandingPage-User/LandingPageUser";
-import EditProfile from "./components/EditProfile";
+
+
+import EditProfile from "./components/EditProfile/EditProfile";
+
 
 // 👇 New dynamic community component
 import CommunityPage from "./components/CommunityPage/CommunityPostPage";
@@ -34,20 +37,19 @@ import "./App.scss";
 // Layout and Routing
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
-import { UserProvider } from "./contexts/userIdContext";
 
 function App() {
   return (
-    <UserProvider>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgetPAss" element={<ForgetPass />} />
-        <Route path="/users/reset-password/:token" element={<SetNewPass />} />
-        <Route path="/verification-success" element={<VerificationSuccess />} />
-        <Route path="/verification-error" element={<VerificationError />} />
+    <>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgetPAss" element={<ForgetPass />} />
+          <Route path="/users/reset-password/:token" element={<SetNewPass />} />
+          <Route path="/verification-success" element={<VerificationSuccess />} />
+          <Route path="/verification-error" element={<VerificationError />} />
 
         {/* Protected Routes */}
         <Route
@@ -58,56 +60,101 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route element={<Layout />}>
-          <Route
-            path="/landingPageUser/:id"
-            element={
-              <ProtectedRoute>
-                <LandingPageUser />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/university"
-            element={
-              <ProtectedRoute>
-                <UniversityIntro />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/university/:exerciseId"
-            element={
-              <ProtectedRoute>
-                <University />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/bugadune"
-            element={
-              <ProtectedRoute>
-                <Bugadune />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/csscrypta"
-            element={
-              <ProtectedRoute>
-                <CSSCrypta />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/forumia"
-            element={
-              <ProtectedRoute>
-                <Forumia />
-              </ProtectedRoute>
-            }
-          />
-          {/* 👇 Dynamic route for any community */}
+       
+         
+          <Route element={<Layout />}>
+            <Route
+              path="/landingPageUser/:id/:token"
+              element={
+                <ProtectedRoute>
+                  <LandingPageUser />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/university"
+              element={
+                <ProtectedRoute>
+                  <UniversityIntro />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/university/:exerciseId"
+              element={
+                <ProtectedRoute>
+                  <University />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/bugadune"
+              element={
+                <ProtectedRoute>
+                  <Bugadune />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/csscrypta"
+              element={
+                <ProtectedRoute>
+                  <CSSCrypta />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/forumia"
+              element={
+                <ProtectedRoute>
+                  <Forumia />
+                </ProtectedRoute>
+              }
+            />
+          
+           
+            
+            <Route
+              path="/playground"
+              element={
+                <ProtectedRoute>
+                  <Playground />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/towerofapion"
+              element={
+                <ProtectedRoute>
+                  <TowerOfAPIon />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile/:id"
+              element={
+                <ProtectedRoute>
+                  <ProfilNav />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chatbot"
+              element={
+                <ProtectedRoute>
+                  <Chatbot />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/edit-profile"
+              element={
+                <ProtectedRoute>
+                  <EditProfile />
+                </ProtectedRoute>
+              }
+            />
+            {/* 👇 Dynamic route for any community */}
           <Route
             path="forumia/posts/:community"
             element={
@@ -116,50 +163,10 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/playground"
-            element={
-              <ProtectedRoute>
-                <Playground />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/towerofapion"
-            element={
-              <ProtectedRoute>
-                <TowerOfAPIon />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/user"
-            element={
-              <ProtectedRoute>
-                <ProfilNav />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/chatbot"
-            element={
-              <ProtectedRoute>
-                <Chatbot />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/edit-profile"
-            element={
-              <ProtectedRoute>
-                <EditProfile />
-              </ProtectedRoute>
-            }
-          />
-        </Route>
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </UserProvider>
+          </Route>
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+    </>
   );
 }
 

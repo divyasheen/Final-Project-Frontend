@@ -1,16 +1,17 @@
-import { useContext, useState, useEffect, Profiler } from "react";
-import { UserContext } from "../contexts/userIdContext";
+import { useContext, useState, useEffect, Profiler, use } from "react";
+import { UserContext } from "../../contexts/userIdContext";
+import { useNavigate } from "react-router-dom";
 
 function EditProfile() {
   // -*-*- Hooks: States, Contexts ... -*-*-
-  const { userId } = useContext(UserContext);
+  const { userId, avatar, setAvatar, token } = useContext(UserContext);
 
   // JB: userId is stored as a string at the localStorage therefore we need to change it into a Number to work with this at the BE - the 10 stands for decimal number
   const [formData, setFormData] = useState({ id: parseInt(userId, 10) });
 
   const [file, setFile] = useState();
 
-  const [profilPic, setProfilPic] = useState();
+  const navigate = useNavigate();
 
   // -*-*- Handlers -*-*-
   //JB: Let's make magic happen when change the input fields
@@ -47,7 +48,7 @@ function EditProfile() {
 
     const formData = new FormData();
     formData.append("image", file);
-    formData.append("userId", userId)
+    formData.append("userId", userId);
 
     try {
       const res = await fetch(
@@ -62,49 +63,13 @@ function EditProfile() {
         }
       );
 
-      //console.log(res);
-      
       if (!res.ok) {
         throw new Error("Failed to upload file!");
       }
-
     } catch (error) {
       console.error("Upload error:", error);
     }
   };
-
-  const fetchProfilePicture = async () => {
-    try {
-      const res = await fetch(`http://localhost:5000/api/user/${userId}/getProfilPic`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        credentials: "include",
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch profile picture!");
-      }
-
-      const data = await res.json(); 
-      const imageUrl = data.image_url;  
-
-      // console.log(data);
-      // console.log(imageUrl);
-      
-      setProfilPic(imageUrl);
-
-    } catch (error) {
-      console.error("Error fetching profile picture:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchProfilePicture();
-  },[userId]);
-
-  console.log(profilPic)
 
   const borderButton = {
     border: "1px solid blue",
@@ -115,9 +80,7 @@ function EditProfile() {
   return (
     <>
       <div>
-        <form
-          encType="multipart/form-data"
-        >
+        <form encType="multipart/form-data">
           <input
             type="file"
             name="image"
@@ -156,15 +119,18 @@ function EditProfile() {
             Save changes
           </button>
         </form>
-
-        <form action="/reset-password" method="post">
-          <button type="submit" style={borderButton}>
+     
+          <button onClick={() => navigate("/users/reset-password/:token")} style={borderButton}>
             Reset Password
           </button>
-        </form>
-      </div>
 
-      <img src={profilPic} />
+
+       <a onClick={() => navigate("/profile/22")} style={borderButton}>
+          Other user: 22
+        </a> 
+
+        <img src={avatar} />
+      </div>
     </>
   );
 }
