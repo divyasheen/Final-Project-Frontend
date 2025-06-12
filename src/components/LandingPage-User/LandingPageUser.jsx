@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import "./LandingPageUser.scss";
 import Frame3 from "../../assets/images/Frame3.png";
-import UserImage from "../../assets/images/userImage.jpeg";
 import LandingPageUserCards from "./LandingPageUserCards";
 import LandingPageUserCardsImage from "../../assets/images/LandingPageUserBackGround.jpg";
 import { useParams } from "react-router-dom";
@@ -9,15 +8,22 @@ import { UserContext } from "../../contexts/userIdContext";
 
 const LandingPageUser = () => {
   // JB: !!!IMPORTANT!!!! Do NOT change this. Here we create the userId context which we can use everywhere! AND I really hope everywhere is a global >.<
-  const { setUserId } = useContext(UserContext);
-  // dmr: Token as well
-  const { token, avatar /* userProgress,  userData */ } =
-    useContext(UserContext);
+  const {
+    setUserId,
+    token,
+    avatar,
+    userProgress,
+    userData,
+    setUserProgress,
+    setUserData,
+    setAvatar,
+  } = useContext(UserContext);
+
+  const {} = useContext(UserContext);
 
   //we need to find the user who has the id of the param and render the user details
   const { id } = useParams();
 
-  // JB: FINGERS OFF! ò.ó
   // Move setUserId into useEffect
   useEffect(() => {
     if (id) {
@@ -25,10 +31,6 @@ const LandingPageUser = () => {
     }
   }, [id, setUserId]);
 
-  const [userProgress, setUserProgress] = useState(null);
-  const [userData, setUserData] = useState(null);
-
-  useEffect(() => {
     const fetchUserProgress = async () => {
       try {
         // Get token from context or localStorage
@@ -106,9 +108,47 @@ const LandingPageUser = () => {
       }
     };
 
+    const fetchAvatar = async () => {
+      try {
+
+        const currentToken = token || localStorage.getItem("token");
+        if (!currentToken) {
+          console.error("No token available for API call");
+          return;
+        }
+
+        const res = await fetch(
+          `http://localhost:5000/api/user/${id}/getProfilPic`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            credentials: "include",
+          }
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch avatar at LPU!");
+        }
+
+        const data = await res.json();
+        const imageUrl = data.image_url;
+
+        // console.log(data);
+        // console.log(imageUrl);
+
+        setAvatar(imageUrl);
+      } catch (error) {
+        console.error("Error fetching profile picture:", error);
+      }
+    };
+
+    useEffect(() => {
     if (id) {
       fetchUserProgress();
       fetchUserData();
+      fetchAvatar();
     }
   }, [id, token]);
 
@@ -172,7 +212,7 @@ const LandingPageUser = () => {
             <p className="flex flex-col items-center">
               Badges
               <span className="text-xs font-normal">
-                {userData?.badges?.length || 0}
+                {userData?.badgesCount || 0}
               </span>
             </p>
             <p className="flex flex-col items-center">
