@@ -24,13 +24,13 @@ const LandingPageUser = () => {
   //we need to find the user who has the id of the param and render the user details
   const { id } = useParams();
 
-  // JB: FINGERS OFF! ò.ó
-
+  // Move setUserId into useEffect
   useEffect(() => {
-    setUserId(id);
-  }, [id, token]);
+    if (id) {
+      setUserId(id);
+    }
+  }, [id, setUserId]);
 
-  
     const fetchUserProgress = async () => {
       try {
         // Get token from context or localStorage
