@@ -18,7 +18,12 @@ const LandingPageUser = () => {
   const { id } = useParams();
 
   // JB: FINGERS OFF! ò.ó
-  setUserId(id);
+  // Move setUserId into useEffect
+  useEffect(() => {
+    if (id) {
+      setUserId(id);
+    }
+  }, [id, setUserId]);
 
   const [userProgress, setUserProgress] = useState(null);
   const [userData, setUserData] = useState(null);

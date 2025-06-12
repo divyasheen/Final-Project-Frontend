@@ -1,18 +1,31 @@
 import React, { useContext } from "react";
 import "./_navbar.scss";
-import { NavLink} from "react-router-dom";
+import { NavLink, useNavigate} from "react-router-dom";
 import { UserContext } from "../../contexts/userIdContext";
 
 const NavBar = () => {
 
   const {avatar} = useContext(UserContext)
-  const { logout } = useContext(UserContext);
+  const { logout, userId } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  // Handler for Home button
+  const handleHomeClick = () => {
+    if (userId) {
+      navigate(`/landingPageUser/${userId}`);
+    } else {
+      navigate("/");
+    }
+  };
 
 
   return (
     <>
       <nav style={{}}>
         <div className={"navRealm"}>
+           <button className="navHomeBtn" onClick={handleHomeClick}>
+            Home
+          </button>
           {[
             "university",
             //"bugadune",
