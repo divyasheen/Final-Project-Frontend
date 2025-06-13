@@ -1,59 +1,33 @@
 import userImage from "../../assets/images/userImage.jpeg";
-import { useState, useEffect } from "react";
-import { UserContext } from "../../contexts/userIdContext";
-import { useContext } from "react";
+import { useState,useContext, useEffect } from "react";
+
+
 import General from "./General";
 import SinglePostAndComments from "../SinglePostAndComments/SinglePostAndComments";
+import UniversityOfTerminalia from "./UniversityOfTerminalia";
+import TheHub from "./TheHub";
+import { UserContext } from "../../contexts/userIdContext";
 
 export default function Forumia() {
-  const [posts, setPosts] = useState([]);
-  const [message, setMessage] = useState("An unexpected error");
+
   const [calcMembers, setCalcMembers] = useState(null);
   const [threadCount, setThreadCount] = useState(0);
   const [renderSinglePostPage, setRenderSinglePostPage] = useState(false);
   const [singlePostInfos, setSinglePostObject] = useState({});
-  const { userId } = useContext(UserContext);
-
-
-
-
-
-
-
-
-  const fetchingData = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/posts");
-
-      if (!res.ok) {
-        setMessage("Something went wrong fetching posts");
-        return; // stop here if response not OK
-      }
-
-      const data = await res.json();
-      
-      setPosts(data);
-      
-      
-      // update state here
-      setMessage(null); // clear any previous messages on success
-    } catch (error) {
-      console.log(error);
-      setMessage(error?.message || "Unexpected error occurred");
-    }
-  };
-    
-  console.log('the posts',posts);
   
+const LIMIT = 10; // Define a constant for the limit of posts per page  
+ const{posts,userId, setPosts,fetchingData} = useContext(UserContext);
 
 
-
-
+  // useEffect(() => {
+  //   fetchingData();
+  // }, [posts, fetchingData]);
   useEffect(() => {
-   fetchingData()
+    fetchingData(LIMIT, 0);
+    // setOffset(LIMIT); // next offset will be LIMIT
+    console.log("Fetching data called");
 
-  }, []);
-  
+  }, []); 
   //Calculating Threads
 
   useEffect(() => {
@@ -62,10 +36,10 @@ export default function Forumia() {
     }, 0);
     setThreadCount(total);
   }, [posts]);
-// Calculating Members
+  // Calculating Members
   useEffect(() => {
     const members = new Set();
-  
+
     posts.forEach((post) => {
       // Add post author
       if (post.author) members.add(post.author);
@@ -223,328 +197,90 @@ export default function Forumia() {
               <h3 className="text-accent mb-8 font-vt323 text-[25px] font-normal ">
                 Latest Posts
               </h3>
-              {posts.length > 0?posts.slice(0, 3).map((post) => (
-             <div
-             key={post.id}
-             onClick={() => oneSinglePost(post)}
-             className="relative cursor-pointer flex flex-col sm:flex-row justify-between items-start sm:items-center border-b-2 border-accent pb-4 hover:bg-accent/20 p-3 hover:rounded-md transition-colors"
-             role="button"
-             tabIndex={0}
-           >
-             {/* ❌ Delete Button (conditionally shown for post author) */}
-             {Number(userId) === post.user_id && (
-               <button
-                 aria-label="Delete post"
-                 onClick={(e) => {
-                   e.stopPropagation(); // Prevents triggering post click
-                   deleteSinglePost(post.id);
-                 }}
-                 className="absolute top-0 right-2 w-6 h-6 flex items-center justify-center rounded-full text-gray-400 hover:text-red-500 text-2xl font-bold transition duration-200 cursor-pointer"
-                 title="Delete Post"
-               >
-                 ×
-               </button>
-             )}
-           
-             {/* Left side */}
-             <div className="flex gap-4 w-full sm:w-2/3 items-center">
-               <img
-                 src={post.userImage || userImage} // fallback if no userImage
-                 alt={post.author || "user"}
-                 className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-               />
-               <div className="text-white text-sm">
-                 <p className="font-bold text-md mb-1">{post.title}</p>
-                 <div className="text-[11px] text-accent flex gap-1">
-                   <span>{post.author} -</span>
-                   <span>{new Date(post.created_at).toLocaleDateString()}</span>
-                 </div>
-               </div>
-             </div>
-           
-             {/* Right side */}
-             <div className="flex gap-6 items-center w-full sm:w-1/3 mt-4 sm:mt-0 justify-evenly text-white text-sm relative">
-               <p className="flex flex-col text-[11px] items-center">
-                 Answers
-                 <span className="px-2">{post.comments.length}</span>
-               </p>
-             {post.comments.length > 0 && (
-                <div className="relative flex items-center gap-4 before:absolute before:left-[-15px] before:h-full before:w-[2px] before:bg-accent before:rounded">
-                <img
-                  src={userImage} // or post.latestAnswerUserImage if available
-                  alt="latest-answer-user"
-                  className="w-8 h-8 rounded-full object-cover"
-                />
-                <p className="flex flex-col items-center text-[11px]">
-                 {    post.comments[post.comments.length - 1].commenter}
-                  <span className="text-[11px] text-accent"> {new Date(post.comments[post.comments.length - 1].created_at).toLocaleDateString()}</span>
-                </p>
-              </div>
-             )}
-             </div>
-           </div>
-           
-              )):<p className="text-white text-sm mt-4">No Available Posts </p>}
+              {posts.length > 0 ? (
+                posts.slice(0, 3).map((post) => (
+                  <div
+                    key={post.id}
+                    onClick={() => oneSinglePost(post)}
+                    className="relative cursor-pointer flex flex-col sm:flex-row justify-between items-start sm:items-center border-b-2 border-accent pb-4 hover:bg-accent/20 p-3 hover:rounded-md transition-colors"
+                    role="button"
+                    tabIndex={0}
+                  >
+                    {/* ❌ Delete Button (conditionally shown for post author) */}
+                    {Number(userId) === post.user_id && (
+                      <button
+                        aria-label="Delete post"
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevents triggering post click
+                          deleteSinglePost(post.id);
+                        }}
+                        className="absolute top-0 right-2 w-6 h-6 flex items-center justify-center rounded-full text-gray-400 hover:text-red-500 text-2xl font-bold transition duration-200 cursor-pointer"
+                        title="Delete Post"
+                      >
+                        ×
+                      </button>
+                    )}
+
+                    {/* Left side */}
+                    <div className="flex gap-4 w-full sm:w-2/3 items-center">
+                      <img
+                        src={post.userImage || userImage} // fallback if no userImage
+                        alt={post.author || "user"}
+                        className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                      />
+                      <div className="text-white text-sm">
+                        <p className="font-bold text-md mb-1">{post.title}</p>
+                        <div className="text-[11px] text-accent flex gap-1">
+                          <span>{post.author} -</span>
+                          <span>
+                            {new Date(post.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right side */}
+                    <div className="flex gap-6 items-center w-full sm:w-1/3 mt-4 sm:mt-0 justify-evenly text-white text-sm relative">
+                      <p className="flex flex-col text-[11px] items-center">
+                        Answers
+                        <span className="px-2">{post.comments.length}</span>
+                      </p>
+                      {post.comments.length > 0 && (
+                        <div className="relative flex items-center gap-4 before:absolute before:left-[-15px] before:h-full before:w-[2px] before:bg-accent before:rounded">
+                          <img
+                            src={userImage} // or post.latestAnswerUserImage if available
+                            alt="latest-answer-user"
+                            className="w-8 h-8 rounded-full object-cover"
+                          />
+                          <p className="flex flex-col items-center text-[11px]">
+                            {post.comments[post.comments.length - 1].commenter}
+                            <span className="text-[11px] text-accent">
+                              {" "}
+                              {new Date(
+                                post.comments[
+                                  post.comments.length - 1
+                                ].created_at
+                              ).toLocaleDateString()}
+                            </span>
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-white text-sm mt-4">No Available Posts </p>
+              )}
             </article>
 
             {/*General */}
-          <General />
+            <General posts={posts} />
 
             {/*University of Terminalia */}
-            <article className=" w-[90%] max-w-full mx-auto mt-10 p-6">
-              <h3 className="text-white border-b-4 py-4 border-accent font-vt323 text-[25px] font-normal ">
-                University of Terminalia
-              </h3>
-
-              <div className="flex flex-col gap-8 mt-5">
-                {/* === POST 1 === */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b-2 border-accent pb-4 min-h-[64px]">
-                  {/* Left side */}
-                  <div className="flex gap-4 w-full sm:w-2/3 items-center">
-                    {/* <img
-          src={userImage}
-          alt="user"
-          className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-        /> */}
-                    <div className="text-white text-sm">
-                      <p className="font-bold text-md mb-1">HTML</p>
-                      <div className="text-[11px] flex gap-1">
-                        <span>
-                          Ask your questions about the lessons in the HTML
-                          course, Share your knowledge
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right side */}
-                  <div className="flex gap-6 items-center w-full sm:w-1/3 mt-4 sm:mt-0 justify-evenly text-white text-sm relative min-h-[64px]">
-                    <p className="flex flex-col text-[11px] items-center">
-                      Threads
-                      <span className="px-2">5</span>
-                    </p>
-                    <p className="relative before:absolute before:top-2 before:left-[-15px] before:h-4/5 before:w-[1px] before:bg-accent before:rounded flex flex-col text-[11px] items-center">
-                      Posts
-                      <span className="px-2">105</span>
-                    </p>
-                    <div className="relative flex items-center gap-4 before:absolute before:left-[-15px] before:h-4/5 before:w-[2px] before:bg-accent before:rounded">
-                      <img
-                        src={userImage}
-                        alt="latest-answer-user"
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                      <div className="flex w-3/5 flex-col items-start text-[11px] max-w-[100px]">
-                        <p className="overflow-hidden text-ellipsis whitespace-nowrap w-full block text-left">
-                          Rules at the Forum
-                        </p>
-                        <span className="text-[11px]">User1</span>
-                        <span className="text-[11px] text-accent">
-                          27.05.2025
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* === POST 2 === */}
-                <div className="flex  flex-col sm:flex-row justify-between items-start sm:items-center border-b-2 border-accent pb-4 min-h-[64px]">
-                  {/* Left side */}
-                  <div className="flex gap-4 w-full sm:w-2/3 items-center">
-                    {/* <img
-          src={userImage}
-          alt="user"
-          className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-        /> */}
-                    <div className="text-white text-sm">
-                      <p className="font-bold text-md mb-1">Css</p>
-                      <div className="text-[11px] flex gap-1">
-                        <span>
-                          Ask your questions about the lessons in the CSS
-                          course, Share your knowledge
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right side */}
-                  <div className="flex gap-6 items-center w-full sm:w-1/3 mt-4 sm:mt-0 justify-evenly text-white text-sm relative min-h-[64px]">
-                    <p className="flex flex-col text-[11px] items-center">
-                      Threads
-                      <span className="px-2">10</span>
-                    </p>
-                    <p className="relative before:absolute before:top-2 before:left-[-15px] before:h-4/5 before:w-[1px] before:bg-accent before:rounded flex flex-col text-[11px] items-center">
-                      Posts
-                      <span className="px-2">105</span>
-                    </p>
-                    <div className="relative flex items-center gap-4 before:absolute before:left-[-15px] before:h-4/5 before:w-[2px] before:bg-accent before:rounded">
-                      <img
-                        src={userImage}
-                        alt="latest-answer-user"
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                      <div className="w-3/5 flex flex-col items-start text-[11px] max-w-[100px]">
-                        <p className="overflow-hidden text-ellipsis whitespace-nowrap w-full block text-left">
-                          Hi There this is a long text that should be truncated
-                        </p>
-                        <span>User2</span>
-                        <span className="text-accent">10.02.2025</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Post3 */}
-
-              <div className="flex  flex-col sm:flex-row justify-between items-start sm:items-center border-b-2 border-accent pb-4 min-h-[64px]">
-                {/* Left side */}
-                <div className="flex gap-4 w-full sm:w-2/3 items-center">
-                  {/* <img
-          src={userImage}
-          alt="user"
-          className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-        /> */}
-                  <div className="text-white text-sm">
-                    <p className="font-bold text-md mb-1">JavaScript</p>
-                    <div className="text-[11px] flex gap-1">
-                      <span>
-                        Ask your questions about the lessons in the JavaScript
-                        course, Share your knowledge
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right side */}
-                <div className="flex gap-6 items-center w-full sm:w-1/3 mt-4 sm:mt-0 justify-evenly text-white text-sm relative min-h-[64px]">
-                  <p className="flex flex-col text-[11px] items-center">
-                    Threads
-                    <span className="px-2">10</span>
-                  </p>
-                  <p className="relative before:absolute before:top-2 before:left-[-15px] before:h-4/5 before:w-[1px] before:bg-accent before:rounded flex flex-col text-[11px] items-center">
-                    Posts
-                    <span className="px-2">105</span>
-                  </p>
-                  <div className="relative flex items-center gap-4 before:absolute before:left-[-15px] before:h-4/5 before:w-[2px] before:bg-accent before:rounded">
-                    <img
-                      src={userImage}
-                      alt="latest-answer-user"
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                    <div className="w-3/5 flex flex-col items-start text-[11px] max-w-[100px]">
-                      <p className="overflow-hidden text-ellipsis whitespace-nowrap w-full block text-left">
-                        Hi There this is a long text that should be truncated
-                      </p>
-                      <span>User2</span>
-                      <span className="text-accent">10.02.2025</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </article>
+            <UniversityOfTerminalia posts={posts} />
 
             {/*The Hub */}
-            <article className=" w-[90%] max-w-full mx-auto mt-10 p-6">
-              <h3 className="text-white border-b-4 py-4 border-accent font-vt323 text-[25px] font-normal ">
-                The Hub
-              </h3>
-
-              <div className="flex flex-col gap-8 mt-5">
-                {/* === POST 1 === */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b-2 border-accent pb-4 min-h-[64px]">
-                  {/* Left side */}
-                  <div className="flex gap-4 w-full sm:w-2/3 items-center">
-                    {/* <img
-          src={userImage}
-          alt="user"
-          className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-        /> */}
-                    <div className="text-white text-sm">
-                      <p className="font-bold text-md mb-1">Off-Topic</p>
-                      <div className="text-[11px] flex gap-1">
-                        <span>What ever comes to yuor mind</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right side */}
-                  <div className="flex gap-6 items-center w-full sm:w-1/3 mt-4 sm:mt-0 justify-evenly text-white text-sm relative min-h-[64px]">
-                    <p className="flex flex-col text-[11px] items-center">
-                      Threads
-                      <span className="px-2">5</span>
-                    </p>
-                    <p className="relative before:absolute before:top-2 before:left-[-15px] before:h-4/5 before:w-[1px] before:bg-accent before:rounded flex flex-col text-[11px] items-center">
-                      Posts
-                      <span className="px-2">105</span>
-                    </p>
-                    <div className="relative flex items-center gap-4 before:absolute before:left-[-15px] before:h-4/5 before:w-[2px] before:bg-accent before:rounded">
-                      <img
-                        src={userImage}
-                        alt="latest-answer-user"
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                      <div className="flex w-3/5 flex-col items-start text-[11px] max-w-[100px]">
-                        <p className="overflow-hidden text-ellipsis whitespace-nowrap w-full block text-left">
-                          Rules at the Forum
-                        </p>
-                        <span className="text-[11px]">User1</span>
-                        <span className="text-[11px] text-accent">
-                          27.05.2025
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* === POST 2 === */}
-                <div className="flex  flex-col sm:flex-row justify-between items-start sm:items-center border-b-2 border-accent pb-4 min-h-[64px]">
-                  {/* Left side */}
-                  <div className="flex gap-4 w-full sm:w-2/3 items-center">
-                    {/* <img
-          src={userImage}
-          alt="user"
-          className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-        /> */}
-                    <div className="text-white text-sm">
-                      <p className="font-bold text-md mb-1">
-                        General Discussions
-                      </p>
-                      <div className="text-[11px] flex gap-1">
-                        <span>What ever comes to your mind</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right side */}
-                  <div className="flex gap-6 items-center w-full sm:w-1/3 mt-4 sm:mt-0 justify-evenly text-white text-sm relative min-h-[64px]">
-                    <p className="flex flex-col text-[11px] items-center">
-                      Threads
-                      <span className="px-2">10</span>
-                    </p>
-                    <p className="relative before:absolute before:top-2 before:left-[-15px] before:h-4/5 before:w-[1px] before:bg-accent before:rounded flex flex-col text-[11px] items-center">
-                      Posts
-                      <span className="px-2">105</span>
-                    </p>
-                    <div className="relative flex items-center gap-4 before:absolute before:left-[-15px] before:h-4/5 before:w-[2px] before:bg-accent before:rounded">
-                      <img
-                        src={userImage}
-                        alt="latest-answer-user"
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                      <div className="w-3/5 flex flex-col items-start text-[11px] max-w-[100px]">
-                        <p className="overflow-hidden text-ellipsis whitespace-nowrap w-full block text-left">
-                          Hi There this is a long text that should be truncated
-                        </p>
-                        <span>User2</span>
-                        <span className="text-accent">10.02.2025</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Post3 */}
-            </article>
+            <TheHub posts={posts} />
           </aside>
         </div>
       </main>

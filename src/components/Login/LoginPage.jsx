@@ -119,8 +119,8 @@ const LoginPage = () => {
 
         // Add a small delay before navigation
         setTimeout(() => {
-          console.log("Navigating to:", `/landingPageUser/${data.user.id}`);
-          navigateTo(`/landingPageUser/${data.user.id}`);
+          console.log("Navigating to:", `/landingPageUser/${data.user.id}/${storedToken}`);
+          navigateTo(`/landingPageUser/${data.user.id}/${storedToken}`);
         }, 100);
       } else {
         console.error("Login response missing required data:", data);
@@ -244,13 +244,13 @@ const LoginPage = () => {
 
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <div id="googleButton"></div>
-            <button
+            {/* <button
               type="button"
               className="flex items-center justify-center gap-2 px-4 py-2 border border-white text-white rounded-md hover:bg-white/10 transition"
             >
               <FaGithub />
               <span className="font-vt323 text-sm md:text-base">GitHub</span>
-            </button>
+            </button> */}
           </div>
         </form>
       </div>
