@@ -5,7 +5,7 @@ import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 export default function Chatbot() {
   const [messages, setMessages] = useState([
-    { role: "system", content: "Hello! I am your AI learning assistant." },
+    { role: "assistant", content: "Hello, I'm J.A.D.A." },
   ]);
 
   const [input, setInput] = useState("");
@@ -24,6 +24,13 @@ export default function Chatbot() {
     return () => {
       document.body.classList.remove("chat-active");
     };
+  }, []);
+
+  useEffect(() => {
+    if (messages.some((msg) => msg.role !== "system")) {
+      setHasInteracted(true);
+      document.body.classList.add("chat-active");
+    }
   }, []);
 
   const sendMessage = async () => {
@@ -100,7 +107,9 @@ export default function Chatbot() {
                       <div className="relative group overflow-x-auto rounded-lg">
                         <button
                           className="absolute top-2 right-2 text-xs bg-white/10 text-white border border-white/20 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
-                          onClick={() => navigator.clipboard.writeText(codeText)}
+                          onClick={() =>
+                            navigator.clipboard.writeText(codeText)
+                          }
                           aria-label="Copy code to clipboard"
                         >
                           Copy
