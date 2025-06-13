@@ -46,9 +46,10 @@ const LandingPage = () => {
         </div>
       </div>
 
-      <footer className="bg-primary py-4 text-center">
+      {/* We'll use the footer.jsx instead */}
+      {/* <footer className="bg-primary py-4 text-center">
         <p className="text-white text-sm">Impressum</p>
-      </footer>
+      </footer> */}
     </section>
   );
 };
