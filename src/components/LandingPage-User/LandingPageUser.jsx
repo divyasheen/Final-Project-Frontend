@@ -256,7 +256,7 @@ const LandingPageUser = () => {
             placeholder="Enter friend's email"
             className="px-4 py-2 w-full sm:w-72 rounded-md border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent text-gray-800"
           />
-          <button className="mt-4 sm:mt-0 px-6 py-3 bg-accent rounded-md hover:bg-accent-dark transition duration-300">
+          <button className="mt-4 sm:mt-0 px-6 py-3 bg-secondary rounded-md hover:bg-secondary-dark transition duration-300">
             Send Invite
           </button>
         </div>

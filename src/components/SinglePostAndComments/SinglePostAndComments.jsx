@@ -103,7 +103,7 @@ const SinglePostAndComments = ({
 
   return (
     <section className="h-full fixed inset-0 z-10 bg-[#0f0f1c]/90 flex items-center justify-center px-4 py-10">
-      <div className="relative w-full max-w-2xl p-6 bg-footer rounded-2xl shadow-[0_8px_30px_rgba(255,255,255,0.2)]">
+      <div className="relative w-full max-w-2xl p-6 bg-primary rounded-2xl shadow-[0_8px_30px_rgba(255,255,255,0.2)]">
         <button
           onClick={() => setRenderSinglePostPage(false)}
           className="absolute top-4 right-4 text-accent hover:text-white transition"
@@ -160,7 +160,7 @@ const SinglePostAndComments = ({
               />
               <button
                 type="submit"
-                className="bg-footer rounded-2xl px-5 py-2 text-sm font-medium text-white shadow-[0_0px_12px_rgba(171,239,254,0.4)] hover:shadow-[0_0px_12px_rgba(171,239,254,0.6)]"
+                className="bg-primary rounded-2xl px-5 py-2 text-sm font-medium text-white shadow-[0_0px_12px_rgba(171,239,254,0.4)] hover:shadow-[0_0px_12px_rgba(171,239,254,0.6)]"
               >
                 Submit Comment
               </button>

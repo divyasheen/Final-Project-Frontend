@@ -119,7 +119,7 @@ const LIMIT = 10; // Define a constant for the limit of posts per page
                   <div
                     key={post.id}
                     onClick={() => oneSinglePost(post)}
-                    className="relative mt-6 w-full max-w-xs cursor-pointer hover:bg-accent/20 p-3 rounded-md overflow-hidden flex items-center gap-4 border border-gray-700"
+                    className="relative mt-6 w-full max-w-xs cursor-pointer hover:bg-secondary/20 p-3 rounded-md overflow-hidden flex items-center gap-4 border border-gray-700"
                   >
                     {/* Delete Button - styled and positioned in top-right */}
 
@@ -186,14 +186,14 @@ const LIMIT = 10; // Define a constant for the limit of posts per page
             {/* Buttons */}
             <article className="flex gap-4 justify-end items-center px-6">
               <a href="/createPost" rel="noopener noreferrer">
-                <button className="bg-footer rounded-2xl p-2 px-3 text-sm font-medium text-white shadow-[0_0px_12px_rgba(171,239,254,0.5),0_0px_40px_rgba(0,254,254,0.2)] hover:shadow-[0_0px_12px_rgba(171,239,254,0.5),0_0px_40px_rgba(171,239,254,0.25)]">
+                <button className="bg-primary rounded-2xl p-2 px-3 text-sm font-medium text-white shadow-[0_0px_12px_rgba(171,239,254,0.5),0_0px_40px_rgba(0,254,254,0.2)] hover:shadow-[0_0px_12px_rgba(171,239,254,0.5),0_0px_40px_rgba(171,239,254,0.25)]">
                   New Post
                 </button>
               </a>
             </article>
 
             {/* Latest Posts */}
-            <article className="bg-footer w-[90%] max-w-full mx-auto mt-10 p-6  rounded-md">
+            <article className="bg-primary w-[90%] max-w-full mx-auto mt-10 p-6  rounded-md">
               <h3 className="text-accent mb-8 font-vt323 text-[25px] font-normal ">
                 Latest Posts
               </h3>
@@ -202,7 +202,7 @@ const LIMIT = 10; // Define a constant for the limit of posts per page
                   <div
                     key={post.id}
                     onClick={() => oneSinglePost(post)}
-                    className="relative cursor-pointer flex flex-col sm:flex-row justify-between items-start sm:items-center border-b-2 border-accent pb-4 hover:bg-accent/20 p-3 hover:rounded-md transition-colors"
+                    className="relative cursor-pointer flex flex-col sm:flex-row justify-between items-start sm:items-center border-b-2 border-accent pb-4 hover:bg-secondary/20 p-3 hover:rounded-md transition-colors"
                     role="button"
                     tabIndex={0}
                   >
@@ -246,7 +246,7 @@ const LIMIT = 10; // Define a constant for the limit of posts per page
                         <span className="px-2">{post.comments.length}</span>
                       </p>
                       {post.comments.length > 0 && (
-                        <div className="relative flex items-center gap-4 before:absolute before:left-[-15px] before:h-full before:w-[2px] before:bg-accent before:rounded">
+                        <div className="relative flex items-center gap-4 before:absolute before:left-[-15px] before:h-full before:w-[2px] before:bg-secondary before:rounded">
                           <img
                             src={userImage} // or post.latestAnswerUserImage if available
                             alt="latest-answer-user"

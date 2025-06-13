@@ -47,7 +47,7 @@ const CreatePost = () => {
 
   return (
     <div className="min-h-screen bg-[#0f0f1c] flex items-center justify-center px-4 py-10">
-      <section className="w-full max-w-3xl p-6 bg-footer rounded-2xl shadow-[0_8px_30px_rgba(255,255,255,0.4)]">
+      <section className="w-full max-w-3xl p-6 bg-primary rounded-2xl shadow-[0_8px_30px_rgba(255,255,255,0.4)]">
         <h2 className="text-accent text-3xl font-vt323 mb-6 border-b-2 border-accent pb-2">
           Create New Post
         </h2>
@@ -101,7 +101,7 @@ const CreatePost = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="self-end bg-footer rounded-2xl px-6 py-2 text-sm font-medium text-white shadow-[0_0px_12px_rgba(171,239,254,0.5),0_0px_40px_rgba(0,254,254,0.2)] hover:shadow-[0_0px_12px_rgba(171,239,254,0.5),0_0px_40px_rgba(171,239,254,0.25)]"
+            className="self-end bg-primary rounded-2xl px-6 py-2 text-sm font-medium text-white shadow-[0_0px_12px_rgba(171,239,254,0.5),0_0px_40px_rgba(0,254,254,0.2)] hover:shadow-[0_0px_12px_rgba(171,239,254,0.5),0_0px_40px_rgba(171,239,254,0.25)]"
           >
             Publish
           </button>
