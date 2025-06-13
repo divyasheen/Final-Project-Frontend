@@ -17,8 +17,6 @@ const NavBar = () => {
     }
   };
 
-
-
   return (
     <>
       <nav style={{}}>
