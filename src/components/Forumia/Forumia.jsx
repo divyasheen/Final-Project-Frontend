@@ -11,15 +11,19 @@ import { UserContext } from "../../contexts/userIdContext";
 import { useNavigate } from "react-router-dom";
 
 export default function Forumia() {
+  // -*-*- STATES -*-*-
   const [calcMembers, setCalcMembers] = useState(null);
   const [threadCount, setThreadCount] = useState(0);
   const [renderSinglePostPage, setRenderSinglePostPage] = useState(false);
   const [singlePostInfos, setSinglePostObject] = useState({});
   const [profileAvatar, setProfileAvatar] = useState({});
-  const LIMIT = 10; // Define a constant for the limit of posts per page
+  const [amountPosts, setAmountPosts] = useState();
+
+  // -*-*- CONTEXTS -*-*-
   const { posts, userId, setPosts, fetchingData, token } =
     useContext(UserContext);
 
+  const LIMIT = 10; // Define a constant for the limit of posts per page
   const navigate = useNavigate();
 
   // useEffect(() => {
@@ -110,9 +114,24 @@ export default function Forumia() {
     }
   };
 
-  const fetchAllPosts = async () => {
-    
-  }
+  // JB: count all posts in the DB
+  const countAllPosts = async () => {
+    try {
+      const res = await fetch(`http://localhost:5000/posts/count/allPosts`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      setAmountPosts(data[0].count)
+      
+    } catch (error) {
+      console.error("FE - Error fetching the amount of posts: ", error);
+    }
+  };
 
   useEffect(() => {
     posts.forEach((post) => {
@@ -120,6 +139,7 @@ export default function Forumia() {
         fetchProfileAvatar(post.user_id);
       }
     });
+    countAllPosts()
   }, [posts]);
 
   return (
@@ -209,7 +229,7 @@ export default function Forumia() {
                 </h3>
                 <ul className="mt-6 flex flex-col gap-4 max-w-xs">
                   <li className="flex justify-between w-full">
-                    Posts: <span>{posts.length}</span>
+                    Posts: <span>{ amountPosts || "...loading"}</span>
                   </li>
                   <li className="flex justify-between w-full">
                     Members: <span>{calcMembers}</span>
@@ -342,7 +362,6 @@ export default function Forumia() {
 
             {/*The Hub */}
             <TheHub posts={posts} />
-
           </aside>
         </div>
       </main>
