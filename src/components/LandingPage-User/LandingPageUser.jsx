@@ -281,20 +281,18 @@ const LandingPageUser = () => {
           community.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md">
-          <form action="">
-            <input
-              type="email"
-              placeholder="Enter friend's email"
-              className="px-4 py-2 w-full sm:w-72 rounded-md border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent text-gray-800"
-              id="email"
-            />
-            <button
-              className="mt-4 sm:mt-0 px-6 py-3 bg-accent rounded-md hover:bg-accent-dark transition duration-300"
-              onClick={sendInvite}
-            >
-              Send Invite
-            </button>
-          </form>
+          <input
+            type="email"
+            placeholder="Enter friend's email"
+            className="px-4 py-2 w-full sm:w-72 rounded-md border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent text-gray-800"
+            id="email"
+          />
+          <button className="mt-4 sm:mt-0 px-6 py-3 bg-secondary rounded-md hover:bg-accent-dark transition duration-300"
+          onClick={sendInvite}
+          >
+            
+            Send Invite
+          </button>
         </div>
       </article>
     </section>
