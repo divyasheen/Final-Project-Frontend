@@ -227,18 +227,18 @@ export default function University() {
   const [previewHtml, setPreviewHtml] = useState("");
 
   // Helper to get file extension for display - MOVED HERE!
-  // const getLanguageExtension = (language) => {
-  //   switch (language) {
-  //     case "javascript":
-  //       return "js";
-  //     case "html":
-  //       return "html";
-  //     case "css":
-  //       return "css";
-  //     default:
-  //       return "txt"; // Fallback for unknown languages or if language is null/undefined
-  //   }
-  // };
+  const getLanguageExtension = (language) => {
+    switch (language) {
+      case "javascript":
+        return "js";
+      case "html":
+        return "html";
+      case "css":
+        return "css";
+      default:
+        return "txt"; // Fallback for unknown languages or if language is null/undefined
+    }
+  };
 
 // NEW: Auto-save to localStorage
   useEffect(() => {
