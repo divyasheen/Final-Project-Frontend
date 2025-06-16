@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-unused-vars */
 import userImage from "../../assets/images/userImage.jpeg";
-import { useState,useContext, useEffect } from "react";
-
+import { useState, useContext, useEffect } from "react";
 
 import General from "./General";
 import SinglePostAndComments from "../SinglePostAndComments/SinglePostAndComments";
@@ -9,15 +10,13 @@ import TheHub from "./TheHub";
 import { UserContext } from "../../contexts/userIdContext";
 
 export default function Forumia() {
-
   const [calcMembers, setCalcMembers] = useState(null);
   const [threadCount, setThreadCount] = useState(0);
   const [renderSinglePostPage, setRenderSinglePostPage] = useState(false);
   const [singlePostInfos, setSinglePostObject] = useState({});
-  
-const LIMIT = 10; // Define a constant for the limit of posts per page  
- const{posts,userId, setPosts,fetchingData} = useContext(UserContext);
 
+  const LIMIT = 10; // Define a constant for the limit of posts per page
+  const { posts, userId, setPosts, fetchingData } = useContext(UserContext);
 
   // useEffect(() => {
   //   fetchingData();
@@ -26,8 +25,9 @@ const LIMIT = 10; // Define a constant for the limit of posts per page
     fetchingData(LIMIT, 0);
     // setOffset(LIMIT); // next offset will be LIMIT
     console.log("Fetching data called");
+  }, []);
 
-  }, []); 
+
   //Calculating Threads
 
   useEffect(() => {
@@ -93,7 +93,8 @@ const LIMIT = 10; // Define a constant for the limit of posts per page
           singlePostInfos={singlePostInfos}
           setSinglePostObject={setSinglePostObject}
           setRenderSinglePostPage={setRenderSinglePostPage}
-          refreshPosts={fetchingData}
+          refreshPosts={() => fetchingData(LIMIT, 0)}
+
         />
       )}
       <main className="flex flex-col p-5 bg-background">
