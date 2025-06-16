@@ -179,6 +179,26 @@ function registerHtmlSnippets(monaco) {
         "nav",
         "main",
         "link",
+        "div",
+        "p",
+        "h1",
+        "h2",
+        "span",
+        "a",
+        "img",
+        "ul",
+        "ol",
+        "li",
+        "button",
+        "input",
+        "form",
+        "section",
+        "article",
+        "footer",
+        "header",
+        "nav",
+        "main",
+        "link",
       ];
       const suggestions = tags.map((tag) => ({
         label: tag,
@@ -393,53 +413,66 @@ export default function University() {
     }
   };
   const handleComplete = async () => {
-    const allTestsPassed =
-      testResults.length > 0 && testResults.every((test) => test.passed);
+  const allTestsPassed = testResults.every(test => test.passed);
+  if (!allTestsPassed) {
+    toast.error("❗ Please pass all tests before completing.");
+    return;
+  }
 
-    if (!allTestsPassed) {
-      toast.error("❗ Please pass all tests before completing.");
-      return;
+  try {
+    // Mark exercise as complete
+    const completeRes = await fetch(
+      `http://localhost:5000/api/courses/exercises/${exerciseId}/complete`,
+      { method: "POST", credentials: "include" }
+    );
+    if (!completeRes.ok) throw new Error("Failed to mark exercise complete");
+
+    // Get next lesson ID
+    const nextLessonRes = await fetch(
+      `http://localhost:5000/api/courses/lessons/${exercise.lesson_id}/next`,
+      { credentials: "include" }
+    );
+    
+    let nextLessonId = null;
+    if (nextLessonRes.ok) {
+      const data = await nextLessonRes.json();
+      nextLessonId = data.nextLessonId;
     }
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/courses/exercises/${exerciseId}/complete`,
-        {
-          method: "POST",
-          credentials: "include",
-        }
-      );
 
-      if (!response.ok) throw new Error("Failed to mark exercise complete");
+    // Navigate back with next lesson state
+    navigate("/university", { 
+      state: { 
+        activeCourse: exercise.course_id,
+        activeLesson: nextLessonId 
+      } 
+    });
 
-      toast.success(`✅ Exercise completed! +${exercise.xp_reward} XP`);
-      navigate("/university"); // Return to lesson list
-    } catch (error) {
-      console.error("Completion error:", error);
-      toast.error(error.message);
-    }
-  };
+    toast.success(`✅ Exercise completed! +${exercise.xp_reward} XP`);
+  } catch (error) {
+    toast.error(error.message);
+  }
+};
+  // const handleNextExercise = async () => {
+  //   try {
+  //     const response = await fetch(
+  //       `http://localhost:5000/api/courses/exercises/${exerciseId}/next`,
+  //       { credentials: "include" }
+  //     );
 
-  const handleNextExercise = async () => {
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/courses/exercises/${exerciseId}/next`,
-        { credentials: "include" }
-      );
-
-      if (response.ok) {
-        const { nextExerciseId } = await response.json();
-        if (nextExerciseId) {
-          navigate(`/university/${nextExerciseId}`);
-        } else {
-          toast.info("🎉 No more exercises in this lesson!");
-          navigate("/university");
-        }
-      }
-    } catch (error) {
-      console.error("Error getting next exercise:", error);
-      toast.error("Failed to get next exercise");
-    }
-  };
+  //     if (response.ok) {
+  //       const { nextExerciseId } = await response.json();
+  //       if (nextExerciseId) {
+  //         navigate(`/university/${nextExerciseId}`);
+  //       } else {
+  //         toast.info("🎉 No more exercises in this lesson!");
+  //         navigate("/university");
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Error getting next exercise:", error);
+  //     toast.error("Failed to get next exercise");
+  //   }
+  // };
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-background text-white">
@@ -565,12 +598,7 @@ export default function University() {
                   {showPreview ? "Hide Preview" : "Preview"}
                 </button>
               )}
-              <button
-                onClick={() => setShowPreview((p) => !p)}
-                className="bg-primary text-white px-3 py-1 rounded border border-accent hover:bg-secondaryHover"
-              >
-                {showPreview ? "Hide Preview" : "Preview"}
-              </button>
+              
               <button
                 onClick={() => setBotOpen((o) => !o)} // toggle open/close bot
                 className="bg-primary text-white px-3 py-1 rounded border border-accent hover:bg-secondaryHover"
@@ -715,18 +743,12 @@ export default function University() {
               onClick={handleComplete}
               className={`px-4 py-1 rounded ${
                 isCompleted
-                  ? "bg-green-500 text-white"
+                  ? "bg-green-500 text-white hover:bg-green-600"
                   : "bg-gray-600 text-gray-400 cursor-not-allowed"
               }`}
               disabled={!isCompleted}
             >
               Complete
-            </button>
-            <button
-              onClick={handleNextExercise}
-              className="px-4 py-1 bg-primary border border-accent rounded hover:bg-secondaryHover"
-            >
-              Next
             </button>
           </div>
         </div>

@@ -1,10 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useContext } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import universityImage from "../../assets/images/university.png";
+import { UserContext } from "../../contexts/userIdContext";
+
 
 const UniversityIntro = () => {
+ 
+  const { user } = useContext(UserContext);
+  const location = useLocation();
   const [courses, setCourses] = useState([]);
+  const [courseExercises, setCourseExercises] = useState([]);
   const [activeCourse, setActiveCourse] = useState(null);
   const [activeLesson, setActiveLesson] = useState(null);
   const [lessonContent, setLessonContent] = useState(null);
@@ -15,95 +20,150 @@ const UniversityIntro = () => {
 
   // Fetch courses and lessons
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchCourses = async () => {
       try {
         const response = await fetch("http://localhost:5000/api/courses");
         if (!response.ok) throw new Error("Failed to fetch courses");
-
         const data = await response.json();
         setCourses(data);
 
-        if (data.length > 0) {
-          setActiveCourse(data[0].id);
-          if (data[0].lessons && data[0].lessons.length > 0) {
-            setActiveLesson(data[0].lessons[0].id);
+        const navState = location.state || {};
+        const initialCourse = navState.activeCourse || (data[0]?.id || null);
+        setActiveCourse(initialCourse);
+        
+        // Set initial lesson if available
+        if (navState.activeLesson) {
+          setActiveLesson(navState.activeLesson);
+        } else if (data[0]?.lessons?.[0]?.id) {
+          setActiveLesson(data[0].lessons[0].id);
+        }
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+    fetchCourses();
+  }, [location.state]);
+
+// Fetch all exercises for the active course
+useEffect(() => {
+  if (!activeCourse || !user?.id) return;
+
+  const fetchCourseExercises = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/courses/${activeCourse}/exercises`,
+        {
+          headers: {
+            'Authorization': `Bearer ${user.token}`
+          },
+          credentials: "include"
+        }
+      );
+      if (!response.ok) throw new Error("Failed to fetch course exercises");
+      const data = await response.json();
+      setCourseExercises(data);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+  fetchCourseExercises();
+}, [activeCourse, user?.id]); // Add user.id to dependencies
+
+   // Fetch lesson content and check exercise completion
+ useEffect(() => {
+  if (!activeLesson || courseExercises.length === 0 || !user?.id) return;
+
+  const fetchLessonData = async () => {
+    try {
+      // Fetch lesson content
+      const lessonRes = await fetch(
+        `http://localhost:5000/api/courses/lessons/${activeLesson}`
+      );
+      if (!lessonRes.ok) throw new Error("Failed to fetch lesson");
+      const lessonData = await lessonRes.json();
+      setLessonContent(lessonData);
+
+      // Find the current lesson's exercise
+      const currentExercise = courseExercises.find(
+        ex => ex.lesson_id === parseInt(activeLesson)
+      );
+
+      if (!currentExercise) {
+        setExercises([]);
+        return;
+      }
+
+      // Fetch progress for this exercise with user credentials
+      const progressRes = await fetch(
+        `http://localhost:5000/api/courses/lessons/${activeLesson}/progress`,
+        { 
+          credentials: "include",
+          headers: {
+            'Authorization': `Bearer ${user.token}`
           }
         }
-      } catch (err) {
-        setError(err.message);
-      }
-    };
+      );
 
-    fetchData();
-  }, []);
-
-  // Fetch lesson content and exercises when lesson changes
-  useEffect(() => {
-    if (!activeLesson) return;
-
-    const fetchLessonData = async () => {
-      try {
-        // Fetch lesson content first
-        const lessonRes = await fetch(
-          `http://localhost:5000/api/courses/lessons/${activeLesson}`
-        );
-        if (!lessonRes.ok) throw new Error("Failed to fetch lesson");
-        const lessonData = await lessonRes.json();
-        setLessonContent(lessonData);
-
-        // Find the course that contains this lesson
-        const course = courses.find(
-          (c) => c.lessons && c.lessons.some((l) => l.id === activeLesson)
-        );
-
-        if (!course) return;
-
-        // Fetch exercises for this lesson
-        const exercisesRes = await fetch(
-          `http://localhost:5000/api/courses/${course.id}/lessons/${activeLesson}/exercises`
-        );
-        if (!exercisesRes.ok) throw new Error("Failed to fetch exercises");
-        let exercisesData = await exercisesRes.json();
-
-        // Fetch progress for this lesson
-        const progressRes = await fetch(
-          `http://localhost:5000/api/courses/lessons/${activeLesson}/progress`,
-          { credentials: "include" }
-        );
-        if (progressRes.ok) {
-          const progressData = await progressRes.json();
-          console.log("Progress Data:", progressData); // Debug log
-
-          // Convert is_completed (1/0) to boolean
-          exercisesData = exercisesData.map((exercise) => {
-            const progress = progressData.find((p) => p.id === exercise.id);
-            return {
-              ...exercise,
-              completed: progress ? Boolean(progress.is_completed) : false,
-            };
-          });
-
-          const completedExercises = exercisesData.filter(
-            (e) => e.completed
-          ).length;
-
-          setLessonCompletion((prev) => ({
-            ...prev,
-            [activeLesson]: {
-              completed: completedExercises,
-              total: exercisesData.length,
-              allDone: completedExercises === exercisesData.length,
-            },
-          }));
+      let exerciseWithProgress = { 
+        ...currentExercise, 
+        completed: false 
+      };
+      
+      if (progressRes.ok) {
+        const progressData = await progressRes.json();
+        if (progressData.length > 0) {
+          exerciseWithProgress.completed = Boolean(progressData[0].is_completed);
         }
-        setExercises(exercisesData);
-      } catch (err) {
-        setError(err.message);
       }
-    };
 
-    fetchLessonData();
-  }, [activeLesson, courses]);
+      // Find position in course sequence
+      const exerciseIndex = courseExercises.findIndex(
+        ex => ex.id === currentExercise.id
+      );
+
+      // Determine unlock status
+      const isFirstExercise = exerciseIndex === 0;
+      let isUnlocked = isFirstExercise;
+
+      if (!isFirstExercise) {
+        // Check all previous exercises
+        const previousExercises = courseExercises.slice(0, exerciseIndex);
+        isUnlocked = previousExercises.every(ex => ex.completed);
+      }
+
+      setExercises([{
+        ...exerciseWithProgress,
+        isUnlocked,
+        isFirst: isFirstExercise
+      }]);
+
+      // Update completion status
+      setLessonCompletion({
+        [activeLesson]: {
+          completed: exerciseWithProgress.completed ? 1 : 0,
+          total: 1,
+          allDone: exerciseWithProgress.completed
+        }
+      });
+
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  fetchLessonData();
+}, [activeLesson, courseExercises, user?.id]); // Add user.id to dependencies
+
+// Handle course change
+  const handleCourseChange = (courseId) => {
+    setActiveCourse(courseId);
+    // Reset active lesson when changing courses
+    setActiveLesson(null);
+    const course = courses.find(c => c.id === courseId);
+    if (course?.lessons?.[0]?.id) {
+      setActiveLesson(course.lessons[0].id);
+    }
+  };
 
   if (error)
     return <div className="text-red-500 text-center p-8">Error: {error}</div>;
@@ -129,7 +189,7 @@ const UniversityIntro = () => {
         </div>
       </div>
 
-      {/* Main Content */}
+     {/* Main Content */}
       <div className="flex flex-col lg:flex-row gap-4 md:gap-6 p-4">
         {/* Left sidebar - Courses */}
         <div className="w-full lg:w-[280px] border-2 border-accent rounded-lg p-3 md:p-4 bg-gray-900/50">
@@ -142,12 +202,7 @@ const UniversityIntro = () => {
                     ? "bg-primary text-background"
                     : "hover:bg-gray-700/50"
                 }`}
-                onClick={() => {
-                  setActiveCourse(course.id);
-                  if (course.lessons && course.lessons.length > 0) {
-                    setActiveLesson(course.lessons[0].id);
-                  }
-                }}
+                onClick={() => handleCourseChange(course.id)}
               >
                 <h3 className="text-lg md:text-xl">{course.title}</h3>
                 <svg
@@ -167,7 +222,8 @@ const UniversityIntro = () => {
                 </svg>
               </div>
 
-              {/* Lessons dropdown */}
+
+             {/* Lessons dropdown */}
               {activeCourse === course.id && course.lessons && (
                 <ul className="ml-4 mt-2 space-y-1 border-l-2 border-accent pl-3">
                   {course.lessons.map((lesson) => (
@@ -241,8 +297,7 @@ const UniversityIntro = () => {
               </p>
             )}
           </div>
-
-          {/* Exercises - Enhanced with progress indicator */}
+ {/* Exercises */}
           <div className="border-2 border-accent rounded-lg p-4 md:p-6 bg-gray-900/50">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl md:text-2xl">Exercises</h3>
@@ -259,28 +314,55 @@ const UniversityIntro = () => {
             {exercises.length > 0 ? (
               <div className="grid gap-3">
                 {exercises.map((exercise) => (
-                  <Link
-                    to={`/university/${exercise.id}`}
+                  <div
                     key={exercise.id}
-                    className={`block p-3 border rounded-lg transition-colors no-underline ${
+                    className={`p-3 border rounded-lg transition-colors ${
+                      !exercise.isUnlocked ? "opacity-50 cursor-not-allowed" : ""
+                    } ${
                       exercise.completed
                         ? "border-green-500 bg-green-500/10"
-                        : "border-gray-700 hover:bg-gray-700/30"
+                        : exercise.isUnlocked
+                        ? "border-gray-700 hover:bg-gray-700/30 cursor-pointer"
+                        : "border-gray-800"
                     }`}
+                    onClick={() => {
+                      if (exercise.isUnlocked) {
+                        navigate(`/university/${exercise.id}`);
+                      }
+                    }}
                   >
                     <div className="flex justify-between items-center">
                       <div>
-                        <span className="text-gray-400">
-                          Exercise {exercise.id}
-                        </span>
+                        <span className="text-gray-400">Exercise {exercise.id}</span>
                         <span className="mx-2 text-gray-600">|</span>
                         <span>{exercise.title}</span>
+                        {!exercise.isUnlocked && !exercise.isFirst && (
+                          <span className="ml-2 text-yellow-500 text-sm">
+                            (Complete previous exercise to unlock)
+                          </span>
+                        )}
                       </div>
-                      <span className="text-accent">
-                        +{exercise.xp_reward} XP
-                      </span>
+                      <div className="flex items-center">
+                        <span className="text-accent mr-2">
+                          +{exercise.xp_reward} XP
+                        </span>
+                        {exercise.completed && (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5 text-green-500"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        )}
+                      </div>
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </div>
             ) : (
@@ -294,5 +376,4 @@ const UniversityIntro = () => {
     </div>
   );
 };
-
-export default UniversityIntro;
+export default UniversityIntro; 
