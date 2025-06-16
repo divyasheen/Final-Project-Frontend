@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import universityImage from "../../assets/images/university.png";
 
 const UniversityIntro = () => {
+  const location = useLocation();
   const [courses, setCourses] = useState([]);
   const [activeCourse, setActiveCourse] = useState(null);
   const [activeLesson, setActiveLesson] = useState(null);
@@ -15,27 +16,31 @@ const UniversityIntro = () => {
 
   // Fetch courses and lessons
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/courses");
-        if (!response.ok) throw new Error("Failed to fetch courses");
+  const fetchData = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/courses");
+      if (!response.ok) throw new Error("Failed to fetch courses");
 
-        const data = await response.json();
-        setCourses(data);
+      const data = await response.json();
+      setCourses(data);
 
-        if (data.length > 0) {
-          setActiveCourse(data[0].id);
-          if (data[0].lessons && data[0].lessons.length > 0) {
-            setActiveLesson(data[0].lessons[0].id);
-          }
-        }
-      } catch (err) {
-        setError(err.message);
+      // Check navigation state for active course/lesson
+      const navState = location.state || {};
+      const initialCourse = navState.activeCourse || (data[0]?.id || null);
+      const initialLesson = navState.activeLesson || 
+                         (data[0]?.lessons?.[0]?.id || null);
+
+      setActiveCourse(initialCourse);
+      if (initialLesson) {
+        setActiveLesson(initialLesson);
       }
-    };
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
-    fetchData();
-  }, []);
+  fetchData();
+}, [location.state]); // Add location.state as dependency
 
   // Fetch lesson content and exercises when lesson changes
   useEffect(() => {

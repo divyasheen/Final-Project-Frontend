@@ -159,17 +159,35 @@ function registerHtmlSnippets(monaco) {
   monaco.languages.registerCompletionItemProvider("html", {
     provideCompletionItems: () => {
       const tags = [
-        "div", "p", "h1", "h2", "span", "a", "img", "ul", "ol", "li",
-        "button", "input", "form", "section", "article", "footer", "header",
-        "nav", "main", "link"
+        "div",
+        "p",
+        "h1",
+        "h2",
+        "span",
+        "a",
+        "img",
+        "ul",
+        "ol",
+        "li",
+        "button",
+        "input",
+        "form",
+        "section",
+        "article",
+        "footer",
+        "header",
+        "nav",
+        "main",
+        "link",
       ];
       const suggestions = tags.map((tag) => ({
         label: tag,
         kind: monaco.languages.CompletionItemKind.Snippet,
-        insertText: tag === "img" || tag === "input" 
-          ? `<${tag} $1 />` 
-          : `<${tag}>$1</${tag}>`,
-        insertTextRules: 
+        insertText:
+          tag === "img" || tag === "input"
+            ? `<${tag} $1 />`
+            : `<${tag}>$1</${tag}>`,
+        insertTextRules:
           monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         documentation: `${tag} element`,
       }));
@@ -221,7 +239,7 @@ export default function University() {
         return "txt"; // Fallback for unknown languages or if language is null/undefined
     }
   };
-// NEW: Auto-save to localStorage
+  // NEW: Auto-save to localStorage
   useEffect(() => {
     localStorage.setItem(`${STORAGE_KEY}_${exerciseId}`, code);
   }, [code, exerciseId]);
@@ -374,53 +392,66 @@ export default function University() {
     }
   };
   const handleComplete = async () => {
-    const allTestsPassed =
-      testResults.length > 0 && testResults.every((test) => test.passed);
+  const allTestsPassed = testResults.every(test => test.passed);
+  if (!allTestsPassed) {
+    toast.error("❗ Please pass all tests before completing.");
+    return;
+  }
 
-    if (!allTestsPassed) {
-      toast.error("❗ Please pass all tests before completing.");
-      return;
+  try {
+    // Mark exercise as complete
+    const completeRes = await fetch(
+      `http://localhost:5000/api/courses/exercises/${exerciseId}/complete`,
+      { method: "POST", credentials: "include" }
+    );
+    if (!completeRes.ok) throw new Error("Failed to mark exercise complete");
+
+    // Get next lesson ID
+    const nextLessonRes = await fetch(
+      `http://localhost:5000/api/courses/lessons/${exercise.lesson_id}/next`,
+      { credentials: "include" }
+    );
+    
+    let nextLessonId = null;
+    if (nextLessonRes.ok) {
+      const data = await nextLessonRes.json();
+      nextLessonId = data.nextLessonId;
     }
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/courses/exercises/${exerciseId}/complete`,
-        {
-          method: "POST",
-          credentials: "include",
-        }
-      );
 
-      if (!response.ok) throw new Error("Failed to mark exercise complete");
+    // Navigate back with next lesson state
+    navigate("/university", { 
+      state: { 
+        activeCourse: exercise.course_id,
+        activeLesson: nextLessonId 
+      } 
+    });
 
-      toast.success(`✅ Exercise completed! +${exercise.xp_reward} XP`);
-      navigate("/university"); // Return to lesson list
-    } catch (error) {
-      console.error("Completion error:", error);
-      toast.error(error.message);
-    }
-  };
+    toast.success(`✅ Exercise completed! +${exercise.xp_reward} XP`);
+  } catch (error) {
+    toast.error(error.message);
+  }
+};
+  // const handleNextExercise = async () => {
+  //   try {
+  //     const response = await fetch(
+  //       `http://localhost:5000/api/courses/exercises/${exerciseId}/next`,
+  //       { credentials: "include" }
+  //     );
 
-  const handleNextExercise = async () => {
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/courses/exercises/${exerciseId}/next`,
-        { credentials: "include" }
-      );
-
-      if (response.ok) {
-        const { nextExerciseId } = await response.json();
-        if (nextExerciseId) {
-          navigate(`/university/${nextExerciseId}`);
-        } else {
-          toast.info("🎉 No more exercises in this lesson!");
-          navigate("/university");
-        }
-      }
-    } catch (error) {
-      console.error("Error getting next exercise:", error);
-      toast.error("Failed to get next exercise");
-    }
-  };
+  //     if (response.ok) {
+  //       const { nextExerciseId } = await response.json();
+  //       if (nextExerciseId) {
+  //         navigate(`/university/${nextExerciseId}`);
+  //       } else {
+  //         toast.info("🎉 No more exercises in this lesson!");
+  //         navigate("/university");
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Error getting next exercise:", error);
+  //     toast.error("Failed to get next exercise");
+  //   }
+  // };
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-background text-white">
@@ -567,7 +598,7 @@ export default function University() {
                 theme: "vs-dark",
                 fontSize: 14,
                 fontFamily: "VT323",
-                 // NEW: Enhanced editor configuration
+                // NEW: Enhanced editor configuration
                 tabCompletion: "on",
                 quickSuggestions: true,
                 autoClosingBrackets: "always",
@@ -591,10 +622,10 @@ export default function University() {
                 // NEW: Set up language-specific features
                 if (exercise.language === "html") {
                   monaco.languages.html.htmlDefaults.setOptions({
-                    suggest: { html5: true }
+                    suggest: { html5: true },
                   });
                   registerHtmlSnippets(monaco);
-                  
+
                   // NEW: HTML boilerplate snippet
                   monaco.languages.registerCompletionItemProvider("html", {
                     triggerCharacters: ["!"],
@@ -628,7 +659,8 @@ export default function University() {
                             insertTextRules:
                               monaco.languages.CompletionItemInsertTextRule
                                 .InsertAsSnippet,
-                            documentation: "Full HTML5 boilerplate with doctype",
+                            documentation:
+                              "Full HTML5 boilerplate with doctype",
                             range,
                           },
                         ],
@@ -639,7 +671,7 @@ export default function University() {
 
                 if (exercise.language === "css") {
                   monaco.languages.css.cssDefaults.setOptions({
-                    lint: { unknownProperties: "ignore" }
+                    lint: { unknownProperties: "ignore" },
                   });
                 }
               }}
@@ -689,18 +721,12 @@ export default function University() {
               onClick={handleComplete}
               className={`px-4 py-1 rounded ${
                 isCompleted
-                  ? "bg-green-500 text-white"
+                  ? "bg-green-500 text-white hover:bg-green-600"
                   : "bg-gray-600 text-gray-400 cursor-not-allowed"
               }`}
               disabled={!isCompleted}
             >
               Complete
-            </button>
-            <button
-              onClick={handleNextExercise}
-              className="px-4 py-1 bg-footer border border-accent rounded hover:bg-accentHover"
-            >
-              Next
             </button>
           </div>
         </div>
