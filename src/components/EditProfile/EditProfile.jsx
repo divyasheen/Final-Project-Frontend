@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect, Profiler, use } from "react";
+import { useContext, useState} from "react";
 import { UserContext } from "../../contexts/userIdContext";
 import { useNavigate } from "react-router-dom";
 
@@ -126,7 +126,7 @@ function EditProfile() {
 
 
        <a onClick={() => navigate("/profile/22")} style={borderButton}>
-          Other user: 22
+          Divya
         </a> 
 
         <img src={avatar} />

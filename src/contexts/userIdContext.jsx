@@ -51,6 +51,7 @@ export const UserProvider = ({ children }) => {
       setAvatar(savedAvatar);
     }
   }, []); 
+  
   const [posts, setPosts] = useState([]);
   const [message, setMessage] = useState("An unexpected error");
   // JB: If the browser finds a userId it will store it in the localStorage ... everytime when the userId changes (dependecy of the useEffect)
@@ -93,8 +94,6 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-
-
 // fetching the posts from the backend
 
   // const fetchingData = async () => {
@@ -118,6 +117,7 @@ export const UserProvider = ({ children }) => {
   //     setMessage(error?.message || "Unexpected error occurred");
   //   }
   // };
+
   const fetchingData = async (limit , offset ) => {
     try {
       const res = await fetch(`http://localhost:5000/posts?limit=${limit}&offset=${offset}`);

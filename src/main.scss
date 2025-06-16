@@ -3,12 +3,15 @@
 @tailwind utilities;
 
 * {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
 }
 
-html, body, #root {
+// JB: DONT'T change it!
+html,
+body,
+#root {
   height: 100%;
 }
 

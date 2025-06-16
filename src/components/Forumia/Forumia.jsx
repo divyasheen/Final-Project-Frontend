@@ -8,34 +8,38 @@ import SinglePostAndComments from "../SinglePostAndComments/SinglePostAndComment
 import UniversityOfTerminalia from "./UniversityOfTerminalia";
 import TheHub from "./TheHub";
 import { UserContext } from "../../contexts/userIdContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Forumia() {
   const [calcMembers, setCalcMembers] = useState(null);
   const [threadCount, setThreadCount] = useState(0);
   const [renderSinglePostPage, setRenderSinglePostPage] = useState(false);
   const [singlePostInfos, setSinglePostObject] = useState({});
-
+  const [profileAvatar, setProfileAvatar] = useState({});
   const LIMIT = 10; // Define a constant for the limit of posts per page
-  const { posts, userId, setPosts, fetchingData } = useContext(UserContext);
+  const { posts, userId, setPosts, fetchingData, token } =
+    useContext(UserContext);
+
+  const navigate = useNavigate();
 
   // useEffect(() => {
   //   fetchingData();
   // }, [posts, fetchingData]);
+
   useEffect(() => {
     fetchingData(LIMIT, 0);
     // setOffset(LIMIT); // next offset will be LIMIT
     console.log("Fetching data called");
   }, []);
 
-
-  //Calculating Threads
-
+  // Calculating Threads
   useEffect(() => {
     const total = posts.reduce((acc, post) => {
       return acc + 1 + (post.comments?.length || 0);
     }, 0);
     setThreadCount(total);
   }, [posts]);
+
   // Calculating Members
   useEffect(() => {
     const members = new Set();
@@ -54,14 +58,13 @@ export default function Forumia() {
     // Optional: log who they are
   }, [posts]);
 
-  //  sending The user to the single Post
-
+  // Sending The user to the single Post
   const oneSinglePost = (post) => {
     setSinglePostObject(post);
     setRenderSinglePostPage(true);
   };
-  //Delete a single post
 
+  // Delete a single post
   const deleteSinglePost = async (postId) => {
     try {
       console.log("Attempting to delete post with ID:", postId);
@@ -84,6 +87,41 @@ export default function Forumia() {
     }
   };
 
+  // JB: Fetch all avatars and put them into a state-object to grab it later
+  const fetchProfileAvatar = async (userId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/user/${userId}/getProfilPic`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      setProfileAvatar((prevAvatars) => ({
+        ...prevAvatars,
+        [userId]: data.image_url || userImage,
+      }));
+    } catch (error) {
+      console.error("Error fetching profileAvatarfor user: ", userId, error);
+    }
+  };
+
+  const fetchAllPosts = async () => {
+    
+  }
+
+  useEffect(() => {
+    posts.forEach((post) => {
+      if (post.user_id && !profileAvatar[post.user_id]) {
+        fetchProfileAvatar(post.user_id);
+      }
+    });
+  }, [posts]);
+
   return (
     <>
       {/* overlay with the single post component  */}
@@ -94,7 +132,6 @@ export default function Forumia() {
           setSinglePostObject={setSinglePostObject}
           setRenderSinglePostPage={setRenderSinglePostPage}
           refreshPosts={() => fetchingData(LIMIT, 0)}
-
         />
       )}
       <main className="flex flex-col p-5 bg-background">
@@ -138,19 +175,24 @@ export default function Forumia() {
                       </button>
                     )}
 
-                    <img
-                      className="object-cover w-12 h-12 rounded-full"
-                      src={userImage}
-                      alt="user avatar"
-                    />
+                    <a onClick={() => navigate(`/profile/${post.user_id}`)}>
+                      <img
+                        className="object-cover w-12 h-12 rounded-full"
+                        src={profileAvatar[post.user_id] || userImage} // Fallback to userImage if no profileAvatar
+                        alt="user avatar"
+                      />
+                    </a>
 
                     <div className="flex flex-col gap-1">
                       <p className="font-semibold truncate">
                         {post.title || "No content"}
                       </p>
-                      <p className="text-[11px] text-gray-300 truncate">
+                      <a
+                        onClick={() => navigate(`/profile/${post.user_id}`)}
+                        className="text-[11px] text-accent flex gap-1"
+                      >
                         {post.author}
-                      </p>
+                      </a>
                       <span className="text-[11px] text-gray-400">
                         {new Date(post.created_at).toLocaleDateString()}
                       </span>
@@ -160,26 +202,31 @@ export default function Forumia() {
               )}
             </article>
 
-            <article className="p-6 text-white bg-background border-2 border-accent rounded-md md:rounded-2xl shadow-[0_8px_30px_rgba(255,255,255,0.4)]">
-              <h3 className="font-vt323 text-[25px] font-normal  text-accent">
-                Forum Statistics
-              </h3>
-              <ul className="mt-6 flex flex-col gap-4 max-w-xs">
-                <li className="flex justify-between w-full">
-                  Threads: <span>{threadCount}</span>
-                </li>
-                <li className="flex justify-between w-full">
-                  Posts: <span>{posts.length}</span>
-                </li>
-                <li className="flex justify-between w-full">
-                  Members: <span>{calcMembers}</span>
-                </li>
-                <li className="flex justify-between w-full">
-                  Latest Member:{" "}
-                  <span> {posts?.[posts.length - 1]?.author || "N/A"}</span>
-                </li>
-              </ul>
-            </article>
+            {
+              <article className="p-6 text-white bg-background border-2 border-accent rounded-md md:rounded-2xl shadow-[0_8px_30px_rgba(255,255,255,0.4)]">
+                <h3 className="font-vt323 text-[25px] font-normal  text-accent">
+                  Forum Statistics
+                </h3>
+                <ul className="mt-6 flex flex-col gap-4 max-w-xs">
+                  <li className="flex justify-between w-full">
+                    Posts: <span>{posts.length}</span>
+                  </li>
+                  <li className="flex justify-between w-full">
+                    Members: <span>{calcMembers}</span>
+                  </li>
+                  <li className="hover:cursor-pointer flex justify-between w-full">
+                    Latest Member:{" "}
+                    <a
+                      onClick={() =>
+                        navigate(`/profile/${posts[posts.length - 1].user_id}`)
+                      }
+                    >
+                      {posts?.[posts.length - 1]?.author || "N/A"}
+                    </a>
+                  </li>
+                </ul>
+              </article>
+            }
           </section>
 
           {/* right side */}
@@ -198,11 +245,12 @@ export default function Forumia() {
               <h3 className="text-accent mb-8 font-vt323 text-[25px] font-normal ">
                 Latest Posts
               </h3>
+
               {posts.length > 0 ? (
                 posts.slice(0, 3).map((post) => (
                   <div
-                    key={post.id}
                     onClick={() => oneSinglePost(post)}
+                    key={post.id}
                     className="relative cursor-pointer flex flex-col sm:flex-row justify-between items-start sm:items-center border-b-2 border-accent pb-4 hover:bg-secondary/20 p-3 hover:rounded-md transition-colors"
                     role="button"
                     tabIndex={0}
@@ -224,15 +272,22 @@ export default function Forumia() {
 
                     {/* Left side */}
                     <div className="flex gap-4 w-full sm:w-2/3 items-center">
-                      <img
-                        src={post.userImage || userImage} // fallback if no userImage
-                        alt={post.author || "user"}
-                        className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-                      />
+                      <a onClick={() => navigate(`/profile/${post.user_id}`)}>
+                        <img
+                          className="object-cover w-12 h-12 rounded-full"
+                          src={profileAvatar[post.user_id] || userImage} // Fallback to userImage if no profileAvatar
+                          alt="user avatar"
+                        />
+                      </a>
                       <div className="text-white text-sm">
                         <p className="font-bold text-md mb-1">{post.title}</p>
                         <div className="text-[11px] text-accent flex gap-1">
-                          <span>{post.author} -</span>
+                          <a
+                            onClick={() => navigate(`/profile/${post.user_id}`)}
+                          >
+                            {post.author}
+                          </a>
+                          -
                           <span>
                             {new Date(post.created_at).toLocaleDateString()}
                           </span>
@@ -248,11 +303,15 @@ export default function Forumia() {
                       </p>
                       {post.comments.length > 0 && (
                         <div className="relative flex items-center gap-4 before:absolute before:left-[-15px] before:h-full before:w-[2px] before:bg-secondary before:rounded">
-                          <img
-                            src={userImage} // or post.latestAnswerUserImage if available
-                            alt="latest-answer-user"
-                            className="w-8 h-8 rounded-full object-cover"
-                          />
+                          {/*  <a
+                            onClick={() => navigate(`/profile/${post.user_id}`)}
+                          >
+                            <img
+                              className="object-cover w-12 h-12 rounded-full"
+                              src={profileAvatar[post.user_id] || userImage} // Fallback to userImage if no profileAvatar
+                              alt="user avatar"
+                            />
+                          </a> */}
                           <p className="flex flex-col items-center text-[11px]">
                             {post.comments[post.comments.length - 1].commenter}
                             <span className="text-[11px] text-accent">
@@ -274,6 +333,7 @@ export default function Forumia() {
               )}
             </article>
 
+            {/* -*-*- COMMUNITIES -*-*- */}
             {/*General */}
             <General posts={posts} />
 
@@ -282,6 +342,7 @@ export default function Forumia() {
 
             {/*The Hub */}
             <TheHub posts={posts} />
+
           </aside>
         </div>
       </main>
