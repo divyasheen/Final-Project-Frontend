@@ -8,7 +8,7 @@ function Footer() {
 
   return (
     <>
-      <footer className="sticky top-[100vh] bg-primary py-4 text-center border-t border-secondary">
+      <footer className="sticky top-[100vh] bg-gradient-to-r from-indigo-900 to-fuchsia-900 py-4 text-center border-t border-secondary">
         <p className="text-white text-sm">Impressum</p>
       </footer>
     </>

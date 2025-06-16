@@ -1,0 +1,10 @@
+.forumia-container {
+  padding: 1rem;
+}
+.forumia-container .post-btn {
+  margin: 0.5rem 0 1rem;
+}
+.forumia-container .posts-list .post-item {
+  border-bottom: 1px solid #ddd;
+  padding: 0.5rem 0;
+}/*# sourceMappingURL=Forumia.css.map */

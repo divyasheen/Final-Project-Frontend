@@ -5,6 +5,7 @@ import LandingPageUserCards from "./LandingPageUserCards";
 import LandingPageUserCardsImage from "../../assets/images/LandingPageUserBackGround.jpg";
 import { useParams } from "react-router-dom";
 import { UserContext } from "../../contexts/userIdContext";
+import placeholderAvatar from "../../assets/images/placeholder_Avatar.jpg";
 
 const LandingPageUser = () => {
   const {
@@ -144,14 +145,13 @@ const LandingPageUser = () => {
   }, [id, token]);
 
   const sendInvite = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     const email = document.getElementById("email").value;
 
     // console.log(email ? email : "No Mail");
 
-    try { 
-
+    try {
       const currentToken = token || localStorage.getItem("token");
       if (!currentToken) {
         console.error("No token available for API call");
@@ -168,7 +168,7 @@ const LandingPageUser = () => {
       });
 
       console.log(("FE - res:", res));
-      
+
       if (res.ok) {
         alert("Invitation is send!");
       } else {
@@ -176,7 +176,7 @@ const LandingPageUser = () => {
       }
     } catch (error) {
       console.error("FE - Error sending mail to BE:", error);
-    } 
+    }
   };
 
   return (
@@ -226,7 +226,7 @@ const LandingPageUser = () => {
             <img
               className="w-14 h-14 rounded-full"
               loading="lazy"
-              src={avatar}
+              src={avatar || placeholderAvatar}
               alt="userImage"
             />
             <p className="flex flex-col items-center">
@@ -287,10 +287,9 @@ const LandingPageUser = () => {
             className="px-4 py-2 w-full sm:w-72 rounded-md border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent text-gray-800"
             id="email"
           />
-          <button className="mt-4 sm:mt-0 px-6 py-3 bg-secondary rounded-md hover:bg-accent-dark transition duration-300"
-          onClick={sendInvite}
+          <button
+            onClick={sendInvite}
           >
-            
             Send Invite
           </button>
         </div>
