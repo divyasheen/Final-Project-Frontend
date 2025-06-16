@@ -1,6 +1,8 @@
 import React from "react";
-import Frame3 from "../../assets/images/Frame3.png";
+// import Frame3 from "../../assets/images/Frame3.png";
 import { NavLink } from "react-router-dom";
+import AnimatedCoderealm from "./AnimatedCoderealm";
+
 const LandingPage = () => {
   return (
     <section className="bg-background min-h-screen flex flex-col">
@@ -9,11 +11,13 @@ const LandingPage = () => {
           Welcome to
         </h1>
 
-        <img
+        <AnimatedCoderealm />
+
+        {/* <img
           className="w-full max-w-xs sm:max-w-sm md:max-w-md"
           src={Frame3}
           alt="App Preview"
-        />
+        /> */}
 
         <p
           className="  font-vt323 text-justify leading-loose text-white text-sm sm:text-base max-w-2-xl tracking-[.05em]
