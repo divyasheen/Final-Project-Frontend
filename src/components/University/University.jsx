@@ -208,11 +208,6 @@ function registerHtmlSnippets(monaco) {
             ? `<${tag} $1 />`
             : `<${tag}>$1</${tag}>`,
         insertTextRules:
-        insertText:
-          tag === "img" || tag === "input"
-            ? `<${tag} $1 />`
-            : `<${tag}>$1</${tag}>`,
-        insertTextRules:
           monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         documentation: `${tag} element`,
       }));
@@ -603,12 +598,7 @@ export default function University() {
                   {showPreview ? "Hide Preview" : "Preview"}
                 </button>
               )}
-              <button
-                onClick={() => setShowPreview((p) => !p)}
-                className="bg-primary text-white px-3 py-1 rounded border border-accent hover:bg-secondaryHover"
-              >
-                {showPreview ? "Hide Preview" : "Preview"}
-              </button>
+              
               <button
                 onClick={() => setBotOpen((o) => !o)} // toggle open/close bot
                 className="bg-primary text-white px-3 py-1 rounded border border-accent hover:bg-secondaryHover"
