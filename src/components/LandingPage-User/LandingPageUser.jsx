@@ -7,7 +7,6 @@ import { useParams } from "react-router-dom";
 import { UserContext } from "../../contexts/userIdContext";
 
 const LandingPageUser = () => {
-  // JB: !!!IMPORTANT!!!! Do NOT change this. Here we create the userId context which we can use everywhere! AND I really hope everywhere is a global >.<
   const {
     setUserId,
     token,
@@ -19,138 +18,166 @@ const LandingPageUser = () => {
     setAvatar,
   } = useContext(UserContext);
 
-  const {} = useContext(UserContext);
-
-  //we need to find the user who has the id of the param and render the user details
   const { id } = useParams();
 
-  // Move setUserId into useEffect
   useEffect(() => {
     if (id) {
       setUserId(id);
     }
   }, [id, setUserId]);
 
-    const fetchUserProgress = async () => {
-      try {
-        // Get token from context or localStorage
-        const currentToken = token || localStorage.getItem("token");
-        if (!currentToken) {
-          console.error("No token available for API call");
-          return;
-        }
-
-        const response = await fetch(
-          `http://localhost:5000/api/user/progress`,
-          {
-            headers: {
-              Authorization: `Bearer ${currentToken}`,
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-          }
-        );
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          console.error("Progress fetch failed:", {
-            status: response.status,
-            statusText: response.statusText,
-            error: errorData,
-          });
-          throw new Error(errorData.error || "Failed to fetch progress");
-        }
-
-        const data = await response.json();
-        setUserProgress(data);
-      } catch (error) {
-        console.error("Error fetching progress:", error);
+  const fetchUserProgress = async () => {
+    try {
+      // Get token from context or localStorage
+      const currentToken = token || localStorage.getItem("token");
+      if (!currentToken) {
+        console.error("No token available for API call");
+        return;
       }
-    };
 
-    const fetchUserData = async () => {
-      try {
-        // Get token from context or localStorage
-        const currentToken = token || localStorage.getItem("token");
-        if (!currentToken) {
-          console.error("No token available for API call");
-          return;
-        }
+      const response = await fetch(`http://localhost:5000/api/user/progress`, {
+        headers: {
+          Authorization: `Bearer ${currentToken}`,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
 
-        // Use /me endpoint if no id is provided, otherwise use /:id endpoint
-        const endpoint = id
-          ? `http://localhost:5000/api/user/${id}`
-          : "http://localhost:5000/api/user/me";
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Progress fetch failed:", {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+        });
+        throw new Error(errorData.error || "Failed to fetch progress");
+      }
 
-        const response = await fetch(endpoint, {
+      const data = await response.json();
+      setUserProgress(data);
+    } catch (error) {
+      console.error("Error fetching progress:", error);
+    }
+  };
+
+  const fetchUserData = async () => {
+    try {
+      // Get token from context or localStorage
+      const currentToken = token || localStorage.getItem("token");
+      if (!currentToken) {
+        console.error("No token available for API call");
+        return;
+      }
+
+      // Use /me endpoint if no id is provided, otherwise use /:id endpoint
+      const endpoint = id
+        ? `http://localhost:5000/api/user/${id}`
+        : "http://localhost:5000/api/user/me";
+
+      const response = await fetch(endpoint, {
+        headers: {
+          Authorization: `Bearer ${currentToken}`,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("User data fetch failed:", {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+          endpoint,
+        });
+        throw new Error(errorData.error || "Failed to fetch user data");
+      }
+
+      const data = await response.json();
+      setUserData(data);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
+  const fetchAvatar = async () => {
+    try {
+      const currentToken = token || localStorage.getItem("token");
+      if (!currentToken) {
+        console.error("No token available for API call");
+        return;
+      }
+
+      const res = await fetch(
+        `http://localhost:5000/api/user/${id}/getProfilPic`,
+        {
+          method: "GET",
           headers: {
-            Authorization: `Bearer ${currentToken}`,
-            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           credentials: "include",
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          console.error("User data fetch failed:", {
-            status: response.status,
-            statusText: response.statusText,
-            error: errorData,
-            endpoint,
-          });
-          throw new Error(errorData.error || "Failed to fetch user data");
         }
+      );
 
-        const data = await response.json();
-        setUserData(data);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+      if (!res.ok) {
+        throw new Error("Failed to fetch avatar at LPU!");
       }
-    };
 
-    const fetchAvatar = async () => {
-      try {
+      const data = await res.json();
+      const imageUrl = data.image_url;
 
-        const currentToken = token || localStorage.getItem("token");
-        if (!currentToken) {
-          console.error("No token available for API call");
-          return;
-        }
+      // console.log(data);
+      // console.log(imageUrl);
 
-        const res = await fetch(
-          `http://localhost:5000/api/user/${id}/getProfilPic`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-            credentials: "include",
-          }
-        );
+      setAvatar(imageUrl);
+    } catch (error) {
+      console.error("Error fetching profile picture:", error);
+    }
+  };
 
-        if (!res.ok) {
-          throw new Error("Failed to fetch avatar at LPU!");
-        }
-
-        const data = await res.json();
-        const imageUrl = data.image_url;
-
-        // console.log(data);
-        // console.log(imageUrl);
-
-        setAvatar(imageUrl);
-      } catch (error) {
-        console.error("Error fetching profile picture:", error);
-      }
-    };
-
-    useEffect(() => {
+  useEffect(() => {
     if (id) {
       fetchUserProgress();
       fetchUserData();
       fetchAvatar();
     }
   }, [id, token]);
+
+  const sendInvite = async (e) => {
+    e.preventDefault()
+
+    const email = document.getElementById("email").value;
+
+    // console.log(email ? email : "No Mail");
+
+    try { 
+
+      const currentToken = token || localStorage.getItem("token");
+      if (!currentToken) {
+        console.error("No token available for API call");
+        return;
+      }
+
+      const res = await fetch("http://localhost:5000/users/sendInviteMail", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${currentToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      console.log(("FE - res:", res));
+      
+      if (res.ok) {
+        alert("Invitation is send!");
+      } else {
+        alert("Invitation coulnd't be send!");
+      }
+    } catch (error) {
+      console.error("FE - Error sending mail to BE:", error);
+    } 
+  };
 
   return (
     <section className=" gap-14 flex p-5 bg-background flex-col  justify-center items-center  ">
@@ -171,6 +198,7 @@ const LandingPageUser = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-background/95"></div>
       </div>
 
+      {/* JB: User stats overview */}
       <div className="z-10 container w-full xl:absolute bottom-[0rem]  text-white font-semibold md:gap-4 gap-5 xl:gap-0 flex flex-col md:flex-row justify-between ">
         <article className="shadow-[0_8px_30px_rgba(255,255,255,0.4)] bg-background flex justify-center items-center border-2 border-accent rounded-md md:rounded-2xl w-full md:w-3/5 text-white text-center">
           <div className="p-4">
@@ -229,6 +257,7 @@ const LandingPageUser = () => {
         </article>
       </div>
 
+      {/* JB: Heading Explore Coderealm */}
       <h2 className="z-[10] xl:mt-[10rem]   w-full  container  font-bold text-2xl text-white  ">
         Explore the{" "}
         <span className=" text-4xl font-normal tracking-wider	 	 text-accent font-vt323 ">
@@ -238,6 +267,7 @@ const LandingPageUser = () => {
 
       <LandingPageUserCards />
 
+      {/* JB: Invite friend section */}
       <article className="border-accent rounded-2xl flex flex-col justify-center items-center p-8 bg-background shadow-lg">
         <h3 className="font-bold text-2xl text-white mb-4">
           Invite a{" "}
@@ -255,8 +285,12 @@ const LandingPageUser = () => {
             type="email"
             placeholder="Enter friend's email"
             className="px-4 py-2 w-full sm:w-72 rounded-md border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent text-gray-800"
+            id="email"
           />
-          <button className="mt-4 sm:mt-0 px-6 py-3 bg-accent rounded-md hover:bg-accent-dark transition duration-300">
+          <button className="mt-4 sm:mt-0 px-6 py-3 bg-secondary rounded-md hover:bg-accent-dark transition duration-300"
+          onClick={sendInvite}
+          >
+            
             Send Invite
           </button>
         </div>

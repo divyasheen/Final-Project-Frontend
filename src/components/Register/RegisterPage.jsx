@@ -3,12 +3,6 @@ import { useState } from "react";
 import { FaUserCircle } from "react-icons/fa";
 import {  useNavigate } from 'react-router-dom'
 
-
-
-
-
-
-
 const RegisterPage = () => {
 
   const navigate = useNavigate();
@@ -19,11 +13,9 @@ const RegisterPage = () => {
     password: "",
     role: "student",
   });
-
   const [errors, setErrors] = useState(null);
   const [success, setSuccess] = useState(null);
   const [showPassword,setShowPassword]=useState(false)
-
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -47,7 +39,6 @@ const RegisterPage = () => {
       });
 
       const data = await res.json();
-       
        
       if (res.ok) {
         setSuccess("Registration successful! Please check your email to verify your account");
@@ -147,7 +138,7 @@ const RegisterPage = () => {
 
           <button
             type="submit"
-            className="w-full bg-accent font-vt323 md:text-2xl    py-2 rounded-md hover:bg-opacity-90 transition"
+            className="w-full bg-secondary font-vt323 md:text-2xl    py-2 rounded-md hover:bg-opacity-90 transition"
           >
             Register Now
           </button>
