@@ -34,21 +34,22 @@ const LandingPage = () => {
 
         <div className="flex flex-col sm:flex-row gap-4">
           <NavLink to="login">
-            <button className=" w-full bg-accent text-black px-4 py-2 rounded hover:bg-accentHover transition">
+            <button className=" w-full bg-secondary text-black px-4 py-2 rounded hover:bg-secondaryHover transition">
               Login
             </button>
           </NavLink>
           <NavLink to="register">
-            <button className="bg-accent text-black px-4 py-2 rounded hover:bg-accentHover transition">
+            <button className="bg-secondary text-black px-4 py-2 rounded hover:bg-secondaryHover transition">
               Register
             </button>
           </NavLink>
         </div>
       </div>
 
-       <footer className="bg-footer py-4 text-center sticky top-[100vh]">
+      {/* We'll use the footer.jsx instead */}
+      {/* <footer className="bg-primary py-4 text-center">
         <p className="text-white text-sm">Impressum</p>
-      </footer>
+      </footer> */}
     </section>
   );
 };

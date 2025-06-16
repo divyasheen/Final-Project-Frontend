@@ -56,7 +56,7 @@ function ChatBot({ isOpen, onClose, setWidth }) {
   return (
     <aside
       className={`
-        fixed right-0 top-0 h-full bg-footer border-l border-accent
+        fixed right-0 top-0 h-full bg-primary border-l border-accent
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? "translate-x-0" : "translate-x-full"}
         z-50 flex flex-col
@@ -147,7 +147,7 @@ function ChatBot({ isOpen, onClose, setWidth }) {
           document.addEventListener("mousemove", onMouseMove);
           document.addEventListener("mouseup", onMouseUp);
         }}
-        className="absolute left-0 top-0 h-full w-1 cursor-ew-resize bg-transparent hover:bg-accent/20"
+        className="absolute left-0 top-0 h-full w-1 cursor-ew-resize bg-transparent hover:bg-secondary/20"
         style={{ zIndex: 60 }}
       ></div>
     </aside>
@@ -179,10 +179,35 @@ function registerHtmlSnippets(monaco) {
         "nav",
         "main",
         "link",
+        "div",
+        "p",
+        "h1",
+        "h2",
+        "span",
+        "a",
+        "img",
+        "ul",
+        "ol",
+        "li",
+        "button",
+        "input",
+        "form",
+        "section",
+        "article",
+        "footer",
+        "header",
+        "nav",
+        "main",
+        "link",
       ];
       const suggestions = tags.map((tag) => ({
         label: tag,
         kind: monaco.languages.CompletionItemKind.Snippet,
+        insertText:
+          tag === "img" || tag === "input"
+            ? `<${tag} $1 />`
+            : `<${tag}>$1</${tag}>`,
+        insertTextRules:
         insertText:
           tag === "img" || tag === "input"
             ? `<${tag} $1 />`
@@ -239,7 +264,8 @@ export default function University() {
         return "txt"; // Fallback for unknown languages or if language is null/undefined
     }
   };
-  // NEW: Auto-save to localStorage
+
+// NEW: Auto-save to localStorage
   useEffect(() => {
     localStorage.setItem(`${STORAGE_KEY}_${exerciseId}`, code);
   }, [code, exerciseId]);
@@ -504,7 +530,7 @@ export default function University() {
                 {exercise.difficulty}
               </span>
               {isCompleted && (
-                <span className="px-2 py-1 text-xs bg-accent text-black rounded-full">
+                <span className="px-2 py-1 text-xs bg-secondary text-black rounded-full">
                   +{exercise.xp_reward} XP
                 </span>
               )}
@@ -563,7 +589,7 @@ export default function University() {
             <div className="space-x-2">
               <button
                 onClick={run}
-                className="bg-accent text-black px-3 py-1 rounded hover:bg-accentHover disabled:bg-gray-600 disabled:cursor-not-allowed"
+                className="bg-secondary text-black px-3 py-1 rounded hover:bg-secondaryHover disabled:bg-gray-600 disabled:cursor-not-allowed"
                 disabled={isEvaluating}
               >
                 {isEvaluating ? "RUNNING..." : "RUN"}
@@ -578,8 +604,14 @@ export default function University() {
                 </button>
               )}
               <button
-                onClick={() => setBotOpen((o) => !o)}
-                className="bg-footer text-white px-3 py-1 rounded border border-accent hover:bg-accentHover"
+                onClick={() => setShowPreview((p) => !p)}
+                className="bg-primary text-white px-3 py-1 rounded border border-accent hover:bg-secondaryHover"
+              >
+                {showPreview ? "Hide Preview" : "Preview"}
+              </button>
+              <button
+                onClick={() => setBotOpen((o) => !o)} // toggle open/close bot
+                className="bg-primary text-white px-3 py-1 rounded border border-accent hover:bg-secondaryHover"
               >
                 {botOpen ? "Close Bot" : "Ask Bot"}
               </button>
@@ -689,7 +721,7 @@ export default function University() {
           {(exercise.language === "html" || exercise.language === "css") &&
             showPreview && (
               <div className="h-56 border-t border-accent bg-white overflow-auto">
-                <h4 className="text-black font-bold p-2 bg-accent">
+                <h4 className="text-black font-bold p-2 bg-secondary">
                   Live Preview
                 </h4>
                 <iframe
@@ -712,7 +744,7 @@ export default function University() {
           {/* Navigation Buttons */}
           <div className="flex justify-between items-center p-4 border-t border-accent">
             <button
-              className="px-4 py-1 bg-footer border border-accent rounded hover:bg-accentHover"
+              className="px-4 py-1 bg-primary border border-accent rounded hover:bg-secondaryHover"
               onClick={() => navigate("/university")}
             >
               Back

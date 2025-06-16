@@ -249,7 +249,7 @@ export default function Playground() {
               className="w-full h-full"
             />
           </div>
-          <div className="flex-1 h-1/4 bg-footer text-accent text-sm p-2 overflow-auto font-mono border-t border-gray-700">
+          <div className="flex-1 h-1/4 bg-primary text-accent text-sm p-2 overflow-auto font-mono border-t border-gray-700">
             {logs.length === 0 ? (
               <p className="text-gray-500">
                 Console output will appear here...

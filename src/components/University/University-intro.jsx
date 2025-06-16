@@ -144,7 +144,7 @@ const UniversityIntro = () => {
               <div
                 className={`flex justify-between items-center p-2 cursor-pointer rounded-md ${
                   activeCourse === course.id
-                    ? "bg-accent text-background"
+                    ? "bg-primary text-background"
                     : "hover:bg-gray-700/50"
                 }`}
                 onClick={() => {
@@ -180,7 +180,7 @@ const UniversityIntro = () => {
                       key={lesson.id}
                       className={`p-2 text-sm cursor-pointer rounded-md ${
                         activeLesson === lesson.id
-                          ? "bg-accent/20 text-accent font-medium"
+                          ? "bg-secondary/20 text-accent font-medium"
                           : "hover:bg-gray-700/30"
                       }`}
                       onClick={() => setActiveLesson(lesson.id)}
