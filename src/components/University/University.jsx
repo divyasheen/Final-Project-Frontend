@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import { useParams, useNavigate } from "react-router-dom";
 import universityImage from "../../assets/images/university.png";
@@ -11,6 +11,7 @@ import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 /* ─────────────── ChatBot pane ─────────────── */
 function ChatBot({ isOpen, onClose, setWidth }) {
   const [msg, setMsg] = useState("");
+  const messagesEndRef = useRef(null);
   const [messages, setMessages] = useState([
     { from: "bot", text: "Hello 👋 – how can I help?" },
   ]);
@@ -20,7 +21,6 @@ function ChatBot({ isOpen, onClose, setWidth }) {
 
     setMessages((m) => [...m, { from: "user", text: msg.trim() }]);
     setMsg("");
-    // call chatbot backend here and push its reply
     try {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/chatbot`, {
         method: "POST",
@@ -46,6 +46,12 @@ function ChatBot({ isOpen, onClose, setWidth }) {
       ]);
     }
   };
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   return (
     <aside
@@ -106,6 +112,7 @@ function ChatBot({ isOpen, onClose, setWidth }) {
             )}
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* input bar */}
@@ -127,9 +134,9 @@ function ChatBot({ isOpen, onClose, setWidth }) {
 
           const onMouseMove = (eMove) => {
             const newWidth = startWidth - (eMove.clientX - startX);
-            const clamped = Math.max(300, Math.min(800, newWidth)); // limit width
+            const clamped = Math.max(300, Math.min(800, newWidth));
             sidebar.style.width = clamped + "px";
-            setWidth(clamped); // update width state aka notify parent
+            setWidth(clamped);
           };
 
           const onMouseUp = () => {
@@ -152,17 +159,35 @@ function registerHtmlSnippets(monaco) {
   monaco.languages.registerCompletionItemProvider("html", {
     provideCompletionItems: () => {
       const tags = [
-        "div", "p", "h1", "h2", "span", "a", "img", "ul", "ol", "li",
-        "button", "input", "form", "section", "article", "footer", "header",
-        "nav", "main", "link"
+        "div",
+        "p",
+        "h1",
+        "h2",
+        "span",
+        "a",
+        "img",
+        "ul",
+        "ol",
+        "li",
+        "button",
+        "input",
+        "form",
+        "section",
+        "article",
+        "footer",
+        "header",
+        "nav",
+        "main",
+        "link",
       ];
       const suggestions = tags.map((tag) => ({
         label: tag,
         kind: monaco.languages.CompletionItemKind.Snippet,
-        insertText: tag === "img" || tag === "input" 
-          ? `<${tag} $1 />` 
-          : `<${tag}>$1</${tag}>`,
-        insertTextRules: 
+        insertText:
+          tag === "img" || tag === "input"
+            ? `<${tag} $1 />`
+            : `<${tag}>$1</${tag}>`,
+        insertTextRules:
           monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         documentation: `${tag} element`,
       }));
@@ -194,11 +219,27 @@ export default function University() {
   const [code, setCode] = useState("");
   const [exercise, setExercise] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEvaluating, setIsEvaluating] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [testResults, setTestResults] = useState([]);
   const [terminalOutput, setTerminalOutput] = useState("");
   const [showPreview, setShowPreview] = useState(false);
   const [previewHtml, setPreviewHtml] = useState("");
+
+  // Helper to get file extension for display - MOVED HERE!
+  // const getLanguageExtension = (language) => {
+  //   switch (language) {
+  //     case "javascript":
+  //       return "js";
+  //     case "html":
+  //       return "html";
+  //     case "css":
+  //       return "css";
+  //     default:
+  //       return "txt"; // Fallback for unknown languages or if language is null/undefined
+  //   }
+  // };
+
 // NEW: Auto-save to localStorage
   useEffect(() => {
     localStorage.setItem(`${STORAGE_KEY}_${exerciseId}`, code);
@@ -209,7 +250,9 @@ export default function University() {
       try {
         setIsLoading(true);
         const response = await fetch(
-          `http://localhost:5000/api/courses/exercises/${exerciseId}`
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/courses/exercises/${exerciseId}`
         );
         if (!response.ok) throw new Error("Failed to fetch exercise");
         const data = await response.json();
@@ -231,8 +274,15 @@ export default function University() {
           }
         }
 
+        console.log("Fetched exercise language:", data.language);
+
         const savedCode = localStorage.getItem(`${STORAGE_KEY}_${exerciseId}`);
-        setCode(savedCode || data.placeholder || "");
+        // Set default code based on language or empty string if not saved
+        if (!savedCode) {
+          setCode(data.placeholder || "// Write your code here...");
+        } else {
+          setCode(savedCode);
+        }
         setIsLoading(false);
       } catch (err) {
         toast.error(err.message);
@@ -250,9 +300,11 @@ export default function University() {
   const run = async () => {
     try {
       setIsCompleted(false);
+      setIsEvaluating(true);
+      setTerminalOutput("Evaluating code... Please wait.\n");
 
       const res = await fetch(
-        "http://localhost:5000/api/evaluations/evaluate",
+        `${import.meta.env.VITE_BACKEND_URL}/api/evaluations/evaluate`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -266,42 +318,85 @@ export default function University() {
 
       const result = await res.json();
       if (!res.ok || !result.success) {
-        throw new Error("Evaluation failed");
+        throw new Error(result.message || "Evaluation failed");
       }
 
       setTestResults(result.tests);
-      setTerminalOutput(
-        result.tests
-          .map(
-            (test, i) =>
-              `#${i + 1}: ${test.description || test.test_type} - ${
-                test.passed ? "✅ Passed" : "❌ Failed"
-              }\nExpected: ${test.expected_value}\nActual: ${
-                test.actual || "N/A"
-              }\n`
-          )
-          .join("\n")
-      );
 
-      // Set the preview HTML
-      setPreviewHtml(result.htmlPreview || code);
+      const output = result.tests
+        .map((test, i) => {
+          let testStatus = `#${i + 1}: ${
+            test.description || test.test_type
+          } - ${test.passed ? "✅ Passed" : "❌ Failed"}`;
+          let details = `  Status: ${test.status_description || "N/A"}\n`;
+
+          if (test.passed) {
+            details += `  Expected: ${
+              test.expected_output
+                ? JSON.stringify(test.expected_output.trim())
+                : "None"
+            }\n`;
+            details += `  Actual: ${
+              test.actual ? JSON.stringify(test.actual.trim()) : "None"
+            }\n`;
+          } else {
+            if (test.error) {
+              details += `  Error: ${test.error}\n`;
+            }
+            if (test.expected_output) {
+              details += `  Expected Output: ${JSON.stringify(
+                test.expected_output.trim()
+              )}\n`;
+            }
+            if (test.actual && test.actual.trim() !== "") {
+              details += `  Actual Output: ${JSON.stringify(
+                test.actual.trim()
+              )}\n`;
+            }
+          }
+
+          if (exercise?.language === "javascript") {
+            if (test.time !== undefined) details += `  Time: ${test.time}s\n`;
+            if (test.memory !== undefined)
+              details += `  Memory: ${test.memory}KB\n`;
+          }
+
+          return testStatus + "\n" + details;
+        })
+        .join("\n---\n");
+
+      setTerminalOutput(output);
+
+      if (exercise?.language === "html" || exercise?.language === "css") {
+        setPreviewHtml(result.htmlPreview || code);
+      } else {
+        setPreviewHtml("");
+        setShowPreview(false);
+      }
 
       const allTestsPassed = result.tests.every((test) => test.passed);
       if (allTestsPassed) {
         setIsCompleted(true);
-        toast.success(`✅ All tests passed! +${exercise.xp_reward} XP`);
+        toast.success(
+          `✅ All tests passed! Score: ${result.score}% +${exercise.xp_reward} XP`
+        );
       } else {
         setIsCompleted(false);
         toast.info(`⚠️ Some tests failed. Score: ${result.score}%`);
       }
     } catch (err) {
       setIsCompleted(false);
-      setTerminalOutput("❌ Error during evaluation");
+      setTerminalOutput(`❌ Error during evaluation: ${err.message}`);
       toast.error(err.message);
+    } finally {
+      setIsEvaluating(false);
     }
   };
   const handleComplete = async () => {
-    if (!isCompleted) {
+    const allTestsPassed =
+      testResults.length > 0 && testResults.every((test) => test.passed);
+
+    if (!allTestsPassed) {
       toast.error("❗ Please pass all tests before completing.");
       return;
     }
@@ -406,17 +501,42 @@ export default function University() {
 
           <div>
             <h3 className="text-accent text-lg mb-1">Description</h3>
-            <p className="text-sm text-gray-300 whitespace-pre-line">
-              {exercise.description}
-            </p>
+            <div className="prose prose-invert text-sm text-gray-300 max-w-none">
+              <ReactMarkdown>{exercise.description}</ReactMarkdown>
+            </div>
           </div>
 
           {exercise.example && (
             <div>
               <h3 className="text-accent text-lg mb-1">Example</h3>
-              <code className="text-sm text-gray-300 whitespace-pre-line">
-                <pre>{exercise.example}</pre>
-              </code>
+              <div className="prose prose-invert text-sm text-gray-300 max-w-none">
+                <ReactMarkdown
+                  components={{
+                    code({ inline, className, children, ...props }) {
+                      const match = /language-(\w+)/.exec(className || "");
+                      return !inline && match ? (
+                        <SyntaxHighlighter
+                          style={oneDark}
+                          language={match[1]}
+                          PreTag="div"
+                          {...props}
+                        >
+                          {String(children).replace(/\n$/, "")}
+                        </SyntaxHighlighter>
+                      ) : (
+                        <code
+                          className="bg-gray-800 text-accent px-1 rounded"
+                          {...props}
+                        >
+                          {children}
+                        </code>
+                      );
+                    },
+                  }}
+                >
+                  {`\`\`\`${exercise.language}\n${exercise.example}\n\`\`\``}
+                </ReactMarkdown>
+              </div>
             </div>
           )}
         </div>
@@ -426,15 +546,25 @@ export default function University() {
           {/* Editor Header */}
           <div className="flex justify-between items-center px-4 py-2 border-b border-accent">
             <h3 className="text-accent text-xl">
-              Code.{exercise.language || "html"}
+              Code.{getLanguageExtension(exercise.language)}
             </h3>
             <div className="space-x-2">
               <button
                 onClick={run}
-                className="bg-secondary text-black px-3 py-1 rounded hover:bg-secondaryHover"
+                className="bg-secondary text-black px-3 py-1 rounded hover:bg-secondaryHover disabled:bg-gray-600 disabled:cursor-not-allowed"
+                disabled={isEvaluating}
               >
-                RUN
+                {isEvaluating ? "RUNNING..." : "RUN"}
               </button>
+              {(exercise.language === "html" ||
+                exercise.language === "css") && (
+                <button
+                  onClick={() => setShowPreview((p) => !p)}
+                  className="bg-footer text-white px-3 py-1 rounded border border-accent hover:bg-accentHover"
+                >
+                  {showPreview ? "Hide Preview" : "Preview"}
+                </button>
+              )}
               <button
                 onClick={() => setShowPreview((p) => !p)}
                 className="bg-primary text-white px-3 py-1 rounded border border-accent hover:bg-secondaryHover"
@@ -462,7 +592,7 @@ export default function University() {
                 theme: "vs-dark",
                 fontSize: 14,
                 fontFamily: "VT323",
-                 // NEW: Enhanced editor configuration
+                // NEW: Enhanced editor configuration
                 tabCompletion: "on",
                 quickSuggestions: true,
                 autoClosingBrackets: "always",
@@ -486,10 +616,10 @@ export default function University() {
                 // NEW: Set up language-specific features
                 if (exercise.language === "html") {
                   monaco.languages.html.htmlDefaults.setOptions({
-                    suggest: { html5: true }
+                    suggest: { html5: true },
                   });
                   registerHtmlSnippets(monaco);
-                  
+
                   // NEW: HTML boilerplate snippet
                   monaco.languages.registerCompletionItemProvider("html", {
                     triggerCharacters: ["!"],
@@ -523,7 +653,8 @@ export default function University() {
                             insertTextRules:
                               monaco.languages.CompletionItemInsertTextRule
                                 .InsertAsSnippet,
-                            documentation: "Full HTML5 boilerplate with doctype",
+                            documentation:
+                              "Full HTML5 boilerplate with doctype",
                             range,
                           },
                         ],
@@ -534,7 +665,7 @@ export default function University() {
 
                 if (exercise.language === "css") {
                   monaco.languages.css.cssDefaults.setOptions({
-                    lint: { unknownProperties: "ignore" }
+                    lint: { unknownProperties: "ignore" },
                   });
                 }
               }}
@@ -548,19 +679,21 @@ export default function University() {
               }}
             />
           </div>
-          {showPreview && (
-            <div className="h-56 border-t border-accent bg-white overflow-auto">
-              <h4 className="text-black font-bold p-2 bg-secondary">
-                Live Preview
-              </h4>
-              <iframe
-                title="Preview"
-                srcDoc={previewHtml}
-                className="w-full h-full"
-                sandbox="allow-scripts"
-              />
-            </div>
-          )}
+          {/* Live Preview (Conditional based on language) */}
+          {(exercise.language === "html" || exercise.language === "css") &&
+            showPreview && (
+              <div className="h-56 border-t border-accent bg-white overflow-auto">
+                <h4 className="text-black font-bold p-2 bg-secondary">
+                  Live Preview
+                </h4>
+                <iframe
+                  title="Preview"
+                  srcDoc={previewHtml}
+                  className="w-full h-full"
+                  sandbox="allow-scripts"
+                />
+              </div>
+            )}
 
           {/* Terminal */}
           <div className="h-56 border-t border-accent p-2 bg-black text-white text-sm overflow-auto">
