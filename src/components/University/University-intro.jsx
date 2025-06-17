@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import universityImage from "../../assets/images/university.png";
 import { UserContext } from "../../contexts/userIdContext";
 
-
 const UniversityIntro = () => {
- 
   const { user } = useContext(UserContext);
   const location = useLocation();
+  const navigate = useNavigate();
+  
   const [courses, setCourses] = useState([]);
   const [courseExercises, setCourseExercises] = useState([]);
   const [activeCourse, setActiveCourse] = useState(null);
@@ -15,23 +15,24 @@ const UniversityIntro = () => {
   const [lessonContent, setLessonContent] = useState(null);
   const [exercises, setExercises] = useState([]);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
   const [lessonCompletion, setLessonCompletion] = useState({});
 
   // Fetch courses and lessons
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/courses");
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/courses`
+        );
         if (!response.ok) throw new Error("Failed to fetch courses");
         const data = await response.json();
         setCourses(data);
 
+        // Set initial state from navigation or first course
         const navState = location.state || {};
         const initialCourse = navState.activeCourse || (data[0]?.id || null);
         setActiveCourse(initialCourse);
         
-        // Set initial lesson if available
         if (navState.activeLesson) {
           setActiveLesson(navState.activeLesson);
         } else if (data[0]?.lessons?.[0]?.id) {
@@ -44,129 +45,147 @@ const UniversityIntro = () => {
     fetchCourses();
   }, [location.state]);
 
-// Fetch all exercises for the active course
-useEffect(() => {
-  if (!activeCourse || !user?.id) return;
-
-  const fetchCourseExercises = async () => {
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/courses/${activeCourse}/exercises`,
-        {
-          headers: {
-            'Authorization': `Bearer ${user.token}`
-          },
-          credentials: "include"
-        }
-      );
-      if (!response.ok) throw new Error("Failed to fetch course exercises");
-      const data = await response.json();
-      setCourseExercises(data);
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-  fetchCourseExercises();
-}, [activeCourse, user?.id]); // Add user.id to dependencies
-
-   // Fetch lesson content and check exercise completion
- useEffect(() => {
-  if (!activeLesson || courseExercises.length === 0 || !user?.id) return;
-
-  const fetchLessonData = async () => {
-    try {
-      // Fetch lesson content
-      const lessonRes = await fetch(
-        `http://localhost:5000/api/courses/lessons/${activeLesson}`
-      );
-      if (!lessonRes.ok) throw new Error("Failed to fetch lesson");
-      const lessonData = await lessonRes.json();
-      setLessonContent(lessonData);
-
-      // Find the current lesson's exercise
-      const currentExercise = courseExercises.find(
-        ex => ex.lesson_id === parseInt(activeLesson)
-      );
-
-      if (!currentExercise) {
-        setExercises([]);
-        return;
+  // Handle navigation state updates
+  useEffect(() => {
+    if (location.state) {
+      if (location.state.activeCourse) {
+        setActiveCourse(location.state.activeCourse);
       }
+      if (location.state.activeLesson) {
+        setActiveLesson(location.state.activeLesson);
+      }
+    }
+  }, [location.state]);
 
-      // Fetch progress for this exercise with user credentials
-      const progressRes = await fetch(
-        `http://localhost:5000/api/courses/lessons/${activeLesson}/progress`,
-        { 
-          credentials: "include",
-          headers: {
-            'Authorization': `Bearer ${user.token}`
+  // Fetch all exercises for the active course
+  useEffect(() => {
+    if (!activeCourse || !user?.id) return;
+
+    const fetchCourseExercises = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/courses/${activeCourse}/exercises`,
+          {
+            headers: { 'Authorization': `Bearer ${user.token}` },
+            credentials: "include"
+          }
+        );
+        if (!response.ok) throw new Error("Failed to fetch course exercises");
+        const data = await response.json();
+        setCourseExercises(data);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+    fetchCourseExercises();
+  }, [activeCourse, user?.id]);
+
+// Add this useEffect to handle lesson IDs properly
+useEffect(() => {
+  if (activeLesson && typeof activeLesson !== 'number' && typeof activeLesson !== 'string') {
+    console.error("Invalid activeLesson type:", activeLesson);
+    setActiveLesson(null);
+  }
+}, [activeLesson]);
+
+  // Fetch lesson content and check exercise completion
+  useEffect(() => {
+    if (!activeLesson || typeof activeLesson !== 'number' && typeof activeLesson !== 'string') {
+    return;
+  }
+  
+
+    const fetchLessonData = async () => {
+      try {
+        // Fetch lesson content
+        const lessonRes = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/courses/lessons/${activeLesson}`
+        );
+        if (!lessonRes.ok) throw new Error("Failed to fetch lesson");
+        const lessonData = await lessonRes.json();
+        setLessonContent(lessonData);
+
+        // Find the current lesson's exercise
+        const currentExercise = courseExercises.find(
+          ex => ex.lesson_id === parseInt(activeLesson)
+        );
+
+        if (!currentExercise) {
+          setExercises([]);
+          return;
+        }
+
+        // Fetch progress for this exercise
+        const progressRes = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/courses/lessons/${activeLesson}/progress`,
+          { 
+            credentials: "include",
+            headers: { 'Authorization': `Bearer ${user.token}` }
+          }
+        );
+
+        let exerciseWithProgress = { 
+          ...currentExercise, 
+          completed: false 
+        };
+        
+        if (progressRes.ok) {
+          const progressData = await progressRes.json();
+          if (progressData.length > 0) {
+            exerciseWithProgress.completed = Boolean(progressData[0].is_completed);
           }
         }
-      );
 
-      let exerciseWithProgress = { 
-        ...currentExercise, 
-        completed: false 
-      };
-      
-      if (progressRes.ok) {
-        const progressData = await progressRes.json();
-        if (progressData.length > 0) {
-          exerciseWithProgress.completed = Boolean(progressData[0].is_completed);
+        // Find position in course sequence
+        const exerciseIndex = courseExercises.findIndex(
+          ex => ex.id === currentExercise.id
+        );
+
+        // Determine unlock status
+        const isFirstExercise = exerciseIndex === 0;
+        let isUnlocked = isFirstExercise;
+
+        if (!isFirstExercise) {
+          // Check all previous exercises
+          const previousExercises = courseExercises.slice(0, exerciseIndex);
+          isUnlocked = previousExercises.every(ex => ex.completed);
         }
+
+        setExercises([{
+          ...exerciseWithProgress,
+          isUnlocked,
+          isFirst: isFirstExercise
+        }]);
+
+        // Update completion status
+        setLessonCompletion({
+          [activeLesson]: {
+            completed: exerciseWithProgress.completed ? 1 : 0,
+            total: 1,
+            allDone: exerciseWithProgress.completed
+          }
+        });
+
+      } catch (err) {
+        setError(err.message);
       }
+    };
 
-      // Find position in course sequence
-      const exerciseIndex = courseExercises.findIndex(
-        ex => ex.id === currentExercise.id
-      );
+    fetchLessonData();
+  }, [activeLesson, courseExercises, user?.id]);
 
-      // Determine unlock status
-      const isFirstExercise = exerciseIndex === 0;
-      let isUnlocked = isFirstExercise;
-
-      if (!isFirstExercise) {
-        // Check all previous exercises
-        const previousExercises = courseExercises.slice(0, exerciseIndex);
-        isUnlocked = previousExercises.every(ex => ex.completed);
-      }
-
-      setExercises([{
-        ...exerciseWithProgress,
-        isUnlocked,
-        isFirst: isFirstExercise
-      }]);
-
-      // Update completion status
-      setLessonCompletion({
-        [activeLesson]: {
-          completed: exerciseWithProgress.completed ? 1 : 0,
-          total: 1,
-          allDone: exerciseWithProgress.completed
-        }
-      });
-
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  fetchLessonData();
-}, [activeLesson, courseExercises, user?.id]); // Add user.id to dependencies
-
-// Handle course change
+  // Handle course change
   const handleCourseChange = (courseId) => {
     setActiveCourse(courseId);
-    // Reset active lesson when changing courses
-    setActiveLesson(null);
     const course = courses.find(c => c.id === courseId);
     if (course?.lessons?.[0]?.id) {
       setActiveLesson(course.lessons[0].id);
     }
   };
 
-  if (error)
+  if (error) {
     return <div className="text-red-500 text-center p-8">Error: {error}</div>;
+  }
 
   return (
     <div className="min-h-screen font-poppins bg-background text-white">
@@ -189,7 +208,7 @@ useEffect(() => {
         </div>
       </div>
 
-     {/* Main Content */}
+      {/* Main Content */}
       <div className="flex flex-col lg:flex-row gap-4 md:gap-6 p-4">
         {/* Left sidebar - Courses */}
         <div className="w-full lg:w-[280px] border-2 border-accent rounded-lg p-3 md:p-4 bg-gray-900/50">
@@ -222,8 +241,7 @@ useEffect(() => {
                 </svg>
               </div>
 
-
-             {/* Lessons dropdown */}
+              {/* Lessons dropdown */}
               {activeCourse === course.id && course.lessons && (
                 <ul className="ml-4 mt-2 space-y-1 border-l-2 border-accent pl-3">
                   {course.lessons.map((lesson) => (
@@ -251,7 +269,6 @@ useEffect(() => {
           <div className="border-2 border-accent rounded-lg p-4 md:p-6 bg-gray-900/50 relative">
             {lessonContent ? (
               <>
-                {/* Add completion badge */}
                 {lessonCompletion[activeLesson]?.allDone && (
                   <div className="absolute top-4 right-4 bg-green-500 text-black text-xs font-bold px-2 py-1 rounded-full flex items-center">
                     <svg
@@ -280,16 +297,16 @@ useEffect(() => {
                     }}
                   />
                 </div>
-                <div>
-                  {lessonContent.example && (
-                    <div>
-                      <h3 className="text-accent text-lg mb-1">Example</h3>
-                      <code className="text-sm text-gray-300 whitespace-pre-line">
-                        <pre>{lessonContent.example}</pre>
+                {lessonContent.example && (
+                  <div>
+                    <h3 className="text-accent text-lg mb-1">Example</h3>
+                    <pre className="bg-gray-800 p-4 rounded-md overflow-x-auto">
+                      <code className="text-sm text-gray-300">
+                        {lessonContent.example}
                       </code>
-                    </div>
-                  )}
-                </div>
+                    </pre>
+                  </div>
+                )}
               </>
             ) : (
               <p className="text-gray-400 italic">
@@ -297,7 +314,8 @@ useEffect(() => {
               </p>
             )}
           </div>
- {/* Exercises */}
+
+          {/* Exercises */}
           <div className="border-2 border-accent rounded-lg p-4 md:p-6 bg-gray-900/50">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl md:text-2xl">Exercises</h3>
@@ -327,7 +345,12 @@ useEffect(() => {
                     }`}
                     onClick={() => {
                       if (exercise.isUnlocked) {
-                        navigate(`/university/${exercise.id}`);
+                        navigate(`/university/${exercise.id}`, {
+                          state: {
+                            activeCourse,
+                            activeLesson
+                          }
+                        });
                       }
                     }}
                   >
@@ -376,4 +399,5 @@ useEffect(() => {
     </div>
   );
 };
-export default UniversityIntro; 
+
+export default UniversityIntro;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import universityImage from "../../assets/images/university.png";
 import { toast } from "react-toastify";
 
@@ -232,7 +232,8 @@ export default function University() {
   const handleBotClose = () => setBotOpen(false);
   const [botWidth, setBotWidth] = useState(500);
   /* ────────────end ChatBot pane ─────────────── */
-
+  const location = useLocation();
+  const [currentCourseId, setCurrentCourseId] = useState(null);
   const { exerciseId } = useParams();
   const navigate = useNavigate();
 
@@ -260,58 +261,57 @@ export default function University() {
     }
   };
 
-// NEW: Auto-save to localStorage
+  // NEW: Auto-save to localStorage
   useEffect(() => {
     localStorage.setItem(`${STORAGE_KEY}_${exerciseId}`, code);
   }, [code, exerciseId]);
 
   useEffect(() => {
-    const fetchExercise = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch(
-          `${
-            import.meta.env.VITE_BACKEND_URL
-          }/api/courses/exercises/${exerciseId}`
+  const fetchExercise = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/courses/exercises/${exerciseId}`
+      );
+      if (!response.ok) throw new Error("Failed to fetch exercise");
+      const data = await response.json();
+      setExercise(data);
+      
+      // Set current course from location state or exercise data
+      const courseId = location.state?.activeCourse || data.course_id;
+      setCurrentCourseId(courseId);
+
+      // Check if exercise is already completed
+      const progressRes = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/courses/lessons/${data.lesson_id}/progress`,
+        { credentials: "include" }
+      );
+
+      if (progressRes.ok) {
+        const progress = await progressRes.json();
+        const currentEx = progress.find(
+          (ex) => ex.id === parseInt(exerciseId)
         );
-        if (!response.ok) throw new Error("Failed to fetch exercise");
-        const data = await response.json();
-        setExercise(data);
-
-        // Check if exercise is already completed
-        const progressRes = await fetch(
-          `http://localhost:5000/api/courses/lessons/${data.lesson_id}/progress`,
-          { credentials: "include" }
-        );
-
-        if (progressRes.ok) {
-          const progress = await progressRes.json();
-          const currentEx = progress.find(
-            (ex) => ex.id === parseInt(exerciseId)
-          );
-          if (currentEx?.completed) {
-            setIsCompleted(true);
-          }
+        if (currentEx?.completed) {
+          setIsCompleted(true);
         }
-
-        console.log("Fetched exercise language:", data.language);
-
-        const savedCode = localStorage.getItem(`${STORAGE_KEY}_${exerciseId}`);
-        // Set default code based on language or empty string if not saved
-        if (!savedCode) {
-          setCode(data.placeholder || "// Write your code here...");
-        } else {
-          setCode(savedCode);
-        }
-        setIsLoading(false);
-      } catch (err) {
-        toast.error(err.message);
-        navigate("/university");
       }
-    };
 
-    fetchExercise();
-  }, [exerciseId, navigate]);
+      const savedCode = localStorage.getItem(`${STORAGE_KEY}_${exerciseId}`);
+      if (!savedCode) {
+        setCode(data.placeholder || "// Write your code here...");
+      } else {
+        setCode(savedCode);
+      }
+      setIsLoading(false);
+    } catch (err) {
+      toast.error(err.message);
+      navigate("/university");
+    }
+  };
+
+  fetchExercise();
+}, [exerciseId, navigate, location.state]);
 
   useEffect(() => {
     localStorage.setItem(`${STORAGE_KEY}_${exerciseId}`, code);
@@ -412,7 +412,7 @@ export default function University() {
       setIsEvaluating(false);
     }
   };
-  const handleComplete = async () => {
+ const handleComplete = async () => {
   const allTestsPassed = testResults.every(test => test.passed);
   if (!allTestsPassed) {
     toast.error("❗ Please pass all tests before completing.");
@@ -422,27 +422,29 @@ export default function University() {
   try {
     // Mark exercise as complete
     const completeRes = await fetch(
-      `http://localhost:5000/api/courses/exercises/${exerciseId}/complete`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/courses/exercises/${exerciseId}/complete`,
       { method: "POST", credentials: "include" }
     );
     if (!completeRes.ok) throw new Error("Failed to mark exercise complete");
 
     // Get next lesson ID
     const nextLessonRes = await fetch(
-      `http://localhost:5000/api/courses/lessons/${exercise.lesson_id}/next`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/courses/lessons/${exercise.lesson_id}/next`,
       { credentials: "include" }
     );
     
     let nextLessonId = null;
     if (nextLessonRes.ok) {
       const data = await nextLessonRes.json();
-      nextLessonId = data.nextLessonId;
+      // Ensure we get the ID value, not an object
+      nextLessonId = data.nextLessonId?.id || data.nextLessonId;
     }
+
 
     // Navigate back with next lesson state
     navigate("/university", { 
       state: { 
-        activeCourse: exercise.course_id,
+        activeCourse: currentCourseId || exercise.course_id,
         activeLesson: nextLessonId 
       } 
     });
@@ -452,6 +454,7 @@ export default function University() {
     toast.error(error.message);
   }
 };
+
   // const handleNextExercise = async () => {
   //   try {
   //     const response = await fetch(
@@ -519,7 +522,9 @@ export default function University() {
                     ? "bg-green-500"
                     : exercise.difficulty === "Medium"
                     ? "bg-yellow-500"
-                    : "bg-red-500"
+                    : exercise.difficulty === "Hard"
+                    ? "bg-red-500"
+                    : "bg-gray-500"
                 }`}
               >
                 {exercise.difficulty}
@@ -598,7 +603,7 @@ export default function University() {
                   {showPreview ? "Hide Preview" : "Preview"}
                 </button>
               )}
-              
+
               <button
                 onClick={() => setBotOpen((o) => !o)} // toggle open/close bot
                 className="bg-primary text-white px-3 py-1 rounded border border-accent hover:bg-secondaryHover"
