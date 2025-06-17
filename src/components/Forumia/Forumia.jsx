@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 export default function Forumia() {
   // -*-*- STATES -*-*-
   const [calcMembers, setCalcMembers] = useState(null);
-  const [threadCount, setThreadCount] = useState(0);
+/*   const [threadCount, setThreadCount] = useState(0); */
   const [renderSinglePostPage, setRenderSinglePostPage] = useState(false);
   const [singlePostInfos, setSinglePostObject] = useState({});
   const [profileAvatar, setProfileAvatar] = useState({});
@@ -36,13 +36,13 @@ export default function Forumia() {
     console.log("Fetching data called");
   }, []);
 
-  // Calculating Threads
+/*   // Calculating Threads
   useEffect(() => {
     const total = posts.reduce((acc, post) => {
       return acc + 1 + (post.comments?.length || 0);
     }, 0);
     setThreadCount(total);
-  }, [posts]);
+  }, [posts]); */
 
   // Calculating Members
   useEffect(() => {
@@ -355,13 +355,13 @@ export default function Forumia() {
 
             {/* -*-*- COMMUNITIES -*-*- */}
             {/*General */}
-            <General posts={posts} />
+            <General posts={posts}/>
 
             {/*University of Terminalia */}
-            <UniversityOfTerminalia posts={posts} />
+            <UniversityOfTerminalia posts={posts} fetchProfileAvatar = {fetchProfileAvatar}/>
 
             {/*The Hub */}
-            <TheHub posts={posts} />
+            <TheHub posts={posts} fetchProfileAvatar = {fetchProfileAvatar}/>
           </aside>
         </div>
       </main>

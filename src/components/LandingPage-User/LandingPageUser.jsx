@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from "react";
-import "./LandingPageUser.scss";
 import Frame3 from "../../assets/images/Frame3.png";
 import LandingPageUserCards from "./LandingPageUserCards";
 import LandingPageUserCardsImage from "../../assets/images/LandingPageUserBackGround.jpg";

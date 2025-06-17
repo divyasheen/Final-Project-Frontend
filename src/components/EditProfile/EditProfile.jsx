@@ -128,8 +128,6 @@ function EditProfile() {
        <a onClick={() => navigate("/profile/22")} style={borderButton}>
           Divya
         </a> 
-
-        <img src={avatar} />
       </div>
     </>
   );
