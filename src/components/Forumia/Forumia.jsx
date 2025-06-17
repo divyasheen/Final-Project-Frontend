@@ -27,7 +27,6 @@ export default function Forumia() {
     console.log("Fetching data called");
   }, []);
 
-
   //Calculating Threads
 
   useEffect(() => {
@@ -94,7 +93,6 @@ export default function Forumia() {
           setSinglePostObject={setSinglePostObject}
           setRenderSinglePostPage={setRenderSinglePostPage}
           refreshPosts={() => fetchingData(LIMIT, 0)}
-
         />
       )}
       <main className="flex flex-col p-5 bg-background">
