@@ -21,10 +21,10 @@ const NavBar = () => {
   return (
     <>
       <nav className="bg-primary">
-        <div className={"navRealm"}>
-           <button className="navHomeBtn" onClick={handleHomeClick}>
+      <button className="navHomeBtn" onClick={handleHomeClick}>
             Home
           </button>
+        <div className={"navRealm"}>
           {[
             "university",
             //"bugadune",
