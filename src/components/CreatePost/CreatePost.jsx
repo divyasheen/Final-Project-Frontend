@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-
+import {useNavigate} from "react-router-dom";
 const CreatePost = () => {
+
+  const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [community, setCommunity] = useState("");
   const [textValue, setTextValue] = useState("");
-
+  const [message, setMessage] = useState("");
   const communities = [
     { id: 1, name: "Rules" },
     { id: 2, name: "Hello-world" },
@@ -33,6 +35,7 @@ const CreatePost = () => {
       if (!res.ok) {
         console.log("error");
         throw new Error(`HTTP error! status: ${res.status}`);
+     
       }
 
       const data = await res.json();
@@ -40,6 +43,9 @@ const CreatePost = () => {
       setTitle("");
       setCommunity("");
       setTextValue("");
+      setMessage("Post created successfully!");
+    setTimeout(() => {navigate('/forumia')},2000)
+       
     } catch (error) {
       console.error("Error sending the post:", error);
     }
@@ -47,8 +53,10 @@ const CreatePost = () => {
 
   return (
     <div className="min-h-screen bg-[#0f0f1c] flex items-center justify-center px-4 py-10">
+       
       <section className="w-full max-w-3xl p-6 bg-primary rounded-2xl shadow-[0_8px_30px_rgba(255,255,255,0.4)]">
-        <h2 className="text-accent text-3xl font-vt323 mb-6 border-b-2 border-accent pb-2">
+      <button onClick={()=>navigate('/forumia')} className="float-right w-[25px] font-bold text-white text-xl hover:text-red-500"  role="close">X</button>
+        <h2 className="text-secondary text-3xl font-vt323 mb-6 border-b-2 border-secondary pb-2">
           Create New Post
         </h2>
 
@@ -58,7 +66,7 @@ const CreatePost = () => {
             <label className="block text-white text-sm mb-2">Title</label>
             <input
               type="text"
-              className="w-full p-3 rounded-md bg-[#1e1e2f] text-white border border-accent placeholder:text-accent focus:outline-none"
+              className="w-full p-3 rounded-md bg-[#1e1e2f] text-white border border-secondary placeholder:text-secondary focus:outline-none"
               placeholder="Post title..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -70,7 +78,7 @@ const CreatePost = () => {
           <div>
             <label className="block text-white text-sm mb-2">Community</label>
             <select
-              className="w-full p-3 rounded-md bg-[#1e1e2f] text-white border border-accent focus:outline-none"
+              className="w-full p-3 rounded-md bg-[#1e1e2f] text-white border border-secondary focus:outline-none"
               value={community}
               onChange={(e) => setCommunity(e.target.value)}
               required
@@ -90,12 +98,13 @@ const CreatePost = () => {
           <div>
             <label className="block text-white text-sm mb-2">Your Post</label>
             <textarea
-              className="w-full p-4 h-64 rounded-md bg-[#1e1e2f] text-white border border-accent placeholder:text-accent focus:outline-none resize-none"
+              className="w-full p-4 h-64 rounded-md bg-[#1e1e2f] text-white border border-secondary placeholder:text-secondary focus:outline-none resize-none"
               placeholder="Write your post here..."
               onChange={(e) => setTextValue(e.target.value)}
               value={textValue}
               required
             />
+              <p className="text-green-500 text-sm">{message}</p> 
           </div>
 
           {/* Submit Button */}
