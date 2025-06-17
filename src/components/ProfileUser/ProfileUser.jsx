@@ -143,7 +143,7 @@ function ProfilNav() {
 
         const postsJsn = await response.json();
 
-        console.log(postsJsn);
+        // console.log(postsJsn);
 
         setPosts(postsJsn);
       } catch (error) {
@@ -214,7 +214,7 @@ function ProfilNav() {
   const joined = readDate();
   const dates = readDateForPosts();
 
-  console.log(posts);
+  // console.log(posts);
 
   return (
     <>

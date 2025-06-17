@@ -1,3 +1,5 @@
+@import "../../style/variables.scss";
+
 nav {
   padding: 0 2rem;
   background: #eee;
@@ -12,49 +14,50 @@ nav {
 
   .profilPic {
     margin: 1rem;
-
-    img {
-      width: 50px;
-      height: 50px;
-      border-radius: 25px;;
-    }
-  }
-
-  .profilPic:hover {
-    ul {
-
-      display:block
-    }
+    width: 50px;
+    height: 50px;
+    border-radius: 25px;
   }
 }
 
 .dropdown {
-  ul p {
-    padding-bottom: 2rem;
-  }
+  margin: 1em;
 
   ul {
-    background-color: blue;
+    background-color: #3b3b3b94;
+    border-radius: 20px;
+    border: 1px solid rgb(75, 73, 73);
     position: absolute;
-    display: none;
     right: 2rem;
     width: 200px;
     text-align: center;
     list-style: none;
     z-index: 10;
 
+    .imgLi {
+      margin: 0 auto;
+      border-bottom: 2px solid transparent;
+      border-image: linear-gradient(0.25turn, $primary, $secondary, $primary);
+      border-image-slice: 1;
+      width: 80%;
+    }
+
     img {
-      margin: 1rem auto;
+      margin: 0 auto;
     }
 
     li {
-      padding: 1rem;
+      padding: 1em;
       text-align: center;
       color: white;
+
+      a {
+        width: 100%;
+      }
     }
 
-    li:hover {
-      background-color: palegoldenrod;
+    .hoverLi:hover {
+      background-color: #3b3b3bc0;
       cursor: pointer;
     }
   }
