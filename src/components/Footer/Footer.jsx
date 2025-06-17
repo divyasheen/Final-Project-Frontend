@@ -9,7 +9,7 @@ function Footer() {
 
   return (
     <>
-      <footer className="sticky top-[100vh] bg-[linear-gradient(220deg,#cf82e4_0%,rgba(78,50,235,0.9)_70%,rgba(78,50,235,0.3)_100%)] py-4 text-center border-t border-secondary">
+      <footer className="sticky top-[100vh] bg-[linear-gradient(220deg,#cf82e4_0%,rgba(78,50,235,0.1)_20%,rgba(78,50,235,0.3)_100%)] py-4 text-center border-t border-secondary">
         <p className="text-white text-sm">Impressum</p>
       </footer>
     </>
