@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import "./_navbar.scss";
 import { NavLink, useNavigate} from "react-router-dom";
 import { UserContext } from "../../contexts/userIdContext";
+import placeholderAvatar from "../../assets/images/placeholder_Avatar.jpg";
 
 const NavBar = () => {
 
@@ -19,7 +20,7 @@ const NavBar = () => {
 
   return (
     <>
-      <nav style={{}}>
+      <nav className="bg-primary">
         <div className={"navRealm"}>
            <button className="navHomeBtn" onClick={handleHomeClick}>
             Home
@@ -40,11 +41,11 @@ const NavBar = () => {
         </div>
 
         <div className={"profilPic"}>
-          <img src={avatar} alt="" />{" "}
+        <img src={avatar || placeholderAvatar} />{" "}
           {/* JB: Placeholder for BE-User-Pic */}
           <div className={"dropdown"}>
         <ul>
-          <img src={avatar} alt="" />
+        <img src={avatar || placeholderAvatar} />
           <p>UserName</p>
           <li>
             <NavLink to={`/profile/${userId}`}>Profil</NavLink>

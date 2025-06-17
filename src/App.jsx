@@ -32,7 +32,7 @@ import EditProfile from "./components/EditProfile/EditProfile";
 import CommunityPage from "./components/CommunityPage/CommunityPostPage";
 
 // Styling
-import "./App.scss";
+import "./_app.scss";
 
 // Layout and Routing
 import Layout from "./components/Layout";

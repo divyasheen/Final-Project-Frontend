@@ -1,0 +1,15 @@
+%buttonStyle {
+  background: linear-gradient(90deg, #832a9b 0%, #1c0663 100%);
+}
+
+%h2Profile {
+  font-family: $code-font;
+  font-size: 2.5em;
+  text-align: center;
+}
+
+%h3Profile {
+  font-family: $code-font;
+  font-size: 1.5em;
+  padding: .5em 0
+}

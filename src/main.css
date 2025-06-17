@@ -1,10 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import "./style/variables";
-@import "./style/mixins";
-
 * {
   padding: 0;
   margin: 0;
@@ -12,23 +8,21 @@
 }
 
 button {
-  background: linear-gradient(90deg,#832a9b 0%, #1c0663 100%);
+  background: linear-gradient(90deg, #832a9b 0%, #1c0663 100%);
   font-weight: bold;
   box-shadow: inset 0px 0px 3px 0px #FFFFFF;
   color: white;
-  padding: .5em 1em;
-  border-radius: 20px
+  padding: 0.5em 1em;
+  border-radius: 20px;
 }
 
-// JB: DONT'T change it!
 html,
 body,
 #root {
   height: 100%;
-  color: $fontPrimary;
+  color: White;
 }
 
-// Playground styles
 .gutter {
   background-color: #2d2d2d;
   background-image: radial-gradient(#ccc 30%, transparent 30%);
@@ -36,4 +30,4 @@ body,
   background-repeat: no-repeat;
   background-size: 8px 8px;
   cursor: col-resize;
-}
+}/*# sourceMappingURL=main.css.map */
