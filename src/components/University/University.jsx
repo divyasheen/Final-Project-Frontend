@@ -13,7 +13,7 @@ function ChatBot({ isOpen, onClose, setWidth }) {
   const [msg, setMsg] = useState("");
   const messagesEndRef = useRef(null);
   const [messages, setMessages] = useState([
-    { from: "bot", text: "Hello 👋 – how can I help?" },
+    { from: "bot", text: "Hello, I'm J.A.D.A. how can I help?" },
   ]);
 
   const send = async () => {
@@ -63,11 +63,11 @@ function ChatBot({ isOpen, onClose, setWidth }) {
       `}
       style={{ width: "500px" }}
     >
-      <header className="p-3 border-b border-accent text-accent font-bold flex justify-between items-center">
-        <span>Bot</span>
+      <header className="p-3 border-b border-secondary text-secondary font-bold flex justify-between items-center">
+        <span>J.A.D.A.</span>
         <button
           onClick={onClose}
-          className="text-accent text-m hover:text-white px-2 py-1"
+          className="text-secondary text-m hover:text-white px-2 py-1"
           aria-label="Close chat"
         >
           Close
@@ -77,7 +77,7 @@ function ChatBot({ isOpen, onClose, setWidth }) {
       {/* messages */}
       <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2">
         {messages.map((m, i) => (
-          <div key={i} className="text-sm">
+          <div key={i} className="text-xl ">
             {m.from === "user" ? (
               <p className="text-right text-white">{m.text}</p>
             ) : (
@@ -97,7 +97,7 @@ function ChatBot({ isOpen, onClose, setWidth }) {
                         </SyntaxHighlighter>
                       ) : (
                         <code
-                          className="bg-gray-800 text-accent px-1 rounded"
+                          className="bg-gray-800 text-secondary px-1 rounded"
                           {...props}
                         >
                           {children}
@@ -494,7 +494,7 @@ export default function University() {
 
   return (
     <div
-      className="relative flex flex-col h-screen bg-background text-white font-vt323 transition-all duration-100 ease-in-out"
+      className="relative flex flex-col h-screen bg-background text-white transition-all duration-100 ease-in-out"
       style={{ paddingRight: botOpen ? `${botWidth}px` : 0 }}
     >
       {/* Header */}
@@ -503,7 +503,7 @@ export default function University() {
         style={{ backgroundImage: `url(${universityImage})` }}
       >
         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <h1 className="text-5xl text-accent font-bold">
+          <h1 className="text-6xl text-secondary font-bold">
             UNIVERSITY OF TERMINALIA
           </h1>
         </div>
@@ -514,10 +514,10 @@ export default function University() {
         {/* Left - Content */}
         <div className="w-1/2 p-4 space-y-6 overflow-y-auto">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-semibold">{exercise.title}</h2>
+            <h2 className="text-5xl font-semibold">{exercise.title}</h2>
             <div className="flex items-center space-x-2">
               <span
-                className={`px-2 py-1 text-xs rounded-full ${
+                className={`px-2 py-1 text-m rounded-full ${
                   exercise.difficulty === "Easy"
                     ? "bg-green-500"
                     : exercise.difficulty === "Medium"
@@ -538,16 +538,16 @@ export default function University() {
           </div>
 
           <div>
-            <h3 className="text-accent text-lg mb-1">Description</h3>
-            <div className="prose prose-invert text-sm text-gray-300 max-w-none">
+            <h3 className="text-accent text-xl mb-1">Description</h3>
+            <div className="prose prose-invert text-xl text-gray-300 max-w-none">
               <ReactMarkdown>{exercise.description}</ReactMarkdown>
             </div>
           </div>
 
           {exercise.example && (
             <div>
-              <h3 className="text-accent text-lg mb-1">Example</h3>
-              <div className="prose prose-invert text-sm text-gray-300 max-w-none">
+              <h3 className="text-accent text-xl mb-1">Example</h3>
+              <div className="prose prose-invert text-m text-gray-300 max-w-none">
                 <ReactMarkdown
                   components={{
                     code({ inline, className, children, ...props }) {
@@ -563,7 +563,7 @@ export default function University() {
                         </SyntaxHighlighter>
                       ) : (
                         <code
-                          className="bg-gray-800 text-accent px-1 rounded"
+                          className="bg-gray-800 text-secondary px-1 rounded"
                           {...props}
                         >
                           {children}
@@ -583,7 +583,7 @@ export default function University() {
         <div className="w-1/2 flex flex-col border-l border-accent">
           {/* Editor Header */}
           <div className="flex justify-between items-center px-4 py-2 border-b border-accent">
-            <h3 className="text-accent text-xl">
+            <h3 className="text-secondary text-xl">
               Code.{getLanguageExtension(exercise.language)}
             </h3>
             <div className="space-x-2">
@@ -598,7 +598,7 @@ export default function University() {
                 exercise.language === "css") && (
                 <button
                   onClick={() => setShowPreview((p) => !p)}
-                  className="bg-footer text-white px-3 py-1 rounded border border-accent hover:bg-accentHover"
+                  className="bg-background text-white px-3 py-1 rounded border border-accent hover:bg-accentHover"
                 >
                   {showPreview ? "Hide Preview" : "Preview"}
                 </button>
@@ -623,7 +623,7 @@ export default function University() {
               options={{
                 minimap: { enabled: false },
                 theme: "vs-dark",
-                fontSize: 14,
+                fontSize: 20,
                 fontFamily: "VT323",
                 // NEW: Enhanced editor configuration
                 tabCompletion: "on",
@@ -633,7 +633,7 @@ export default function University() {
                 suggestOnTriggerCharacters: true,
                 wordBasedSuggestions: true,
               }}
-              // Add this to show placeholder text
+              // placeholder text
               beforeMount={(monaco) => {
                 monaco.editor.defineTheme("myTheme", {
                   base: "vs-dark",
@@ -729,9 +729,9 @@ export default function University() {
             )}
 
           {/* Terminal */}
-          <div className="h-56 border-t border-accent p-2 bg-black text-white text-sm overflow-auto">
+          <div className="h-35 border-t border-accent p-2 bg-black text-white text-sm overflow-auto">
             <h4 className="mb-1 text-accent">Terminal</h4>
-            <pre className="whitespace-pre-wrap text-sm text-green-300">
+            <pre className="whitespace-pre-wrap text-sm text-secondary">
               {terminalOutput || "Click RUN to evaluate your code."}
             </pre>
           </div>
