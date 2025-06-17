@@ -494,7 +494,7 @@ export default function University() {
 
   return (
     <div
-      className="relative flex flex-col h-screen bg-background text-white font-vt323 transition-all duration-100 ease-in-out"
+      className="relative flex flex-col h-screen bg-background text-white transition-all duration-100 ease-in-out"
       style={{ paddingRight: botOpen ? `${botWidth}px` : 0 }}
     >
       {/* Header */}
