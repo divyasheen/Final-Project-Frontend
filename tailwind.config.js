@@ -24,6 +24,4 @@ export default {
   plugins: [],
 };
 
-// $primary: #832A9B;
-// $secondary: #210187;
-// $bg: #1C0663; 
+
