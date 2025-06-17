@@ -19,34 +19,11 @@ export default {
       boxShadow: {
         glow: "0 0 8px rgba(87, 224, 254, 0.4)",
       },
-      // keyframes: {
-      //   glitch: {
-      //     "0%": { transform: "translate(0)" },
-      //     "20%": { transform: "translate(-2px, 2px)" },
-      //     "40%": { transform: "translate(-2px, -2px)" },
-      //     "60%": { transform: "translate(2px, 2px)" },
-      //     "80%": { transform: "translate(2px, -2px)" },
-      //     "100%": { transform: "translate(0)" },
-      //   },
-      //   glitchTop: {
-      //     "0%": { clipPath: "inset(0 0 85% 0)" },
-      //     "10%": { clipPath: "inset(10% 0 70% 0)" },
-      //     "20%": { clipPath: "inset(0 0 85% 0)" },
-      //   },
-      //   glitchBottom: {
-      //     "0%": { clipPath: "inset(85% 0 0 0)" },
-      //     "10%": { clipPath: "inset(70% 0 10% 0)" },
-      //     "20%": { clipPath: "inset(85% 0 0 0)" },
-      //   },
-      // },
-      // animation: {
-      //   glitch: "glitch 1s infinite linear alternate-reverse",
-      //   glitchTop: "glitchTop 1s infinite linear",
-      //   glitchBottom: "glitchBottom 1s infinite linear",
-      // },
     },
   },
   plugins: [],
 };
 
-// Glitch animation LandingPage "Coderealm"
+// $primary: #832A9B;
+// $secondary: #210187;
+// $bg: #1C0663; 
