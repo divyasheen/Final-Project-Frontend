@@ -20,7 +20,7 @@ const NavBar = () => {
 
   return (
     <>
-      <nav className="bg-primary">
+      <nav className="custom-navbar">
         <div className={"navRealm"}>
            <button className="navHomeBtn" onClick={handleHomeClick}>
             Home
