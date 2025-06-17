@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
-import './TowerOfAPIon.scss';
+import './_towerOfAPIon.scss';
 
 const STORAGE_KEY = 'towerofapionCode';
 const DEFAULT_CODE = `// Fetch a post from JSONPlaceholder
