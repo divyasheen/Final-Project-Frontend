@@ -1,5 +1,5 @@
 import ProgressBar from "@ramonak/react-progress-bar";
-import { useState, useEffect, use, useCallback, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { UserContext } from "../../contexts/userIdContext";
 import placeholderAvatar from "../../assets/images/placeholder_Avatar.jpg"
@@ -142,7 +142,7 @@ function ProfilNav() {
 
         const postsJsn = await response.json();
 
-        // console.log(postsJsn);
+        console.log(postsJsn);
 
         setPosts(postsJsn);
       } catch (error) {
