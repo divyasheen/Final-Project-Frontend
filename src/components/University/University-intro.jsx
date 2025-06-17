@@ -1,112 +1,191 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useContext } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import universityImage from "../../assets/images/university.png";
+import { UserContext } from "../../contexts/userIdContext";
 
 const UniversityIntro = () => {
+  const { user } = useContext(UserContext);
+  const location = useLocation();
+  const navigate = useNavigate();
+  
   const [courses, setCourses] = useState([]);
+  const [courseExercises, setCourseExercises] = useState([]);
   const [activeCourse, setActiveCourse] = useState(null);
   const [activeLesson, setActiveLesson] = useState(null);
   const [lessonContent, setLessonContent] = useState(null);
   const [exercises, setExercises] = useState([]);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
   const [lessonCompletion, setLessonCompletion] = useState({});
 
   // Fetch courses and lessons
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchCourses = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/courses");
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/courses`
+        );
         if (!response.ok) throw new Error("Failed to fetch courses");
-
         const data = await response.json();
         setCourses(data);
 
-        if (data.length > 0) {
-          setActiveCourse(data[0].id);
-          if (data[0].lessons && data[0].lessons.length > 0) {
-            setActiveLesson(data[0].lessons[0].id);
-          }
+        // Set initial state from navigation or first course
+        const navState = location.state || {};
+        const initialCourse = navState.activeCourse || (data[0]?.id || null);
+        setActiveCourse(initialCourse);
+        
+        if (navState.activeLesson) {
+          setActiveLesson(navState.activeLesson);
+        } else if (data[0]?.lessons?.[0]?.id) {
+          setActiveLesson(data[0].lessons[0].id);
         }
       } catch (err) {
         setError(err.message);
       }
     };
+    fetchCourses();
+  }, [location.state]);
 
-    fetchData();
-  }, []);
-
-  // Fetch lesson content and exercises when lesson changes
+  // Handle navigation state updates
   useEffect(() => {
-    if (!activeLesson) return;
+    if (location.state) {
+      if (location.state.activeCourse) {
+        setActiveCourse(location.state.activeCourse);
+      }
+      if (location.state.activeLesson) {
+        setActiveLesson(location.state.activeLesson);
+      }
+    }
+  }, [location.state]);
+
+  // Fetch all exercises for the active course
+  useEffect(() => {
+    if (!activeCourse || !user?.id) return;
+
+    const fetchCourseExercises = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/courses/${activeCourse}/exercises`,
+          {
+            headers: { 'Authorization': `Bearer ${user.token}` },
+            credentials: "include"
+          }
+        );
+        if (!response.ok) throw new Error("Failed to fetch course exercises");
+        const data = await response.json();
+        setCourseExercises(data);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+    fetchCourseExercises();
+  }, [activeCourse, user?.id]);
+
+// Add this useEffect to handle lesson IDs properly
+useEffect(() => {
+  if (activeLesson && typeof activeLesson !== 'number' && typeof activeLesson !== 'string') {
+    console.error("Invalid activeLesson type:", activeLesson);
+    setActiveLesson(null);
+  }
+}, [activeLesson]);
+
+  // Fetch lesson content and check exercise completion
+  useEffect(() => {
+    if (!activeLesson || typeof activeLesson !== 'number' && typeof activeLesson !== 'string') {
+    return;
+  }
+  
 
     const fetchLessonData = async () => {
       try {
-        // Fetch lesson content first
+        // Fetch lesson content
         const lessonRes = await fetch(
-          `http://localhost:5000/api/courses/lessons/${activeLesson}`
+          `${import.meta.env.VITE_BACKEND_URL}/api/courses/lessons/${activeLesson}`
         );
         if (!lessonRes.ok) throw new Error("Failed to fetch lesson");
         const lessonData = await lessonRes.json();
         setLessonContent(lessonData);
 
-        // Find the course that contains this lesson
-        const course = courses.find(
-          (c) => c.lessons && c.lessons.some((l) => l.id === activeLesson)
+        // Find the current lesson's exercise
+        const currentExercise = courseExercises.find(
+          ex => ex.lesson_id === parseInt(activeLesson)
         );
 
-        if (!course) return;
+        if (!currentExercise) {
+          setExercises([]);
+          return;
+        }
 
-        // Fetch exercises for this lesson
-        const exercisesRes = await fetch(
-          `http://localhost:5000/api/courses/${course.id}/lessons/${activeLesson}/exercises`
-        );
-        if (!exercisesRes.ok) throw new Error("Failed to fetch exercises");
-        let exercisesData = await exercisesRes.json();
-
-        // Fetch progress for this lesson
+        // Fetch progress for this exercise
         const progressRes = await fetch(
-          `http://localhost:5000/api/courses/lessons/${activeLesson}/progress`,
-          { credentials: "include" }
+          `${import.meta.env.VITE_BACKEND_URL}/api/courses/lessons/${activeLesson}/progress`,
+          { 
+            credentials: "include",
+            headers: { 'Authorization': `Bearer ${user.token}` }
+          }
         );
+
+        let exerciseWithProgress = { 
+          ...currentExercise, 
+          completed: false 
+        };
+        
         if (progressRes.ok) {
           const progressData = await progressRes.json();
-          console.log("Progress Data:", progressData); // Debug log
-
-          // Convert is_completed (1/0) to boolean
-          exercisesData = exercisesData.map((exercise) => {
-            const progress = progressData.find((p) => p.id === exercise.id);
-            return {
-              ...exercise,
-              completed: progress ? Boolean(progress.is_completed) : false,
-            };
-          });
-
-          const completedExercises = exercisesData.filter(
-            (e) => e.completed
-          ).length;
-
-          setLessonCompletion((prev) => ({
-            ...prev,
-            [activeLesson]: {
-              completed: completedExercises,
-              total: exercisesData.length,
-              allDone: completedExercises === exercisesData.length,
-            },
-          }));
+          if (progressData.length > 0) {
+            exerciseWithProgress.completed = Boolean(progressData[0].is_completed);
+          }
         }
-        setExercises(exercisesData);
+
+        // Find position in course sequence
+        const exerciseIndex = courseExercises.findIndex(
+          ex => ex.id === currentExercise.id
+        );
+
+        // Determine unlock status
+        const isFirstExercise = exerciseIndex === 0;
+        let isUnlocked = isFirstExercise;
+
+        if (!isFirstExercise) {
+          // Check all previous exercises
+          const previousExercises = courseExercises.slice(0, exerciseIndex);
+          isUnlocked = previousExercises.every(ex => ex.completed);
+        }
+
+        setExercises([{
+          ...exerciseWithProgress,
+          isUnlocked,
+          isFirst: isFirstExercise
+        }]);
+
+        // Update completion status
+        setLessonCompletion({
+          [activeLesson]: {
+            completed: exerciseWithProgress.completed ? 1 : 0,
+            total: 1,
+            allDone: exerciseWithProgress.completed
+          }
+        });
+
       } catch (err) {
         setError(err.message);
       }
     };
 
     fetchLessonData();
-  }, [activeLesson, courses]);
+  }, [activeLesson, courseExercises, user?.id]);
 
-  if (error)
+  // Handle course change
+  const handleCourseChange = (courseId) => {
+    setActiveCourse(courseId);
+    const course = courses.find(c => c.id === courseId);
+    if (course?.lessons?.[0]?.id) {
+      setActiveLesson(course.lessons[0].id);
+    }
+  };
+
+  if (error) {
     return <div className="text-red-500 text-center p-8">Error: {error}</div>;
+  }
 
   return (
     <div className="min-h-screen font-poppins bg-background text-white">
@@ -142,12 +221,7 @@ const UniversityIntro = () => {
                     ? "bg-primary text-background"
                     : "hover:bg-gray-700/50"
                 }`}
-                onClick={() => {
-                  setActiveCourse(course.id);
-                  if (course.lessons && course.lessons.length > 0) {
-                    setActiveLesson(course.lessons[0].id);
-                  }
-                }}
+                onClick={() => handleCourseChange(course.id)}
               >
                 <h3 className="text-lg md:text-xl">{course.title}</h3>
                 <svg
@@ -195,7 +269,6 @@ const UniversityIntro = () => {
           <div className="border-2 border-accent rounded-lg p-4 md:p-6 bg-gray-900/50 relative">
             {lessonContent ? (
               <>
-                {/* Add completion badge */}
                 {lessonCompletion[activeLesson]?.allDone && (
                   <div className="absolute top-4 right-4 bg-green-500 text-black text-xs font-bold px-2 py-1 rounded-full flex items-center">
                     <svg
@@ -224,16 +297,16 @@ const UniversityIntro = () => {
                     }}
                   />
                 </div>
-                <div>
-                  {lessonContent.example && (
-                    <div>
-                      <h3 className="text-accent text-lg mb-1">Example</h3>
-                      <code className="text-sm text-gray-300 whitespace-pre-line">
-                        <pre>{lessonContent.example}</pre>
+                {lessonContent.example && (
+                  <div>
+                    <h3 className="text-accent text-lg mb-1">Example</h3>
+                    <pre className="bg-gray-800 p-4 rounded-md overflow-x-auto">
+                      <code className="text-sm text-gray-300">
+                        {lessonContent.example}
                       </code>
-                    </div>
-                  )}
-                </div>
+                    </pre>
+                  </div>
+                )}
               </>
             ) : (
               <p className="text-gray-400 italic">
@@ -242,7 +315,7 @@ const UniversityIntro = () => {
             )}
           </div>
 
-          {/* Exercises - Enhanced with progress indicator */}
+          {/* Exercises */}
           <div className="border-2 border-accent rounded-lg p-4 md:p-6 bg-gray-900/50">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl md:text-2xl">Exercises</h3>
@@ -259,28 +332,60 @@ const UniversityIntro = () => {
             {exercises.length > 0 ? (
               <div className="grid gap-3">
                 {exercises.map((exercise) => (
-                  <Link
-                    to={`/university/${exercise.id}`}
+                  <div
                     key={exercise.id}
-                    className={`block p-3 border rounded-lg transition-colors no-underline ${
+                    className={`p-3 border rounded-lg transition-colors ${
+                      !exercise.isUnlocked ? "opacity-50 cursor-not-allowed" : ""
+                    } ${
                       exercise.completed
                         ? "border-green-500 bg-green-500/10"
-                        : "border-gray-700 hover:bg-gray-700/30"
+                        : exercise.isUnlocked
+                        ? "border-gray-700 hover:bg-gray-700/30 cursor-pointer"
+                        : "border-gray-800"
                     }`}
+                    onClick={() => {
+                      if (exercise.isUnlocked) {
+                        navigate(`/university/${exercise.id}`, {
+                          state: {
+                            activeCourse,
+                            activeLesson
+                          }
+                        });
+                      }
+                    }}
                   >
                     <div className="flex justify-between items-center">
                       <div>
-                        <span className="text-gray-400">
-                          Exercise {exercise.id}
-                        </span>
+                        <span className="text-gray-400">Exercise {exercise.id}</span>
                         <span className="mx-2 text-gray-600">|</span>
                         <span>{exercise.title}</span>
+                        {!exercise.isUnlocked && !exercise.isFirst && (
+                          <span className="ml-2 text-yellow-500 text-sm">
+                            (Complete previous exercise to unlock)
+                          </span>
+                        )}
                       </div>
-                      <span className="text-accent">
-                        +{exercise.xp_reward} XP
-                      </span>
+                      <div className="flex items-center">
+                        <span className="text-accent mr-2">
+                          +{exercise.xp_reward} XP
+                        </span>
+                        {exercise.completed && (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5 text-green-500"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        )}
+                      </div>
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </div>
             ) : (

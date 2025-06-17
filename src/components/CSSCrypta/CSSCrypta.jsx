@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
-import './CSSCrypta.scss';
+import './_CSSCrypta.scss';
 
 const STORAGE_KEY = 'csscryptaCode';
 const DEFAULT_CSS = `/* Restore the temple's style! */

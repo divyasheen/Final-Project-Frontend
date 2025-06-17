@@ -1,8 +1,9 @@
 import ProgressBar from "@ramonak/react-progress-bar";
-import { useState, useEffect, use, useCallback, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { UserContext } from "../../contexts/userIdContext";
-import placeholderAvatar from "../../assets/images/placeholder_Avatar.jpg"
+import placeholderAvatar from "../../assets/images/placeholder_Avatar.jpg";
+import "./_profileUser.scss";
 
 function ProfilNav() {
   // -*-*- Hooks: State, Navigate -*-*-
@@ -142,7 +143,7 @@ function ProfilNav() {
 
         const postsJsn = await response.json();
 
-        // console.log(postsJsn);
+        console.log(postsJsn);
 
         setPosts(postsJsn);
       } catch (error) {
@@ -151,21 +152,23 @@ function ProfilNav() {
     };
 
     const fetchProfileAvatar = async () => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/user/${profileId}/getProfilPic`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/user/${profileId}/getProfilPic`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-      const data = await response.json();
-      setProfileAvatar(data.image_url);
-
-    } catch (error) {
-      console.error("Error fetching profileAvatar:", error);
-    }
-  }
+        const data = await response.json();
+        setProfileAvatar(data.image_url);
+      } catch (error) {
+        console.error("Error fetching profileAvatar:", error);
+      }
+    };
 
     if (profileId) {
       fetchUserProgress();
@@ -211,71 +214,73 @@ function ProfilNav() {
   const joined = readDate();
   const dates = readDateForPosts();
 
-  // console.log(dates);
-
-  const borderButton = {
-    border: "1px solid blue",
-    backgroundColor: "lightblue",
-    cursor: "pointer",
-  };
-
-  const styleAvatar = {
-    width: "100px",
-    borderRadius: "50px"
-  }
+  console.log(posts);
 
   return (
     <>
+    <div className="profileHeader"></div>
       {userData ? (
-        <div>
-
-          <div>
-            <img style = {styleAvatar}src={profileAvatar || placeholderAvatar} />
+        <div className="profileWrapper">
+          <div className="profileAvatar">
+            <img src={profileAvatar || placeholderAvatar} />
             <div>{userData.username}</div>
           </div>
 
-          <div>
-            <h2>Info</h2>
-            <div>{userData.info > 0 ? userData.info : "Hello! Nice to meet you!"}</div>
-            <div>{userData.location}</div>
-            <div>Joined: {joined}</div>
-            <div>{userData.social}</div>
-            <button style = {borderButton} onClick={() => navigate("/edit-profile")}>
-              Edit Profile
-            </button>
-          </div>
-
-          <div>
-            <h2>Stats</h2>
-            <div>XP:</div>
-            <ProgressBar maxCompleted={300} completed={userData.xp} />
-            <div>Badges: {userData.badgesCount}</div>
+          <div className="profileInfo">
             <div>
-              {badges[0]?.map((badge, index) => (
-                <div key={index}>
-                  <h3>{badge.name}</h3>
-                  <p>{badge.description}</p>
-                </div>
-              ))}
+              <h2>Info</h2>
+              {userData.info === 0 ? "" : userData.info}
             </div>
-            {/*   <div>
-              {userProgress ? (
-                <div>
-                  Amount of Exercises: {userProgress.completedExercises}
-                </div>
-              ) : (
-                <div>Loading exercises...</div>
-              )}
-            </div> */}
+            <div>
+              <h3>Location</h3> <p>{userData.location}</p>
+            </div>
+            <div>
+              
+              <h3>Joined</h3> <p>{joined}</p>
+            </div>
+            <div>
+              <h3>Social</h3> <p>{userData.social}</p>
+            </div>
+            {userId === profileId ? (<button
+              onClick={() => navigate("/edit-profile")}
+            >
+              Edit Profile
+            </button> ) : (<div></div>)}
           </div>
 
-          <div>
+          <div className="line1 h-1 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" /> 
+
+          <div className="profileStats">
+            <h2>XP</h2>
+            <ProgressBar
+              className="xpBar"
+              maxCompleted={300}
+              completed={userData.xp}
+              customLabel={userData.xp}
+            />
+          </div>
+
+          <hr className="line2 h-1 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" /> 
+
+          <div className="profileBadges">
+            <h2>Badges</h2>
+            {badges[0]?.map((badge, index) => (
+              <div key={index}>
+                <h3>{badge.name}</h3>
+                <p>{badge.description}</p>
+              </div>
+            ))}
+          </div>
+
+          <hr className="line3 h-1 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" /> 
+
+          <div className="profilePosts">
+            <h2>Posts</h2>
             {posts?.map((post, index) => (
               <div key={index}>
-                <p>POST {index + 1}</p>
-                <h3>TITEL: {post.title}</h3>
-                <p>BODY: {post.body}</p>
-                <p>DATE: {dates[index]}</p>
+                <h3>{post.title}</h3>
+                <p>{post.body}</p>
+                <p className="dateProfile">{dates[index]}</p>
               </div>
             ))}
           </div>
