@@ -143,7 +143,7 @@ function ProfilNav() {
 
         const postsJsn = await response.json();
 
-        // console.log(postsJsn);
+        console.log(postsJsn);
 
         setPosts(postsJsn);
       } catch (error) {
