@@ -1,6 +1,7 @@
-import { useContext, useState} from "react";
+import { useContext, useState } from "react";
 import { UserContext } from "../../contexts/userIdContext";
 import { useNavigate } from "react-router-dom";
+import "./_editProfile.scss";
 
 function EditProfile() {
   // -*-*- Hooks: States, Contexts ... -*-*-
@@ -79,8 +80,9 @@ function EditProfile() {
 
   return (
     <>
-      <div>
-        <form encType="multipart/form-data">
+      <div className="editWrapper">
+        <form encType="multipart/form-data" className="formUpload">
+          <h2>Upload an avatar: </h2>
           <input
             type="file"
             name="image"
@@ -92,42 +94,55 @@ function EditProfile() {
           </button>
         </form>
 
-        <form action="" method="put" onSubmit={handleSubmit}>
-          <label>Location</label>
-          <input
-            type="text"
-            name="location"
-            onChange={handleChange}
-            value={formData.location || ""}
-          />
-          <label>Write something about you: </label>
-          <textarea
-            name="info"
-            id="info"
-            onChange={handleChange}
-            value={formData.info || ""}
-          ></textarea>
-          <label>Social:</label>
-          <input
-            type="text"
-            name="social"
-            onChange={handleChange}
-            value={formData.social || ""}
-            placeholder="Instagram, Github, etc."
-          />
+        <form
+          action=""
+          method="put"
+          onSubmit={handleSubmit}
+          className="infoForm"
+        >
+          <h2>Edit informations about you:</h2>
+          <div className="inputLocation">
+            <label>Location</label>
+            <input
+              type="text"
+              name="location"
+              onChange={handleChange}
+              value={formData.location || ""}
+              placeholder="Your location"
+            />
+          </div>
+          <div className="inputInfo">
+            <label>Write something about you: </label>
+            <textarea
+              name="info"
+              id="info"
+              onChange={handleChange}
+              value={formData.info || ""}
+              placeholder="Tell us something about you ..."
+            ></textarea>
+          </div>
+          <div className="inputSocial">
+            <label>Social:</label>
+            <input
+              type="text"
+              name="social"
+              onChange={handleChange}
+              value={formData.social || ""}
+              placeholder="Instagram, Github, etc."
+            />
+          </div>
           <button type="submit" style={borderButton}>
             Save changes
           </button>
         </form>
-     
-          <button onClick={() => navigate("/users/reset-password/:token")} style={borderButton}>
-            Reset Password
-          </button>
 
-
-       <a onClick={() => navigate("/profile/22")} style={borderButton}>
-          Divya
-        </a> 
+        <button
+          onClick={() => navigate("/users/reset-password/:token")}
+          style={borderButton}
+          className="buttonPassword"
+        >
+          Reset Password
+        </button>
       </div>
     </>
   );
