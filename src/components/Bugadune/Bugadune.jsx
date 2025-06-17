@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
-import './Bugadune.scss';
+import './_bugadune.scss';
 
 const STORAGE_KEY = 'bugaduneCode';
 const DEFAULT_CODE = `// Oops: there's a typo below!
