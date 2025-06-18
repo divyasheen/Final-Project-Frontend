@@ -7,7 +7,7 @@ const UniversityIntro = () => {
   const { user } = useContext(UserContext);
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   const [courses, setCourses] = useState([]);
   const [courseExercises, setCourseExercises] = useState([]);
   const [activeCourse, setActiveCourse] = useState(null);
@@ -30,9 +30,9 @@ const UniversityIntro = () => {
 
         // Set initial state from navigation or first course
         const navState = location.state || {};
-        const initialCourse = navState.activeCourse || (data[0]?.id || null);
+        const initialCourse = navState.activeCourse || data[0]?.id || null;
         setActiveCourse(initialCourse);
-        
+
         if (navState.activeLesson) {
           setActiveLesson(navState.activeLesson);
         } else if (data[0]?.lessons?.[0]?.id) {
@@ -64,10 +64,12 @@ const UniversityIntro = () => {
     const fetchCourseExercises = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/courses/${activeCourse}/exercises`,
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/courses/${activeCourse}/exercises`,
           {
-            headers: { 'Authorization': `Bearer ${user.token}` },
-            credentials: "include"
+            headers: { Authorization: `Bearer ${user.token}` },
+            credentials: "include",
           }
         );
         if (!response.ok) throw new Error("Failed to fetch course exercises");
@@ -80,26 +82,34 @@ const UniversityIntro = () => {
     fetchCourseExercises();
   }, [activeCourse, user?.id]);
 
-// Add this useEffect to handle lesson IDs properly
-useEffect(() => {
-  if (activeLesson && typeof activeLesson !== 'number' && typeof activeLesson !== 'string') {
-    console.error("Invalid activeLesson type:", activeLesson);
-    setActiveLesson(null);
-  }
-}, [activeLesson]);
+  // Add this useEffect to handle lesson IDs properly
+  useEffect(() => {
+    if (
+      activeLesson &&
+      typeof activeLesson !== "number" &&
+      typeof activeLesson !== "string"
+    ) {
+      console.error("Invalid activeLesson type:", activeLesson);
+      setActiveLesson(null);
+    }
+  }, [activeLesson]);
 
   // Fetch lesson content and check exercise completion
   useEffect(() => {
-    if (!activeLesson || typeof activeLesson !== 'number' && typeof activeLesson !== 'string') {
-    return;
-  }
-  
+    if (
+      !activeLesson ||
+      (typeof activeLesson !== "number" && typeof activeLesson !== "string")
+    ) {
+      return;
+    }
 
     const fetchLessonData = async () => {
       try {
         // Fetch lesson content
         const lessonRes = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/courses/lessons/${activeLesson}`
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/courses/lessons/${activeLesson}`
         );
         if (!lessonRes.ok) throw new Error("Failed to fetch lesson");
         const lessonData = await lessonRes.json();
@@ -107,7 +117,7 @@ useEffect(() => {
 
         // Find the current lesson's exercise
         const currentExercise = courseExercises.find(
-          ex => ex.lesson_id === parseInt(activeLesson)
+          (ex) => ex.lesson_id === parseInt(activeLesson)
         );
 
         if (!currentExercise) {
@@ -117,28 +127,32 @@ useEffect(() => {
 
         // Fetch progress for this exercise
         const progressRes = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/courses/lessons/${activeLesson}/progress`,
-          { 
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/courses/lessons/${activeLesson}/progress`,
+          {
             credentials: "include",
-            headers: { 'Authorization': `Bearer ${user.token}` }
+            headers: { Authorization: `Bearer ${user.token}` },
           }
         );
 
-        let exerciseWithProgress = { 
-          ...currentExercise, 
-          completed: false 
+        let exerciseWithProgress = {
+          ...currentExercise,
+          completed: false,
         };
-        
+
         if (progressRes.ok) {
           const progressData = await progressRes.json();
           if (progressData.length > 0) {
-            exerciseWithProgress.completed = Boolean(progressData[0].is_completed);
+            exerciseWithProgress.completed = Boolean(
+              progressData[0].is_completed
+            );
           }
         }
 
         // Find position in course sequence
         const exerciseIndex = courseExercises.findIndex(
-          ex => ex.id === currentExercise.id
+          (ex) => ex.id === currentExercise.id
         );
 
         // Determine unlock status
@@ -148,24 +162,25 @@ useEffect(() => {
         if (!isFirstExercise) {
           // Check all previous exercises
           const previousExercises = courseExercises.slice(0, exerciseIndex);
-          isUnlocked = previousExercises.every(ex => ex.completed);
+          isUnlocked = previousExercises.every((ex) => ex.completed);
         }
 
-        setExercises([{
-          ...exerciseWithProgress,
-          isUnlocked,
-          isFirst: isFirstExercise
-        }]);
+        setExercises([
+          {
+            ...exerciseWithProgress,
+            isUnlocked,
+            isFirst: isFirstExercise,
+          },
+        ]);
 
         // Update completion status
         setLessonCompletion({
           [activeLesson]: {
             completed: exerciseWithProgress.completed ? 1 : 0,
             total: 1,
-            allDone: exerciseWithProgress.completed
-          }
+            allDone: exerciseWithProgress.completed,
+          },
         });
-
       } catch (err) {
         setError(err.message);
       }
@@ -177,7 +192,7 @@ useEffect(() => {
   // Handle course change
   const handleCourseChange = (courseId) => {
     setActiveCourse(courseId);
-    const course = courses.find(c => c.id === courseId);
+    const course = courses.find((c) => c.id === courseId);
     if (course?.lessons?.[0]?.id) {
       setActiveLesson(course.lessons[0].id);
     }
@@ -335,7 +350,9 @@ useEffect(() => {
                   <div
                     key={exercise.id}
                     className={`p-3 border rounded-lg transition-colors ${
-                      !exercise.isUnlocked ? "opacity-50 cursor-not-allowed" : ""
+                      !exercise.isUnlocked
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
                     } ${
                       exercise.completed
                         ? "border-green-500 bg-green-500/10"
@@ -348,15 +365,17 @@ useEffect(() => {
                         navigate(`/university/${exercise.id}`, {
                           state: {
                             activeCourse,
-                            activeLesson
-                          }
+                            activeLesson,
+                          },
                         });
                       }
                     }}
                   >
                     <div className="flex justify-between items-center">
                       <div>
-                        <span className="text-gray-400">Exercise {exercise.id}</span>
+                        <span className="text-gray-400">
+                          Exercise {exercise.id}
+                        </span>
                         <span className="mx-2 text-gray-600">|</span>
                         <span>{exercise.title}</span>
                         {!exercise.isUnlocked && !exercise.isFirst && (
