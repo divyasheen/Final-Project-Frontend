@@ -179,11 +179,11 @@ const LandingPageUser = () => {
   };
 
   return (
-    <section className=" gap-14 flex p-5 bg-background flex-col  justify-center items-center  ">
+    <section className=" gap-10 flex bg-background flex-col  justify-center items-center  ">
       {/* Background Image with Overlay */}
       <div className="bg-white  xl:h-[50rem] relative w-full inset-0 z-0">
         <img
-          className="h-full min-h-[100px]  w-full"
+          className="h-full w-full"
           src={LandingPageUserCardsImage}
           alt=""
         />
