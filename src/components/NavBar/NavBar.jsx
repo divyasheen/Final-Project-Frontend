@@ -48,7 +48,7 @@ const NavBar = () => {
 
   return (
     <>
-      <nav className="bg-primary">
+      <nav className="custom-navbar">
         <button className="navHomeBtn" onClick={handleHomeClick}>
           Home
         </button>
