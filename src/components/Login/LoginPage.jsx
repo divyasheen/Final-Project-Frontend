@@ -21,7 +21,7 @@ const LoginPage = () => {
     e.preventDefault();
     setErrors(null);
     try {
-      const res = await fetch("http://localhost:5000/users/login", {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -50,7 +50,7 @@ const LoginPage = () => {
     try {
       const idToken = response.credential;
 
-      const res = await fetch("http://localhost:5000/users/google-login", {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users/google-login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
