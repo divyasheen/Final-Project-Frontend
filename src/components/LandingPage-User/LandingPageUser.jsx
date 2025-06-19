@@ -181,7 +181,7 @@ const LandingPageUser = () => {
   return (
     <section className=" gap-10 flex bg-background flex-col  justify-center items-center  ">
       {/* Background Image with Overlay */}
-      <div className="bg-white  xl:h-[50rem] relative w-full inset-0 z-0">
+{/*       <div className="bg-white  xl:h-[50rem] relative w-full inset-0 z-0">
         <img
           className="h-full w-full"
           src={LandingPageUserCardsImage}
@@ -196,7 +196,7 @@ const LandingPageUser = () => {
 
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-background/95"></div>
       </div>
-
+ */}
       {/* JB: User stats overview */}
       <div className="z-10 container w-full xl:absolute bottom-[0rem]  text-white font-semibold md:gap-4 gap-5 xl:gap-0 flex flex-col md:flex-row justify-between ">
         <article className="shadow-[0_8px_30px_rgba(255,255,255,0.4)] bg-background flex justify-center items-center border-2 border-accent rounded-md md:rounded-2xl w-full md:w-3/5 text-white text-center">
